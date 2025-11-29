@@ -103,7 +103,6 @@ const KEYBOARD_PATTERNS = [
   'фывап',
   'ячсми',
   'цукен',
-  'ываа',
 
   // === Numeric patterns (universal) ===
   // Number row
