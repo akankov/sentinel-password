@@ -97,7 +97,7 @@ const KEYBOARD_PATTERNS = [
   'zxcv',
 
   // === Cyrillic (ЙЦУКЕН - Russian) ===
-  // Full rows (transliterated)
+  // Full rows (Cyrillic characters)
   'йцукенгшщзхъ',
   'фывапролджэ',
   'ячсмитьбю',
