@@ -4,7 +4,7 @@ import type { ValidatorCheck, ValidatorOptions } from '../types.js'
  * Common keyboard patterns to detect across multiple layouts
  * Supports: QWERTY, AZERTY, QWERTZ, Dvorak, Colemak, and Cyrillic
  */
-const KEYBOARD_PATTERNS = [
+const KEYBOARD_PATTERNS: readonly string[] = [
   // === QWERTY (English, US, UK) ===
   // Full rows
   'qwertyuiop',
@@ -151,13 +151,13 @@ export function validateKeyboardPattern(
   password: string,
   options: ValidatorOptions = {}
 ): ValidatorCheck {
-  const { checkKeyboardPatterns = true } = options
+  const { checkKeyboardPatterns = true }: Partial<{ checkKeyboardPatterns: boolean }> = options
 
   if (!checkKeyboardPatterns) {
     return { passed: true }
   }
 
-  const lowercase = password.toLowerCase()
+  const lowercase: string = password.toLowerCase()
 
   // Check for keyboard patterns (forward and reverse)
   for (const pattern of KEYBOARD_PATTERNS) {
@@ -170,7 +170,7 @@ export function validateKeyboardPattern(
     }
 
     // Check reverse pattern
-    const reversed = pattern.split('').reverse().join('')
+    const reversed: string = pattern.split('').reverse().join('')
     if (lowercase.includes(reversed)) {
       return {
         passed: false,

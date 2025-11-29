@@ -1,4 +1,4 @@
-import type { Validator, ValidatorOptions } from '../types'
+import type { Validator } from '../types'
 
 /**
  * Validates password length against minimum and maximum requirements
@@ -8,12 +8,10 @@ import type { Validator, ValidatorOptions } from '../types'
  * @returns Validator check result
  */
 export const validateLength: Validator = (password, options = {}) => {
-  const { minLength = 8, maxLength = 128 } = options as Required<
-    Pick<ValidatorOptions, 'minLength' | 'maxLength'>
-  > &
-    ValidatorOptions
+  const { minLength = 8, maxLength = 128 }: Partial<{ minLength: number; maxLength: number }> =
+    options
 
-  const length = password.length
+  const length: number = password.length
 
   if (length < minLength) {
     return {

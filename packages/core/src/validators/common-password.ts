@@ -1,11 +1,11 @@
-import type { Validator, ValidatorOptions } from '../types'
+import type { Validator } from '../types'
 
 /**
  * Top 100 most common passwords
  * Sourced from commonly breached password databases
  * Kept minimal to maintain small bundle size
  */
-const COMMON_PASSWORDS = new Set([
+const COMMON_PASSWORDS: Set<string> = new Set<string>([
   // Top 20 most common
   'password',
   '123456',
@@ -119,10 +119,7 @@ const COMMON_PASSWORDS = new Set([
  * @returns Validator check result
  */
 export const validateCommonPassword: Validator = (password, options = {}) => {
-  const { checkCommonPasswords = true } = options as Required<
-    Pick<ValidatorOptions, 'checkCommonPasswords'>
-  > &
-    ValidatorOptions
+  const { checkCommonPasswords = true }: Partial<{ checkCommonPasswords: boolean }> = options
 
   if (!checkCommonPasswords || password.length === 0) {
     return { passed: true }

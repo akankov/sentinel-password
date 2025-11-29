@@ -1,4 +1,4 @@
-import type { Validator, ValidatorOptions } from '../types'
+import type { Validator } from '../types'
 
 /**
  * Check if password contains at least one uppercase letter
@@ -34,13 +34,12 @@ export const validateCharacterTypes: Validator = (password, options = {}) => {
     requireLowercase = false,
     requireDigit = false,
     requireSymbol = false,
-  } = options as Required<
-    Pick<
-      ValidatorOptions,
-      'requireUppercase' | 'requireLowercase' | 'requireDigit' | 'requireSymbol'
-    >
-  > &
-    ValidatorOptions
+  }: Partial<{
+    requireUppercase: boolean
+    requireLowercase: boolean
+    requireDigit: boolean
+    requireSymbol: boolean
+  }> = options
 
   const missing: string[] = []
 

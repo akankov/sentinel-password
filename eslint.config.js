@@ -17,6 +17,26 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/typedef': [
+        'error',
+        {
+          arrayDestructuring: true,
+          arrowParameter: false,
+          memberVariableDeclaration: true,
+          objectDestructuring: true,
+          parameter: false,
+          propertyDeclaration: true,
+          variableDeclaration: true,
+          variableDeclarationIgnoreFunction: true,
+        },
+      ],
+      '@typescript-eslint/no-inferrable-types': 'off',
+    },
+  },
+  {
+    files: ['**/*.test.ts', '**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/typedef': 'off',
     },
   }
 )

@@ -41,6 +41,7 @@ Thumbs.db
 .cursor/
 .copilot/
 .aider/
+.opencode/
 opencode.json
 AGENTS.md
 
