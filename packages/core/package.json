@@ -1,0 +1,59 @@
+{
+  "name": "@sentinel-password/core",
+  "version": "0.0.1",
+  "description": "Zero-dependency TypeScript password validation library",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist coverage"
+  },
+  "keywords": [
+    "password",
+    "validation",
+    "security",
+    "typescript",
+    "zxcvbn",
+    "strength",
+    "entropy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akankov/sentinel-password",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/akankov/sentinel-password#readme",
+  "bugs": {
+    "url": "https://github.com/akankov/sentinel-password/issues"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.9",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}

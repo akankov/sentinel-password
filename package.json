@@ -1,0 +1,52 @@
+{
+  "name": "sentinel-password",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Modern TypeScript password validation library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akankov/sentinel-password"
+  },
+  "homepage": "https://github.com/akankov/sentinel-password#readme",
+  "bugs": {
+    "url": "https://github.com/akankov/sentinel-password/issues"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "dev": "turbo run dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "keywords": [
+    "password",
+    "validation",
+    "security",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.23.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "prettier": "^3.3.0",
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
+    "typescript": "^5.4.0",
+    "@eslint/js": "^9.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

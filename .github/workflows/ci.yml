@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20, 22, 24]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+  bundle-size:
+    name: Bundle Size
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Check bundle size
+        run: |
+          CORE_SIZE=$(gzip -c packages/core/dist/index.mjs | wc -c)
+          CORE_SIZE_KB=$(echo "scale=2; $CORE_SIZE / 1024" | bc)
+          echo "Core bundle size: ${CORE_SIZE_KB}KB gzipped"
+
+          # Fail if over 5KB (5120 bytes)
+          if [ "$CORE_SIZE" -gt 5120 ]; then
+            echo "::error::Bundle size ${CORE_SIZE_KB}KB exceeds 5KB limit"
+            exit 1
+          fi
+
+          echo "::notice::Bundle size ${CORE_SIZE_KB}KB is within 5KB limit"
