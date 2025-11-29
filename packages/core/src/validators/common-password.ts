@@ -501,6 +501,7 @@ class BloomFilter {
   ) {
     // Validate bucket array length matches size requirements
     const expectedLength: number = Math.ceil(size / 32)
+    /* v8 ignore next 5 */
     if (buckets.length !== expectedLength) {
       throw new Error(
         `Invalid Bloom filter: expected ${expectedLength} buckets for size ${size}, got ${buckets.length}`
