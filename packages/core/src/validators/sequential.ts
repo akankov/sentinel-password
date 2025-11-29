@@ -1,4 +1,4 @@
-import type { Validator, ValidatorOptions } from '../types'
+import type { Validator } from '../types'
 
 /**
  * Detects sequential character patterns (ascending or descending)
@@ -8,12 +8,12 @@ import type { Validator, ValidatorOptions } from '../types'
  * @returns true if sequential pattern found, false otherwise
  */
 const hasSequentialPattern = (str: string): boolean => {
-  const minSequenceLength = 3
+  const minSequenceLength: number = 3
 
-  for (let i = 0; i <= str.length - minSequenceLength; i++) {
-    const charCode1 = str.charCodeAt(i)
-    const charCode2 = str.charCodeAt(i + 1)
-    const charCode3 = str.charCodeAt(i + 2)
+  for (let i: number = 0; i <= str.length - minSequenceLength; i++) {
+    const charCode1: number = str.charCodeAt(i)
+    const charCode2: number = str.charCodeAt(i + 1)
+    const charCode3: number = str.charCodeAt(i + 2)
 
     // Check ascending sequence (e.g., abc, 123)
     if (charCode2 === charCode1 + 1 && charCode3 === charCode2 + 1) {
@@ -40,10 +40,7 @@ const hasSequentialPattern = (str: string): boolean => {
  * @returns Validator check result
  */
 export const validateSequential: Validator = (password, options = {}) => {
-  const { checkSequential = true } = options as Required<
-    Pick<ValidatorOptions, 'checkSequential'>
-  > &
-    ValidatorOptions
+  const { checkSequential = true }: Partial<{ checkSequential: boolean }> = options
 
   if (!checkSequential) {
     return { passed: true }

@@ -1,4 +1,4 @@
-import type { Validator, ValidatorOptions } from '../types'
+import type { Validator } from '../types'
 
 /**
  * Extracts username from email address
@@ -6,7 +6,7 @@ import type { Validator, ValidatorOptions } from '../types'
  * @returns Username part before @ symbol
  */
 const extractUsername = (email: string): string => {
-  const atIndex = email.indexOf('@')
+  const atIndex: number = email.indexOf('@')
   return atIndex > 0 ? email.substring(0, atIndex) : email
 }
 
@@ -18,7 +18,7 @@ const extractUsername = (email: string): string => {
  * @returns Normalized string for comparison
  */
 const normalizePersonalInfo = (info: string): string => {
-  const normalized = info.toLowerCase().trim()
+  const normalized: string = info.toLowerCase().trim()
   // Extract username from email if it looks like an email
   return normalized.includes('@') ? extractUsername(normalized) : normalized
 }
@@ -35,17 +35,16 @@ const normalizePersonalInfo = (info: string): string => {
  * @returns Validator check result
  */
 export const validatePersonalInfo: Validator = (password, options = {}) => {
-  const { personalInfo = [] } = options as Required<Pick<ValidatorOptions, 'personalInfo'>> &
-    ValidatorOptions
+  const { personalInfo = [] }: Partial<{ personalInfo: string[] }> = options
 
   if (personalInfo.length === 0 || password.length === 0) {
     return { passed: true }
   }
 
-  const lowerPassword = password.toLowerCase()
+  const lowerPassword: string = password.toLowerCase()
 
   for (const info of personalInfo) {
-    const normalized = normalizePersonalInfo(info)
+    const normalized: string = normalizePersonalInfo(info)
 
     // Skip very short strings to avoid false positives
     if (normalized.length < 3) {

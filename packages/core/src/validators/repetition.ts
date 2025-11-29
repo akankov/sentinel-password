@@ -1,4 +1,4 @@
-import type { Validator, ValidatorOptions } from '../types'
+import type { Validator } from '../types'
 
 /**
  * Validates that password doesn't contain excessive repeated characters
@@ -10,18 +10,18 @@ import type { Validator, ValidatorOptions } from '../types'
  * @returns Validator check result
  */
 export const validateRepetition: Validator = (password, options = {}) => {
-  const { maxRepeatedChars = 3 } = options as Required<Pick<ValidatorOptions, 'maxRepeatedChars'>> &
-    ValidatorOptions
+  const { maxRepeatedChars = 3 }: Partial<{ maxRepeatedChars: number }> = options
 
   if (password.length === 0) {
     return { passed: true }
   }
 
-  let currentChar = password[0]
-  let count = 1
+  let currentChar: string = password.charAt(0)
+  let count: number = 1
 
-  for (let i = 1; i < password.length; i++) {
-    if (password[i] === currentChar) {
+  for (let i: number = 1; i < password.length; i++) {
+    const char: string = password.charAt(i)
+    if (char === currentChar) {
       count++
       if (count > maxRepeatedChars) {
         return {
@@ -30,7 +30,7 @@ export const validateRepetition: Validator = (password, options = {}) => {
         }
       }
     } else {
-      currentChar = password[i]
+      currentChar = char
       count = 1
     }
   }

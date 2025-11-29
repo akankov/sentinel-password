@@ -19,6 +19,18 @@ export interface ValidatorCheck {
 }
 
 /**
+ * Identifiers for individual validation checks
+ */
+export type CheckId =
+  | 'length'
+  | 'characterTypes'
+  | 'repetition'
+  | 'sequential'
+  | 'keyboardPattern'
+  | 'commonPassword'
+  | 'personalInfo'
+
+/**
  * Result of password validation
  */
 export interface ValidationResult {
@@ -33,10 +45,10 @@ export interface ValidationResult {
     /** Primary warning message if any */
     warning?: string
     /** Actionable suggestions for improvement */
-    suggestions: string[]
+    suggestions: readonly string[]
   }
   /** Individual check results */
-  checks: Record<string, boolean>
+  checks: Record<CheckId, boolean>
 }
 
 /**
