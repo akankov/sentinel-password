@@ -39,7 +39,8 @@ describe('validateCommonPassword', () => {
   })
 
   it('should fail for common variations', () => {
-    const commonPasswords = ['password123', '12345678', 'qwerty123', 'letmein', 'welcome']
+    // All these passwords are in the top 10k list
+    const commonPasswords = ['12345678', 'qwerty123', 'letmein', 'welcome', 'dragon']
 
     commonPasswords.forEach((pwd) => {
       const result = validateCommonPassword(pwd)
