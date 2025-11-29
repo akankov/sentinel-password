@@ -65,16 +65,13 @@ const KEYBOARD_PATTERNS = [
   // === QWERTZ (German, Central European) ===
   // Full rows
   'qwertzuiop',
-  'asdfghjkl',
   'yxcvbnm',
   // Common patterns
   'qwertz',
-  'asdfg',
   'yxcvb',
   // Short sequences
-  'qwe',
-  'asd',
   'yxc',
+  // Note: Patterns 'qwe', 'asd', 'asdfg', and 'asdfghjkl' are shared with QWERTY and listed above for efficiency.
 
   // === Dvorak ===
   // Full rows
