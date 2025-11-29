@@ -82,7 +82,7 @@ This project follows strict code style guidelines:
 
 - **TypeScript 5+ strict mode** - no `any` types in production code
 - **Imports**: Use `@sentinel-password/*` package aliases; prefer named exports
-- **Formatting**: Prettier defaults; no trailing semicolons preferred
+- **Formatting**: Prettier defaults; no semicolons preferred
 - **Naming**: camelCase for functions/vars, PascalCase for types/classes/components
 - **Error handling**: Return detailed error objects, never throw in validators
 - **JSDoc**: Required for all public APIs
