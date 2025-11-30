@@ -47,7 +47,7 @@ function hashString(str, seed = 0) {
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
     hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32-bit integer
+    hash = hash | 0 // Convert to 32-bit integer
   }
 
   return Math.abs(hash)
@@ -172,8 +172,8 @@ function hashString(str: string, seed: number): number {
 
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash = hash & hash // Convert to 32-bit integer
+    hash = (hash << 5) - hash + char
+    hash = hash | 0 // Convert to 32-bit integer
   }
 
   return Math.abs(hash)
@@ -206,7 +206,9 @@ function mightBeCommon(password: string): boolean {
     const arrayIndex = Math.floor(hash / 32)
     const bitIndex = hash % 32
 
-    if ((BLOOM_BUCKETS[arrayIndex] & (1 << bitIndex)) === 0) {
+    // Bounds check for TypeScript strict mode
+    const bucket = BLOOM_BUCKETS[arrayIndex]
+    if (bucket === undefined || (bucket & (1 << bitIndex)) === 0) {
       return false
     }
   }
@@ -217,19 +219,30 @@ function mightBeCommon(password: string): boolean {
 /**
  * Validates that a password is not in the common password list
  */
-export const validateCommonPassword: Validator = (password: string, options: ValidatorOptions = {}) => {
-  validate: (password: string, options?: ValidatorOptions): boolean => {
-    return !mightBeCommon(password)
-  },
+export const validateCommonPassword: Validator = (
+  password: string,
+  options: ValidatorOptions = {}
+) => {
+  const { checkCommonPasswords = true }: { checkCommonPasswords?: boolean } = options
 
-  getError: (): string => {
-    return 'Password is too common. Please choose a more unique password.'
+  if (!checkCommonPasswords || password.length === 0) {
+    return { passed: true }
   }
+
+  // Case-insensitive check using bloom filter
+  if (mightBeCommon(password)) {
+    return {
+      passed: false,
+      message: 'Password is too common. Please choose a more unique password.',
+    }
+  }
+
+  return { passed: true }
 }
 `
 
 fs.writeFileSync(outputFile, output, 'utf-8')
-console.log(`\\n✅ Bloom filter written to: ${outputFile}`)
+console.log(`\n✅ Bloom filter written to: ${outputFile}`)
 console.log(`Size: ${(fs.statSync(outputFile).size / 1024).toFixed(2)} KB`)
 
 // Helper function to count set bits in a 32-bit integer
@@ -252,5 +265,5 @@ function formatArray(arr) {
     }
     chunks.push('  ' + chunk.join(', '))
   }
-  return chunks.join(',\\n')
+  return chunks.join(',\n')
 }

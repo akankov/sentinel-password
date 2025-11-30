@@ -5,7 +5,8 @@ import type { Validator, ValidatorOptions } from '../types'
  * Sourced from SecLists: https://github.com/danielmiessler/SecLists
  * File: Passwords/Common-Credentials/10k-most-common.txt (top 1000)
  *
- * Uses a Bloom filter for space-efficient storage (~6.6KB vs ~48KB for 10K list)
+ * Uses a Bloom filter for space-efficient storage (~1.5KB vs ~8KB for raw 1K array)
+ * Reduced from 10K list: old bloom filter was ~48KB
  * False positive rate: ~0.84%
  * 1,000 passwords checked
  */
@@ -75,7 +76,7 @@ function hashString(str: string, seed: number): number {
   for (let i: number = 0; i < str.length; i++) {
     const char: number = str.charCodeAt(i)
     hash = (hash << 5) - hash + char
-    hash = hash & hash // Convert to 32-bit integer
+    hash = hash | 0 // Convert to 32-bit integer
   }
 
   return Math.abs(hash)
