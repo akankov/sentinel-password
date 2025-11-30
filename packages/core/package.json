@@ -1,20 +1,20 @@
 {
   "name": "@sentinel-password/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
-  "description": "Zero-dependency TypeScript password validation library",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "description": "Modern, zero-dependency TypeScript password validation with bloom filter-based common password detection. 90%+ test coverage, <5KB gzipped.",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/index.d.mts",
-        "default": "./dist/index.mjs"
-      },
-      "require": {
         "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       }
     }
   },
@@ -38,9 +38,14 @@
     "typescript",
     "zxcvbn",
     "strength",
-    "entropy"
+    "entropy",
+    "password-validator",
+    "password-strength",
+    "authentication",
+    "zero-dependency",
+    "bloom-filter"
   ],
-  "author": "",
+  "author": "Aleksei Kankov <akankov@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
