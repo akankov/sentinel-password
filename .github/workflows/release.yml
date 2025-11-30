@@ -61,7 +61,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const releases = ${{ steps.changesets.outputs.publishedPackages }};
+            const releases = JSON.parse('${{ steps.changesets.outputs.publishedPackages }}');
 
             for (const release of releases) {
               const tag = `${release.name}@${release.version}`;

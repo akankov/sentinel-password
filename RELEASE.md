@@ -39,7 +39,7 @@ Once your PR with the changeset is merged to `main`, the GitHub Actions workflow
 3. This PR includes:
    - Updated version numbers in `package.json`
    - Updated `CHANGELOG.md` files
-   - Consumed changesets (moved to `.changeset/.changeset`)
+   - Consumed changesets (removed after processing)
 
 ### 3. Review and Merge the Version PR
 
@@ -78,10 +78,16 @@ git commit -m "chore: version packages"
 # 4. Publish to npm
 pnpm release
 
-# 5. Push changes and tags
+# 5. Create git tags manually (changeset publish does not create tags)
+# For each published package, create a tag:
+git tag @sentinel-password/core@0.2.0
+
+# 6. Push changes and tags
 git push
 git push --tags
 ```
+
+**Note**: The automated workflow creates tags and GitHub releases automatically. Manual publishing requires creating tags yourself.
 
 ## Setup Requirements
 
