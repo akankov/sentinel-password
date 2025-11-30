@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  hasUppercase,
-  hasLowercase,
-  hasDigit,
-  hasSymbol,
-  validateCharacterTypes,
-} from '../../src/validators/character-types.js'
+import { hasUppercase, hasLowercase, hasDigit, hasSymbol, validateCharacterTypes } from '../../src'
 
 describe('hasUppercase', () => {
   it('should detect uppercase letters', () => {

@@ -1,6 +1,7 @@
 {
   "name": "@sentinel-password/core",
   "version": "0.0.1",
+  "type": "module",
   "description": "Zero-dependency TypeScript password validation library",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -52,8 +53,8 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.14",
-    "tsup": "^8.0.0",
-    "typescript": "^5.4.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.14"
   }
 }

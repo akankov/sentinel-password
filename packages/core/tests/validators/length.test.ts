@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateLength } from '../../src/validators/length.js'
+import { validateLength } from '../../src'
 
 describe('validateLength', () => {
   it('should pass for passwords within min and max length', () => {

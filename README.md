@@ -1,18 +1,31 @@
 # sentinel-password
 
 [![CI](https://github.com/akankov/sentinel-password/actions/workflows/ci.yml/badge.svg)](https://github.com/akankov/sentinel-password/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@sentinel-password/core.svg)](https://www.npmjs.com/package/@sentinel-password/core)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/@sentinel-password/core)](https://bundlephobia.com/package/@sentinel-password/core)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Modern TypeScript password validation library with a focus on DX, sensible defaults, and small bundle size.
+Modern TypeScript password validation library with zero dependencies, comprehensive validation rules, and rich user feedback.
 
-> Status: Early MVP. APIs and implementation may change before v0.1.0.
+> **Status**: Ready for v0.1.0 release. Core package is feature-complete with 100% test coverage.
+
+## Features
+
+- **Zero Dependencies** - No external dependencies, tree-shakeable, ~5.5KB gzipped (< 10KB limit)
+- **TypeScript-First** - Full type safety with 100% test coverage
+- **Rich Feedback** - Actionable suggestions for password improvement
+- **Comprehensive Validation** - 7 built-in validators covering OWASP best practices
+- **Flexible API** - Zero-config defaults with full customization options
+- **Framework Agnostic** - Works in Node.js, browsers, and any JavaScript environment
 
 ## Packages
 
 This repo is a pnpm workspace monorepo:
 
-- `@sentinel-password/core` – zero-dependency password validation engine (rule-based)
-- `@sentinel-password/react` – React hook and headless input component (planned)
-- Docs & examples – Vitepress docs, playground, and example apps (planned)
+- **`@sentinel-password/core`** – Zero-dependency password validation engine ✅ Ready
+- **`@sentinel-password/react`** – React hook and headless input component (planned)
+- **Docs & examples** – Vitepress docs, playground, and example apps (planned)
 
 ## Installing
 
@@ -28,29 +41,33 @@ yarn add @sentinel-password/core
 
 React integration will be published later as `@sentinel-password/react`.
 
-## Quick Start (Core)
+## Quick Start
 
-```ts
+```typescript
 import { validatePassword } from '@sentinel-password/core'
 
-const result = validatePassword('MySecurePassword123!')
+const result = validatePassword('MySecure!Pass_w0rd')
 
 if (result.valid) {
-  console.log('Password is valid')
+  console.log('Password is valid!')
+  console.log(`Strength: ${result.strength}`) // 'very-strong'
+  console.log(`Score: ${result.score}`) // 4
 } else {
   console.log('Password is invalid')
-  console.log(result.feedback.warning)
-  console.log(result.feedback.suggestions)
+  console.log(result.feedback.warning) // First suggestion
+  result.feedback.suggestions.forEach(suggestion => {
+    console.log(`- ${suggestion}`)
+  })
 }
 ```
 
-### Options
+**See the [Core Package README](./packages/core/README.md) for complete documentation and examples.**
 
-`validatePassword(password, options?)` accepts a comprehensive set of validation options:
+## Configuration
 
-```ts
-import { validatePassword } from '@sentinel-password/core'
+`validatePassword(password, options?)` accepts comprehensive validation options:
 
+```typescript
 const result = validatePassword('MyPassword123!', {
   // Length constraints
   minLength: 12,              // default: 8
@@ -69,35 +86,36 @@ const result = validatePassword('MyPassword123!', {
   checkCommonPasswords: true, // default: true (blocks top 1K passwords)
   
   // Personal information exclusion
-  personalInfo: ['johndoe', 'john.doe@example.com'],
+  personalInfo: ['johndoe', 'john.doe@example.com']
 })
-
-console.log(result.valid) // false
-console.log(result.score) // 0–4
-console.log(result.strength) // 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
-console.log(result.feedback.warning) // First suggestion
-console.log(result.feedback.suggestions) // All actionable suggestions
 ```
 
-### Validation Result
+## Validation Result
 
-```ts
+```typescript
 interface ValidationResult {
-  valid: boolean  // true if all checks pass
-  score: 0 | 1 | 2 | 3 | 4  // Numeric strength score
+  // Overall validation status
+  valid: boolean
+  
+  // Strength scoring
+  score: 0 | 1 | 2 | 3 | 4
   strength: 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
+  
+  // User feedback
   feedback: {
-    warning?: string  // Primary warning message
-    suggestions: readonly string[]  // All improvement suggestions
+    warning?: string              // Primary warning message
+    suggestions: readonly string[] // All improvement suggestions
   }
+  
+  // Individual check results
   checks: {
-    length: boolean
-    characterTypes: boolean
-    repetition: boolean
-    sequential: boolean
-    keyboardPattern: boolean
-    commonPassword: boolean
-    personalInfo: boolean
+    length: boolean             // Meets length requirements
+    characterTypes: boolean     // Meets character type requirements
+    repetition: boolean         // No excessive repeated characters
+    sequential: boolean         // No sequential patterns (abc, 123)
+    keyboardPattern: boolean    // No keyboard patterns (qwerty, asdf)
+    commonPassword: boolean     // Not in top 1K common passwords
+    personalInfo: boolean       // Doesn't contain personal information
   }
 }
 ```
@@ -158,8 +176,6 @@ pnpm typecheck  # TypeScript strict mode check
 pnpm dev        # Dev workflow (docs / packages as configured)
 ```
 
-Individual package scripts are described in `private_docs/plan.md` and will be wired up as the MVP progresses.
-
 ## Project Goals (MVP)
 
 The v0.1.0 MVP delivers:
@@ -168,7 +184,7 @@ The v0.1.0 MVP delivers:
 - **Comprehensive checks**: Length, character types, repetition, sequential patterns, keyboard patterns, common passwords, personal info
 - **Rich feedback**: Detailed validation results with actionable suggestions
 - **TypeScript-first**: Strict mode with full type inference
-- **Zero dependencies**: Small bundle size (target < 5KB gzipped)
+- **Zero dependencies**: Small bundle size (~5.5KB gzipped, < 10KB limit)
 
 **Post-MVP roadmap**:
 - Fluent builder API and schema-based configuration

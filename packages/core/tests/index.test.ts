@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validatePassword } from '../src/index.js'
+import { validatePassword } from '../src'
 
 describe('validatePassword', () => {
   describe('basic validation', () => {

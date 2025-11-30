@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateSequential } from '../../src/validators/sequential.js'
+import { validateSequential } from '../../src'
 
 describe('validateSequential', () => {
   it('should pass for passwords without sequential patterns', () => {
