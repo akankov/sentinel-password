@@ -45,7 +45,7 @@
     "zero-dependency",
     "bloom-filter"
   ],
-  "author": "Alex Kankov <alex@kankov.com>",
+  "author": "Aleksei Kankov <akankov@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
