@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,11 +16,14 @@ jobs:
 
     permissions:
       contents: write
+      pull-requests: write
       id-token: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -40,15 +43,42 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Test
-        run: pnpm test
-
-      - name: Publish to npm
-        run: pnpm --filter "@sentinel-password/*" publish --access public --no-git-checks
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm release
+          version: pnpm version
+          commit: 'chore: version packages'
+          title: 'chore: version packages'
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/github-script@v7
         with:
-          generate_release_notes: true
+          script: |
+            const releases = JSON.parse('${{ steps.changesets.outputs.publishedPackages }}');
+
+            for (const release of releases) {
+              const tag = `${release.name}@${release.version}`;
+              const name = `${release.name} v${release.version}`;
+              
+              try {
+                await github.rest.repos.createRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag_name: tag,
+                  name: name,
+                  draft: false,
+                  prerelease: false,
+                  generate_release_notes: true
+                });
+                console.log(`Created release for ${tag}`);
+              } catch (error) {
+                console.error(`Failed to create release for ${tag}:`, error.message);
+              }
+            }

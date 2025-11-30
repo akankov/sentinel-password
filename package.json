@@ -24,8 +24,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "changeset": "changeset",
-    "version": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "changeset:add": "changeset add",
+    "changeset:status": "changeset status",
+    "version": "changeset version && pnpm install --lockfile-only",
+    "release": "pnpm build && pnpm test && changeset publish"
   },
   "keywords": [
     "password",
@@ -40,6 +42,7 @@
     "node": ">=20"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
     "@eslint/js": "^9.39.1",
     "eslint": "^9.39.1",
