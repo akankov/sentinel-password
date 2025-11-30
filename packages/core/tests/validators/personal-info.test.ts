@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validatePersonalInfo } from '../../src/validators/personal-info.js'
+import { validatePersonalInfo } from '../../src'
 
 describe('validatePersonalInfo', () => {
   it('should pass when no personal info provided', () => {

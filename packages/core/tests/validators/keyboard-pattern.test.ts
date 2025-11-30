@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateKeyboardPattern } from '../../src/validators/keyboard-pattern.js'
+import { validateKeyboardPattern } from '../../src'
 
 describe('validateKeyboardPattern', () => {
   describe('QWERTY row patterns', () => {

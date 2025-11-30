@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateRepetition } from '../../src/validators/repetition.js'
+import { validateRepetition } from '../../src'
 
 describe('validateRepetition', () => {
   it('should pass for passwords without excessive repetition', () => {

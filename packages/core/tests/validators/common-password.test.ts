@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateCommonPassword } from '../../src/validators/common-password.js'
+import { validateCommonPassword } from '../../src'
 
 describe('validateCommonPassword', () => {
   it('should pass for uncommon passwords', () => {

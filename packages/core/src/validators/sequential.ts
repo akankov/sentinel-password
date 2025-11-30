@@ -33,11 +33,32 @@ const hasSequentialPattern = (str: string): boolean => {
  * Validates that password doesn't contain sequential character patterns
  *
  * Detects sequences like: abc, ABC, 123, 321, xyz, etc.
- * Uses character code comparison for efficient detection
+ * Uses character code comparison for efficient detection.
+ * Helps prevent predictable passwords with keyboard sequences.
  *
  * @param password - Password to validate
  * @param options - Validation options containing checkSequential flag
- * @returns Validator check result
+ * @returns Validator check result with passed status and optional error message
+ *
+ * @example
+ * ```typescript
+ * import { validateSequential } from '@sentinel-password/core'
+ *
+ * // Detects ascending sequences
+ * validateSequential('password') // { passed: true }
+ * validateSequential('abc123') // { passed: false } (contains "abc" and "123")
+ * validateSequential('xyz') // { passed: false } (contains "xyz")
+ *
+ * // Detects descending sequences
+ * validateSequential('cba321') // { passed: false } (contains "cba" and "321")
+ *
+ * // Disable check
+ * validateSequential('abc123', { checkSequential: false }) // { passed: true }
+ * ```
+ *
+ * @remarks
+ * Enabled by default. Checks for 3 or more consecutive characters in sequence.
+ * Case-sensitive: detects both "abc" and "ABC" as separate patterns.
  */
 export const validateSequential: Validator = (password, options = {}) => {
   const { checkSequential = true }: Partial<{ checkSequential: boolean }> = options

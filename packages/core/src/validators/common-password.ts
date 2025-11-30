@@ -121,6 +121,43 @@ function mightBeCommon(password: string): boolean {
 
 /**
  * Validates that a password is not in the common password list
+ *
+ * Uses a Bloom filter to efficiently check against the top 1,000 most common passwords.
+ * Case-insensitive matching prevents simple case variations of common passwords.
+ *
+ * @param password - Password to validate
+ * @param options - Validation options containing checkCommonPasswords flag
+ * @returns Validator check result with passed status and optional error message
+ *
+ * @example
+ * ```typescript
+ * import { validateCommonPassword } from '@sentinel-password/core'
+ *
+ * // Detects common passwords
+ * validateCommonPassword('password')
+ * // { passed: false, message: "Password is too common. Please choose a more unique password." }
+ *
+ * validateCommonPassword('123456')
+ * // { passed: false }
+ *
+ * // Case-insensitive
+ * validateCommonPassword('PASSWORD')
+ * // { passed: false }
+ *
+ * // Unique passwords pass
+ * validateCommonPassword('MyUn1qu3P@ssw0rd!')
+ * // { passed: true }
+ *
+ * // Disable check
+ * validateCommonPassword('password', { checkCommonPasswords: false })
+ * // { passed: true }
+ * ```
+ *
+ * @remarks
+ * Checks against top 1,000 most common passwords from SecLists.
+ * Uses Bloom filter for space efficiency (~1.5KB vs ~8KB for raw array).
+ * False positive rate: ~0.84% (may rarely flag uncommon passwords).
+ * Enabled by default for security.
  */
 export const validateCommonPassword: Validator = (
   password: string,
