@@ -46,38 +46,93 @@ if (result.valid) {
 
 ### Options
 
-`validatePassword(password, options?)` currently supports basic length rules:
+`validatePassword(password, options?)` accepts a comprehensive set of validation options:
 
 ```ts
 import { validatePassword } from '@sentinel-password/core'
 
-const result = validatePassword('short', {
-  minLength: 12,
-  maxLength: 128,
+const result = validatePassword('MyPassword123!', {
+  // Length constraints
+  minLength: 12,              // default: 8
+  maxLength: 128,             // default: 128
+  
+  // Character requirements
+  requireUppercase: true,     // default: false
+  requireLowercase: true,     // default: false
+  requireDigit: true,         // default: false
+  requireSymbol: true,        // default: false
+  
+  // Pattern detection
+  maxRepeatedChars: 3,        // default: 3
+  checkSequential: true,      // default: true (blocks abc, 123, etc.)
+  checkKeyboardPatterns: true, // default: true (blocks qwerty, asdf, etc.)
+  checkCommonPasswords: true, // default: true (blocks top 1K passwords)
+  
+  // Personal information exclusion
+  personalInfo: ['johndoe', 'john.doe@example.com'],
 })
 
 console.log(result.valid) // false
 console.log(result.score) // 0–4
 console.log(result.strength) // 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
-console.log(result.checks) // { minLength: false, maxLength: true }
+console.log(result.feedback.warning) // First suggestion
+console.log(result.feedback.suggestions) // All actionable suggestions
 ```
 
-Returned shape:
+### Validation Result
 
 ```ts
 interface ValidationResult {
-  valid: boolean
-  score: 0 | 1 | 2 | 3 | 4
+  valid: boolean  // true if all checks pass
+  score: 0 | 1 | 2 | 3 | 4  // Numeric strength score
   strength: 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
   feedback: {
-    warning?: string
-    suggestions: string[]
+    warning?: string  // Primary warning message
+    suggestions: readonly string[]  // All improvement suggestions
   }
-  checks: Record<string, boolean>
+  checks: {
+    length: boolean
+    characterTypes: boolean
+    repetition: boolean
+    sequential: boolean
+    keyboardPattern: boolean
+    commonPassword: boolean
+    personalInfo: boolean
+  }
 }
 ```
 
-Future MVP work will extend `checks` to include character types, repetition/sequence detection, blacklist checks, and personal-data rules as described in `docs/plan.md`.
+### Advanced: Individual Validators
+
+For advanced use cases, you can import and use individual validators:
+
+```ts
+import { 
+  validateLength,
+  validateCharacterTypes,
+  validateRepetition,
+  validateSequential,
+  validateKeyboardPattern,
+  validateCommonPassword,
+  validatePersonalInfo,
+  hasUppercase,
+  hasLowercase,
+  hasDigit,
+  hasSymbol
+} from '@sentinel-password/core'
+
+const lengthCheck = validateLength('mypassword', { minLength: 12 })
+// { passed: boolean, message?: string }
+```
+
+### MVP v0.1.0 Public API
+
+The v0.1.0 release provides:
+
+- **Primary API**: `validatePassword(password, options?)` - zero-config function with sensible defaults
+- **Types**: Full TypeScript support with `ValidationResult`, `ValidatorOptions`, `CheckId`, etc.
+- **Individual validators**: Low-level functions for custom validation flows
+- **Future APIs**: Fluent builder and schema-based APIs are planned for post-MVP releases
 
 ## Local Development
 
@@ -103,19 +158,23 @@ pnpm typecheck  # TypeScript strict mode check
 pnpm dev        # Dev workflow (docs / packages as configured)
 ```
 
-Individual package scripts (planned) are described in `docs/plan.md` and will be wired up as the MVP progresses.
+Individual package scripts are described in `private_docs/plan.md` and will be wired up as the MVP progresses.
 
 ## Project Goals (MVP)
 
-High level goals from `docs/plan.md`:
+The v0.1.0 MVP delivers:
 
-- Rule-based password validation with sensible presets
-- Three API styles in core: zero-config function, fluent builder, and schema-based config
-- First-class TypeScript support with strict mode and rich result types
-- React hook + headless input component for easy integration
-- Vitepress-powered documentation site with examples and a simple playground
+- **Zero-config validation**: `validatePassword()` with sensible OWASP-aligned defaults
+- **Comprehensive checks**: Length, character types, repetition, sequential patterns, keyboard patterns, common passwords, personal info
+- **Rich feedback**: Detailed validation results with actionable suggestions
+- **TypeScript-first**: Strict mode with full type inference
+- **Zero dependencies**: Small bundle size (target < 5KB gzipped)
 
-For the detailed MVP roadmap, see `docs/plan.md`.
+**Post-MVP roadmap**:
+- Fluent builder API and schema-based configuration
+- React hook + headless input component
+- Vitepress documentation site with interactive playground
+- Additional framework integrations (Vue, Svelte, Angular)
 
 ## License
 
