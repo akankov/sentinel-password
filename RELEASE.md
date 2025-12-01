@@ -12,6 +12,18 @@ We use [Changesets](https://github.com/changesets/changesets) to manage versioni
 
 ## How to Release
 
+### Quick Start (Automated Script)
+
+For a guided, interactive release process, use the automated script:
+
+```bash
+./scripts/release.sh
+```
+
+This script will walk you through all the steps below interactively.
+
+### Manual Release Process
+
 ### 1. Add a Changeset (Required for every PR with user-facing changes)
 
 When you make changes that should trigger a release, add a changeset:
