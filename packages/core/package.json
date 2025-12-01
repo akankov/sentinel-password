@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Modern, zero-dependency TypeScript password validation with bloom filter-based common password detection. 90%+ test coverage, <5KB gzipped.",
   "main": "./dist/index.cjs",
