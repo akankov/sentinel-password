@@ -113,17 +113,24 @@ The workflow requires these permissions (already configured in `.github/workflow
 
 ### Release Workflow (`.github/workflows/release.yml`)
 
-**Trigger**: Push to `main` branch
+**Trigger**: Manual only via `workflow_dispatch` on the `main` branch (GitHub Actions UI).
 
-**Steps**:
+**Steps** (same workflow, different behavior depending on state):
 1. Checkout code
 2. Setup pnpm and Node.js
 3. Install dependencies
 4. Build packages
 5. Run Changesets action:
-   - If changesets exist → Create/update version PR
-   - If version PR merged → Publish to npm
-6. Create GitHub releases for published packages
+   - If pending changesets exist on `main`  Create/update the `chore: version packages` PR
+   - If the version PR has been merged and there are no remaining changesets  Run `pnpm release` to publish to npm
+6. Create GitHub releases for any newly published packages
+
+**Typical manual flow**:
+1. Merge feature PRs with changesets into `main` (no release yet).
+2. When you want to prepare a release, run the `Release` workflow on `main` once to generate/update the `chore: version packages` PR.
+3. Review and merge the `chore: version packages` PR.
+4. Run the `Release` workflow on `main` again to publish to npm, create git tags, and create GitHub Releases.
+
 
 ## Best Practices
 
