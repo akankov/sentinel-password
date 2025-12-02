@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { usePasswordValidator } from '../src/hooks/usePasswordValidator'
+import { usePasswordValidator } from '../src'
 
 describe('usePasswordValidator', () => {
   afterEach(() => {

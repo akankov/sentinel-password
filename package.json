@@ -23,6 +23,8 @@
     "dev": "turbo run dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "storybook": "pnpm --filter @sentinel-password/react storybook",
+    "build-storybook": "pnpm --filter @sentinel-password/react build-storybook",
     "changeset": "changeset",
     "changeset:add": "changeset add",
     "changeset:status": "changeset status",
