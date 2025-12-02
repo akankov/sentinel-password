@@ -1,0 +1,93 @@
+{
+  "name": "@sentinel-password/react-components",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Accessible, headless React components for @sentinel-password - password validation UI made simple",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist coverage",
+    "storybook": "storybook dev -p 6007",
+    "build-storybook": "storybook build"
+  },
+  "keywords": [
+    "password",
+    "validation",
+    "react",
+    "components",
+    "headless",
+    "accessible",
+    "wcag",
+    "aria",
+    "typescript",
+    "password-validator",
+    "password-input",
+    "password-strength",
+    "react-components"
+  ],
+  "author": "Aleksei Kankov <akankov@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akankov/sentinel-password",
+    "directory": "packages/react-components"
+  },
+  "homepage": "https://github.com/akankov/sentinel-password#readme",
+  "bugs": {
+    "url": "https://github.com/akankov/sentinel-password/issues"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@sentinel-password/core": "workspace:*",
+    "@sentinel-password/react": "workspace:*"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "^8.6.14",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/blocks": "^8.6.14",
+    "@storybook/react": "^8.6.14",
+    "@storybook/react-vite": "^8.6.14",
+    "@storybook/test": "^8.6.14",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitest/coverage-v8": "^4.0.14",
+    "jsdom": "^25.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "storybook": "^8.6.14",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21",
+    "vitest": "^4.0.14"
+  }
+}
