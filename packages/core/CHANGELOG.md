@@ -1,5 +1,11 @@
 # @sentinel-password/core
 
+## 0.1.2
+
+### Patch Changes
+
+- [#23](https://github.com/akankov/sentinel-password/pull/23) [`4f17125`](https://github.com/akankov/sentinel-password/commit/4f1712500393c43efdf215e4ff1b26d89706c18d) Thanks [@akankov](https://github.com/akankov)! - Update release scripts
+
 ## 0.1.1
 
 ### Patch Changes
