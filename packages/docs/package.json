@@ -1,0 +1,21 @@
+{
+  "name": "@sentinel-password/docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Documentation site for @sentinel-password",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "vitepress": "^1.5.0",
+    "vue": "^3.5.13"
+  },
+  "dependencies": {
+    "@sentinel-password/core": "workspace:*",
+    "@sentinel-password/react": "workspace:*",
+    "@sentinel-password/react-components": "workspace:*"
+  }
+}
