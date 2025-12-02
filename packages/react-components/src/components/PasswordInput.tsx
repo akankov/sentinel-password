@@ -47,29 +47,37 @@ export function PasswordInput({
   ...inputProps
 }: PasswordInputProps) {
   // Generate unique IDs for accessibility
-  const inputId = useId()
-  const descriptionId = useId()
-  const validationId = useId()
+  const inputId: string = useId()
+  const descriptionId: string = useId()
+  const validationId: string = useId()
 
   // Internal state for uncontrolled mode
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '')
-  const [internalShowPassword, setInternalShowPassword] = useState(false)
-  const [validationResult, setValidationResult] = useState<ValidationResult | undefined>(undefined)
+  const [internalValue, setInternalValue]: [string, React.Dispatch<React.SetStateAction<string>>] =
+    useState<string>(String(defaultValue ?? ''))
+  const [internalShowPassword, setInternalShowPassword]: [
+    boolean,
+    React.Dispatch<React.SetStateAction<boolean>>,
+  ] = useState<boolean>(false)
+  const [validationResult, setValidationResult]: [
+    ValidationResult | undefined,
+    React.Dispatch<React.SetStateAction<ValidationResult | undefined>>,
+  ] = useState<ValidationResult | undefined>(undefined)
 
   // Ref for debounce timer
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debounceTimerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null> =
+    useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Ref for input element
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef: React.RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null)
 
   // Determine if component is controlled
-  const isControlled = controlledValue !== undefined
-  const value = isControlled ? controlledValue : internalValue
-  const showPassword =
+  const isControlled: boolean = controlledValue !== undefined
+  const value: string = (isControlled ? controlledValue : internalValue) as string
+  const showPassword: boolean =
     controlledShowPassword !== undefined ? controlledShowPassword : internalShowPassword
 
   // Validate password with debouncing
-  const performValidation = useCallback(
+  const performValidation: (password: string) => void = useCallback(
     (password: string) => {
       // Clear existing timer
       if (debounceTimerRef.current) {
@@ -79,14 +87,14 @@ export function PasswordInput({
 
       // Validate immediately if no debounce
       if (debounceMs === 0) {
-        const result = validatePassword(password)
+        const result: ValidationResult = validatePassword(password)
         setValidationResult(result)
         return
       }
 
       // Set up debounced validation
       debounceTimerRef.current = setTimeout(() => {
-        const result = validatePassword(password)
+        const result: ValidationResult = validatePassword(password)
         setValidationResult(result)
         debounceTimerRef.current = null
       }, debounceMs)
@@ -95,9 +103,9 @@ export function PasswordInput({
   )
 
   // Handle input change
-  const handleInputChange = useCallback(
+  const handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = event.target.value
+      const newValue: string = event.target.value
 
       if (!isControlled) {
         setInternalValue(newValue)
@@ -113,8 +121,8 @@ export function PasswordInput({
   )
 
   // Handle show/hide toggle
-  const handleToggleVisibility = useCallback(() => {
-    const newShowPassword = !showPassword
+  const handleToggleVisibility: () => void = useCallback(() => {
+    const newShowPassword: boolean = !showPassword
 
     if (controlledShowPassword === undefined) {
       setInternalShowPassword(newShowPassword)
@@ -124,7 +132,7 @@ export function PasswordInput({
   }, [showPassword, controlledShowPassword, onShowPasswordChange])
 
   // Handle keyboard shortcuts
-  const handleKeyDown = useCallback(
+  const handleKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       // Escape key clears the input
       if (event.key === 'Escape') {
@@ -154,7 +162,7 @@ export function PasswordInput({
         clearTimeout(debounceTimerRef.current)
       }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Notify parent of validation changes
   useEffect(() => {
@@ -191,14 +199,15 @@ export function PasswordInput({
   }, [validationResult, showValidationMessages])
 
   // Determine ARIA attributes
-  const ariaDescribedBy = [
+  const ariaDescribedBy: string = [
     description ? descriptionId : undefined,
     validationMessages.length > 0 ? validationId : undefined,
   ]
     .filter(Boolean)
     .join(' ')
 
-  const ariaInvalid = validationResult && !validationResult.valid ? true : undefined
+  const ariaInvalid: true | undefined =
+    validationResult && !validationResult.valid ? true : undefined
 
   return (
     <div className={containerClassName} data-password-input-container>
