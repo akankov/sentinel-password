@@ -4,6 +4,7 @@ export default defineConfig({
   title: 'Sentinel Password',
   description: 'Flexible, accessible password validation for JavaScript and React',
 
+  srcDir: 'docs',
   base: '/sentinel-password/',
 
   ignoreDeadLinks: true,
