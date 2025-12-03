@@ -143,7 +143,6 @@ for (const password of passwords) {
 
 if (notFound.length > 0) {
   console.error(`ERROR: ${notFound.length} passwords not found in bloom filter!`)
-  console.error('Count of missing entries:', notFound.length)
   process.exit(1)
 }
 
