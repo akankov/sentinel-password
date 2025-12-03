@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/react",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "React hooks and components for @sentinel-password/core - password validation made simple",
   "main": "./dist/index.cjs",
