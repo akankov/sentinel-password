@@ -3,3 +3,7 @@ dist
 coverage
 pnpm-lock.yaml
 *.md
+.next
+.turbo
+build
+storybook-static
