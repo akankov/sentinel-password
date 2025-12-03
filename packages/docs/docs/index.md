@@ -87,15 +87,21 @@ if (result.valid) {
 import { usePasswordValidator } from '@sentinel-password/react'
 
 function SignupForm() {
-  const { value, isValid, errors, handleChange } = usePasswordValidator({
+  const { password, setPassword, result } = usePasswordValidator({
     minLength: 8,
     requireUppercase: true
   })
 
   return (
     <div>
-      <input type="password" value={value} onChange={handleChange} />
-      {!isValid && errors.map(err => <p key={err}>{err}</p>)}
+      <input 
+        type="password" 
+        value={password} 
+        onChange={(e) => setPassword(e.target.value)} 
+      />
+      {result && !result.valid && result.feedback.suggestions.map((suggestion, index) => (
+        <p key={index}>{suggestion}</p>
+      ))}
     </div>
   )
 }
@@ -110,9 +116,7 @@ function App() {
   return (
     <PasswordInput
       label="Create Password"
-      minLength={8}
-      requireUppercase={true}
-      requireDigit={true}
+      onValidationChange={(result) => console.log(result)}
     />
   )
 }

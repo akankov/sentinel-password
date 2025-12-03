@@ -61,11 +61,11 @@ import { usePasswordValidator } from '@sentinel-password/react'
 
 function SignupForm() {
   const {
-    value,
-    isValid,
-    errors,
-    strength,
-    handleChange,
+    password,
+    setPassword,
+    result,
+    isValidating,
+    validate,
     reset
   } = usePasswordValidator({
     minLength: 8,
@@ -80,22 +80,24 @@ function SignupForm() {
       <input
         id="password"
         type="password"
-        value={value}
-        onChange={handleChange}
-        aria-invalid={!isValid}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        aria-invalid={result && !result.valid}
       />
       
-      {errors.length > 0 && (
+      {result && !result.valid && result.feedback.suggestions.length > 0 && (
         <ul role="alert">
-          {errors.map((error, index) => (
-            <li key={index}>{error}</li>
+          {result.feedback.suggestions.map((suggestion, index) => (
+            <li key={index}>{suggestion}</li>
           ))}
         </ul>
       )}
       
-      <p>Strength: {strength}</p>
+      {result && (
+        <p>Strength: {result.strength}</p>
+      )}
       
-      <button type="submit" disabled={!isValid}>
+      <button type="submit" disabled={!result?.valid}>
         Create Account
       </button>
     </form>
@@ -113,6 +115,7 @@ import { useState } from 'react'
 
 function SignupForm() {
   const [password, setPassword] = useState('')
+  const [isValid, setIsValid] = useState(false)
 
   return (
     <form>
@@ -121,15 +124,14 @@ function SignupForm() {
         description="Password must be at least 8 characters"
         value={password}
         onChange={setPassword}
-        minLength={8}
-        maxLength={128}
-        requireUppercase={true}
-        requireDigit={true}
-        requireSymbol={true}
-        checkCommonPasswords={true}
+        onValidationChange={(result) => setIsValid(result.valid)}
         showToggleButton={true}
         debounceMs={300}
       />
+      
+      <button type="submit" disabled={!isValid}>
+        Create Account
+      </button>
     </form>
   )
 }
