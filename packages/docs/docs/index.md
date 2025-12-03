@@ -65,22 +65,19 @@ features:
 import { validatePassword } from '@sentinel-password/core'
 
 const result = validatePassword('MyP@ssw0rd!', {
-  validators: {
-    length: { min: 8, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true
-    },
-    commonPassword: { enabled: true }
-  }
+  minLength: 8,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  checkCommonPasswords: true
 })
 
-if (result.isValid) {
+if (result.valid) {
   console.log('Password is valid!')
 } else {
-  console.log('Errors:', result.errors)
+  console.log('Suggestions:', result.feedback.suggestions)
 }
 ```
 
@@ -91,16 +88,14 @@ import { usePasswordValidator } from '@sentinel-password/react'
 
 function SignupForm() {
   const { value, isValid, errors, handleChange } = usePasswordValidator({
-    validators: {
-      length: { min: 8 },
-      characterTypes: { requireUppercase: true }
-    }
+    minLength: 8,
+    requireUppercase: true
   })
 
   return (
     <div>
       <input type="password" value={value} onChange={handleChange} />
-      {!isValid && errors.map(err => <p key={err.code}>{err.message}</p>)}
+      {!isValid && errors.map(err => <p key={err}>{err}</p>)}
     </div>
   )
 }
@@ -115,10 +110,9 @@ function App() {
   return (
     <PasswordInput
       label="Create Password"
-      validators={{
-        length: { min: 8 },
-        characterTypes: { requireUppercase: true, requireNumbers: true }
-      }}
+      minLength={8}
+      requireUppercase={true}
+      requireDigit={true}
     />
   )
 }
