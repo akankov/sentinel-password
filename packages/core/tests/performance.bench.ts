@@ -99,6 +99,8 @@ describe('Bloom filter performance', () => {
 })
 
 describe('Edge cases', () => {
+  const longPassword = 'a'.repeat(256)
+
   bench('empty password', () => {
     validatePassword('', {
       minLength: 8,
@@ -106,7 +108,6 @@ describe('Edge cases', () => {
   })
 
   bench('very long password (256 chars)', () => {
-    const longPassword = 'a'.repeat(256)
     validatePassword(longPassword, {
       minLength: 8,
       maxLength: 128,
