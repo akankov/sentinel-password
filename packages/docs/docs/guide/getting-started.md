@@ -30,30 +30,24 @@ The core package provides a simple function-based API for validating passwords:
 import { validatePassword } from '@sentinel-password/core'
 
 const result = validatePassword('MyP@ssw0rd!', {
-  validators: {
-    length: { 
-      min: 8, 
-      max: 128 
-    },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true
-    },
-    commonPassword: { 
-      enabled: true 
-    }
-  }
+  minLength: 8,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  checkCommonPasswords: true
 })
 
-if (result.isValid) {
+if (result.valid) {
   console.log('✓ Password is valid!')
-  console.log('Strength:', result.strength) // 'weak' | 'medium' | 'strong'
+  console.log('Strength:', result.strength) // 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
+  console.log('Score:', result.score) // 0-4
 } else {
   console.log('✗ Validation failed')
-  result.errors.forEach(error => {
-    console.log(`[${error.severity}] ${error.message}`)
+  console.log('Warning:', result.feedback.warning)
+  result.feedback.suggestions.forEach(suggestion => {
+    console.log(`- ${suggestion}`)
   })
 }
 ```
@@ -67,20 +61,16 @@ import { usePasswordValidator } from '@sentinel-password/react'
 
 function SignupForm() {
   const {
-    value,
-    isValid,
-    errors,
-    strength,
-    handleChange,
+    password,
+    setPassword,
+    result,
+    isValidating,
+    validate,
     reset
   } = usePasswordValidator({
-    validators: {
-      length: { min: 8 },
-      characterTypes: {
-        requireUppercase: true,
-        requireNumbers: true
-      }
-    },
+    minLength: 8,
+    requireUppercase: true,
+    requireDigit: true,
     debounceMs: 300
   })
 
@@ -90,22 +80,24 @@ function SignupForm() {
       <input
         id="password"
         type="password"
-        value={value}
-        onChange={handleChange}
-        aria-invalid={!isValid}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        aria-invalid={result && !result.valid}
       />
       
-      {errors.length > 0 && (
+      {result && !result.valid && result.feedback.suggestions.length > 0 && (
         <ul role="alert">
-          {errors.map((error, index) => (
-            <li key={error.code}>{error.message}</li>
+          {result.feedback.suggestions.map((suggestion, index) => (
+            <li key={index}>{suggestion}</li>
           ))}
         </ul>
       )}
       
-      <p>Strength: {strength}</p>
+      {result && (
+        <p>Strength: {result.strength}</p>
+      )}
       
-      <button type="submit" disabled={!isValid}>
+      <button type="submit" disabled={!result?.valid}>
         Create Account
       </button>
     </form>
@@ -123,6 +115,7 @@ import { useState } from 'react'
 
 function SignupForm() {
   const [password, setPassword] = useState('')
+  const [isValid, setIsValid] = useState(false)
 
   return (
     <form>
@@ -130,19 +123,15 @@ function SignupForm() {
         label="Create Password"
         description="Password must be at least 8 characters"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        validators={{
-          length: { min: 8, max: 128 },
-          characterTypes: {
-            requireUppercase: true,
-            requireNumbers: true,
-            requireSymbols: true
-          },
-          commonPassword: { enabled: true }
-        }}
+        onChange={setPassword}
+        onValidationChange={(result) => setIsValid(result.valid)}
         showToggleButton={true}
         debounceMs={300}
       />
+      
+      <button type="submit" disabled={!isValid}>
+        Create Account
+      </button>
     </form>
   )
 }
@@ -168,38 +157,20 @@ All validators are optional and can be mixed and matched:
 
 ```typescript
 const config = {
-  validators: {
-    length: { 
-      min: 12, 
-      max: 128 
-    },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true,
-      minUppercase: 1,
-      minLowercase: 1,
-      minNumbers: 1,
-      minSymbols: 1
-    },
-    commonPassword: { 
-      enabled: true 
-    },
-    keyboardPattern: { 
-      enabled: true,
-      maxConsecutive: 3
-    },
-    sequential: { 
-      enabled: true,
-      maxConsecutive: 3
-    },
-    repetition: { 
-      enabled: true,
-      maxConsecutive: 2
-    }
-  }
+  minLength: 12,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  maxRepeatedChars: 2,
+  checkSequential: true,
+  checkKeyboardPatterns: true,
+  checkCommonPasswords: true,
+  personalInfo: ['john', 'doe', 'john@example.com']
 }
+
+const result = validatePassword('MySecureP@ssw0rd2024!', config)
 ```
 
 ## Next Steps
