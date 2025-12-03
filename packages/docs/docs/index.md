@@ -13,6 +13,9 @@ hero:
       text: Get Started
       link: /guide/getting-started
     - theme: alt
+      text: Try Playground
+      link: /examples/
+    - theme: alt
       text: View on GitHub
       link: https://github.com/akankov/sentinel-password
 

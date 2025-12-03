@@ -2,6 +2,29 @@
 
 Interactive examples and code snippets for common use cases.
 
+## Live Examples
+
+### Interactive Playground
+
+Try out the interactive playground to test password validation in real-time with configurable options:
+
+👉 **[Open Playground](https://github.com/akankov/sentinel-password/tree/main/examples/playground)**
+
+The playground features:
+- Live password validation
+- Configurable validation options
+- Visual strength meter
+- Detailed validation results
+- Auto-generated code examples
+
+### Working Examples
+
+Explore complete, working examples in different frameworks:
+
+- **[Next.js 15+ Example](https://github.com/akankov/sentinel-password/tree/main/examples/nextjs)** - Signup form with App Router and Tailwind CSS
+- **[Vite + React Example](https://github.com/akankov/sentinel-password/tree/main/examples/vite-react)** - Login form with custom styling
+- **[Playground](https://github.com/akankov/sentinel-password/tree/main/examples/playground)** - Interactive component configurator
+
 ## Quick Links
 
 - [Basic Validation](#basic-validation)
