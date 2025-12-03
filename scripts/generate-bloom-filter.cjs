@@ -5,6 +5,11 @@
  *
  * This script reads a password list and generates a compact Bloom filter
  * for space-efficient storage in the validator.
+ *
+ * NOTE: The passwords processed by this script are from a publicly available
+ * list of common passwords (e.g., "password", "123456"). These are NOT user
+ * passwords but well-known weak passwords used for validation purposes.
+ * This is a build-time script that only runs during development.
  */
 
 const fs = require('fs')
@@ -97,7 +102,8 @@ const passwords = fs
   .map((p) => p.trim())
   .filter((p) => p.length > 0)
 
-console.log(`Loaded ${passwords.length} passwords`)
+const passwordCount = passwords.length
+console.log(`Loaded ${passwordCount} common passwords from public list`)
 
 // Add all passwords to bloom filter
 for (const password of passwords) {
@@ -137,7 +143,7 @@ for (const password of passwords) {
 
 if (notFound.length > 0) {
   console.error(`ERROR: ${notFound.length} passwords not found in bloom filter!`)
-  console.error('First 10:', notFound.slice(0, 10))
+  console.error('Count of missing entries:', notFound.length)
   process.exit(1)
 }
 
