@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@sentinel-password/react-components": "^0.1.0",
-    "next": "16.0.7",
+    "next": "16.0.9",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
