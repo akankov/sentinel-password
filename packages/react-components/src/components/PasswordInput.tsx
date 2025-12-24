@@ -68,7 +68,7 @@ export function PasswordInput({
     useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Ref for input element
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef: React.RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null)
 
   // Determine if component is controlled
   const isControlled: boolean = controlledValue !== undefined
