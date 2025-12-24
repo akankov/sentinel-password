@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { usePasswordValidator } from '../hooks/usePasswordValidator'
+import type React from 'react'
 
 /**
  * Example component demonstrating usePasswordValidator hook
@@ -10,7 +11,7 @@ function PasswordValidatorDemo({
 }: {
   debounceMs?: number
   minLength?: number
-}): JSX.Element {
+}): React.ReactElement {
   const { password, setPassword, result, isValidating, reset } = usePasswordValidator({
     debounceMs,
     minLength,
