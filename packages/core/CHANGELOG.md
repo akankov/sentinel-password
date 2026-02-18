@@ -1,5 +1,11 @@
 # @sentinel-password/core
 
+## 0.2.0
+
+### Minor Changes
+
+- [#77](https://github.com/akankov/sentinel-password/pull/77) [`d1fb2fe`](https://github.com/akankov/sentinel-password/commit/d1fb2fe5a5c943b21f4930cdb27daca58db8392a) Thanks [@akankov](https://github.com/akankov)! - Chores. Update dependencies
+
 ## 0.1.3
 
 ### Patch Changes
