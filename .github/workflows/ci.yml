@@ -83,7 +83,7 @@ jobs:
 
       - name: Check bundle size
         run: |
-          CORE_SIZE=$(gzip -c packages/core/dist/index.mjs | wc -c)
+          CORE_SIZE=$(gzip -c packages/core/dist/index.js | wc -c)
           CORE_SIZE_KB=$(echo "scale=2; $CORE_SIZE / 1024" | bc)
           echo "Core bundle size: ${CORE_SIZE_KB}KB gzipped"
 

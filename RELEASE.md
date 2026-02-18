@@ -68,9 +68,10 @@ Once the version PR is merged, GitHub Actions automatically:
 
 1. ✅ Builds all packages
 2. ✅ Runs all tests
-3. ✅ Publishes to npm (with `--access public`)
-4. ✅ Creates GitHub releases with auto-generated notes
-5. ✅ Creates git tags (e.g., `@sentinel-password/core@0.2.0`)
+3. ✅ Runs type checking
+4. ✅ Publishes to npm (with `--access public` and `--provenance` for verified builds)
+5. ✅ Creates GitHub releases with auto-generated notes
+6. ✅ Creates git tags (e.g., `@sentinel-password/core@0.2.0`)
 
 ## Manual Release (Emergency)
 
@@ -89,6 +90,9 @@ git commit -m "chore: version packages"
 
 # 4. Publish to npm
 pnpm release
+
+# Note: Manual publishing won't include npm provenance attestations
+# which are only available when publishing from GitHub Actions with id-token: write
 
 # 5. Create git tags manually (changeset publish does not create tags)
 # For each published package, create a tag:
@@ -241,6 +245,25 @@ Made changes to validator
 1. Don't merge the version PR
 2. Close it and add a new changeset with correct bump type
 3. Changesets will create a new version PR with combined changes
+
+### "You must sign up for private packages"
+
+**Problem**: Publish fails with error about private packages or access denied
+
+**Solutions**:
+1. Ensure all publishable packages have `publishConfig.access: "public"` in their package.json
+2. Check that your npm account has publish permissions for the `@sentinel-password` scope
+3. Verify `NPM_TOKEN` secret has automation/publish permissions
+
+### Bundle Size Check Fails
+
+**Problem**: CI fails with "file not found" or bundle size exceeds limit
+
+**Solutions**:
+1. Verify the dist/ folder contains the expected output files after build: `pnpm build && ls -lh packages/core/dist/`
+2. Check that the bundle size check is looking for the correct file (should be `index.js` not `index.mjs`)
+3. Measure actual size: `gzip -c packages/core/dist/index.js | wc -c`
+4. If size exceeds 10KB limit, review recent changes that may have increased bundle size
 
 ## Checking Release Status
 
