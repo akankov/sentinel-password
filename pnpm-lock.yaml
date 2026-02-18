@@ -39,8 +39,8 @@ importers:
   examples/nextjs:
     dependencies:
       '@sentinel-password/react-components':
-        specifier: ^0.1.1
-        version: 0.1.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../packages/react-components
       next:
         specifier: 16.1.6
         version: 16.1.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -79,14 +79,14 @@ importers:
   examples/playground:
     dependencies:
       '@sentinel-password/core':
-        specifier: ^0.1.3
-        version: 0.1.3
+        specifier: workspace:*
+        version: link:../../packages/core
       '@sentinel-password/react':
-        specifier: ^0.2.1
-        version: 0.2.1(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../packages/react
       '@sentinel-password/react-components':
-        specifier: ^0.1.1
-        version: 0.1.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../packages/react-components
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -134,8 +134,8 @@ importers:
   examples/vite-react:
     dependencies:
       '@sentinel-password/react-components':
-        specifier: ^0.1.1
-        version: 0.1.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: workspace:*
+        version: link:../../packages/react-components
       react:
         specifier: ^19.2.4
         version: 19.2.4
@@ -1292,20 +1292,6 @@ packages:
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
-
-  '@sentinel-password/core@0.1.3':
-    resolution: {integrity: sha512-id+43S3y8tfzyrkexdx2Q1TmWkVzQjac3yzC1xPtsWZYf4fISnPDUCF6FTLV0H8KAUiZPWskYMzcgaSCqq9NYw==}
-
-  '@sentinel-password/react-components@0.1.1':
-    resolution: {integrity: sha512-NM0zv/5i1LPtv6DXPo5O8/bXP60bDyjtOPqYOATZK0Do6x8YTlVSme20FyMraCntpVgmGWo+t3jL9/8KTkba+g==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-
-  '@sentinel-password/react@0.2.1':
-    resolution: {integrity: sha512-40gbxrcvwbSvRfk4JaXs0NOTUzks57P0ezhgC1QTEieBMVa/wgA7Hk+Gv6o5+hr2erpRgs36n6bSc3xvS+/eAw==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
 
   '@shikijs/core@2.5.0':
     resolution: {integrity: sha512-uu/8RExTKtavlpH7XqnVYBrfBkUc20ngXiX9NSrBhOVZYv/7XQRKUyhtkeflY5QsxC0GbJThCerruZfsUaSldg==}
@@ -5361,20 +5347,6 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@sentinel-password/core@0.1.3': {}
-
-  '@sentinel-password/react-components@0.1.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
-    dependencies:
-      '@sentinel-password/core': 0.1.3
-      '@sentinel-password/react': 0.2.1(react@19.2.4)
-      react: 19.2.4
-      react-dom: 19.2.4(react@19.2.4)
-
-  '@sentinel-password/react@0.2.1(react@19.2.4)':
-    dependencies:
-      '@sentinel-password/core': 0.1.3
-      react: 19.2.4
-
   '@shikijs/core@2.5.0':
     dependencies:
       '@shikijs/engine-javascript': 2.5.0
@@ -6784,7 +6756,7 @@ snapshots:
       eslint: 9.39.2(jiti@2.6.1)
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.2(jiti@2.6.1))
       eslint-plugin-react-hooks: 7.0.1(eslint@9.39.2(jiti@2.6.1))
@@ -6817,7 +6789,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -6832,7 +6804,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1)):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.56.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2(jiti@2.6.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
