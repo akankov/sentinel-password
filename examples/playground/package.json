@@ -10,9 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@sentinel-password/core": "^0.1.3",
-    "@sentinel-password/react": "^0.2.1",
-    "@sentinel-password/react-components": "^0.1.1",
+    "@sentinel-password/core": "workspace:*",
+    "@sentinel-password/react": "workspace:*",
+    "@sentinel-password/react-components": "workspace:*",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
