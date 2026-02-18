@@ -13,13 +13,13 @@
     "@sentinel-password/core": "^0.1.3",
     "@sentinel-password/react": "^0.2.1",
     "@sentinel-password/react-components": "^0.1.1",
-    "react": "^19.2.3",
+    "react": "^19.2.4",
     "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@types/node": "^25.0.3",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9.39.2",
