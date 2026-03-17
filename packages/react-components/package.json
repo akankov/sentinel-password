@@ -71,26 +71,26 @@
     "@sentinel-password/react": "workspace:*"
   },
   "devDependencies": {
-    "@storybook/addon-a11y": "^8.6.17",
-    "@storybook/addon-essentials": "^8.6.17",
-    "@storybook/addon-interactions": "^8.6.17",
-    "@storybook/blocks": "^8.6.17",
-    "@storybook/react": "^8.6.17",
-    "@storybook/react-vite": "^8.6.17",
-    "@storybook/test": "^8.6.17",
+    "@storybook/addon-a11y": "^8.6.18",
+    "@storybook/addon-essentials": "^8.6.18",
+    "@storybook/addon-interactions": "^8.6.18",
+    "@storybook/blocks": "^8.6.18",
+    "@storybook/react": "^8.6.18",
+    "@storybook/react-vite": "^8.6.18",
+    "@storybook/test": "^8.6.18",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitest/coverage-v8": "^4.0.18",
-    "jsdom": "^28.1.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "jsdom": "^29.0.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "storybook": "^8.6.17",
+    "storybook": "^8.6.18",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18"
+    "vite": "^6.4.1",
+    "vitest": "^4.1.0"
   }
 }
