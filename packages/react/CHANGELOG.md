@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0
+
+### Minor Changes
+
+- [#84](https://github.com/akankov/sentinel-password/pull/84) [`e179fea`](https://github.com/akankov/sentinel-password/commit/e179fea1e2d324c30374a41e41842e447bed34d7) Thanks [@akankov](https://github.com/akankov)! - Update workspace dependencies to current compatible versions and refresh lockfile.
+
+  This release also updates tooling across examples and docs to keep local development aligned with the latest ecosystem updates.
+
+### Patch Changes
+
+- Updated dependencies [[`e179fea`](https://github.com/akankov/sentinel-password/commit/e179fea1e2d324c30374a41e41842e447bed34d7)]:
+  - @sentinel-password/core@0.4.0
+
 ## 0.4.0
 
 ### Minor Changes
