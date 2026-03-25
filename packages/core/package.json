@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/core",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "description": "Modern, zero-dependency TypeScript password validation with bloom filter-based common password detection. 90%+ test coverage, <5KB gzipped.",
   "main": "./dist/index.cjs",
@@ -61,9 +61,9 @@
     "url": "https://github.com/akankov/sentinel-password/issues"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.0",
+    "@vitest/coverage-v8": "^4.1.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.1"
   }
 }
