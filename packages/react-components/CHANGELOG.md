@@ -1,5 +1,14 @@
 # @sentinel-password/react-components
 
+## 0.4.2
+
+### Patch Changes
+
+- [#95](https://github.com/akankov/sentinel-password/pull/95) [`2a3fbb9`](https://github.com/akankov/sentinel-password/commit/2a3fbb93410f9b78184675a7c7cb41ef09cdf8f1) Thanks [@akankov](https://github.com/akankov)! - Migrate Storybook from 8.x to 10.x
+
+- Updated dependencies [[`2a3fbb9`](https://github.com/akankov/sentinel-password/commit/2a3fbb93410f9b78184675a7c7cb41ef09cdf8f1)]:
+  - @sentinel-password/react@0.5.2
+
 ## 0.4.1
 
 ### Patch Changes
