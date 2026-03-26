@@ -65,12 +65,8 @@
     "@sentinel-password/core": "workspace:*"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^8.6.18",
-    "@storybook/addon-interactions": "^8.6.18",
-    "@storybook/blocks": "^8.6.18",
-    "@storybook/react": "^8.6.18",
-    "@storybook/react-vite": "^8.6.18",
-    "@storybook/test": "^8.6.18",
+    "@storybook/react": "^10.3.3",
+    "@storybook/react-vite": "^10.3.3",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -78,7 +74,7 @@
     "jsdom": "^29.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "storybook": "^8.6.18",
+    "storybook": "^10.3.3",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vite": "^6.4.1",
