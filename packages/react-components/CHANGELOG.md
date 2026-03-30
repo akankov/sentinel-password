@@ -1,5 +1,15 @@
 # @sentinel-password/react-components
 
+## 0.4.5
+
+### Patch Changes
+
+- Update homepage links in package metadata to point to the documentation site and playground
+
+- Updated dependencies []:
+  - @sentinel-password/core@0.4.3
+  - @sentinel-password/react@0.5.5
+
 ## 0.4.4
 
 ### Patch Changes
