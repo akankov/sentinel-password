@@ -19,6 +19,9 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -67,7 +70,7 @@ jobs:
         run: cp -r examples/playground/dist packages/docs/.vitepress/dist/playground
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@v4
         with:
           path: packages/docs/.vitepress/dist
 
