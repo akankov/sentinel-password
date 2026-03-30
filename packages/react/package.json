@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/react",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "type": "module",
   "description": "React hooks and components for @sentinel-password/core - password validation made simple",
   "main": "./dist/index.cjs",
@@ -54,7 +54,7 @@
     "url": "https://github.com/akankov/sentinel-password",
     "directory": "packages/react"
   },
-  "homepage": "https://github.com/akankov/sentinel-password#readme",
+  "homepage": "https://akankov.github.io/sentinel-password/",
   "bugs": {
     "url": "https://github.com/akankov/sentinel-password/issues"
   },

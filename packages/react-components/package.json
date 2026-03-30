@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/react-components",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "type": "module",
   "description": "Accessible, headless React components for @sentinel-password - password validation UI made simple",
   "main": "./dist/index.cjs",
@@ -58,7 +58,7 @@
     "url": "https://github.com/akankov/sentinel-password",
     "directory": "packages/react-components"
   },
-  "homepage": "https://github.com/akankov/sentinel-password#readme",
+  "homepage": "https://akankov.github.io/sentinel-password/",
   "bugs": {
     "url": "https://github.com/akankov/sentinel-password/issues"
   },
