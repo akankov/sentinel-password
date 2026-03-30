@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'packages/docs/**'
+      - 'examples/playground/**'
       - '.github/workflows/deploy-docs.yml'
   workflow_dispatch:
 
@@ -57,8 +58,16 @@ jobs:
       - name: Build documentation
         run: pnpm docs:build
 
+      - name: Build playground
+        run: pnpm --filter playground build
+        env:
+          PLAYGROUND_BASE: /sentinel-password/playground/
+
+      - name: Copy playground into docs output
+        run: cp -r examples/playground/dist packages/docs/.vitepress/dist/playground
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: packages/docs/.vitepress/dist
 
