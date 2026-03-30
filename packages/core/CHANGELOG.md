@@ -1,5 +1,11 @@
 # @sentinel-password/core
 
+## 0.4.3
+
+### Patch Changes
+
+- Update homepage links in package metadata to point to the documentation site and playground
+
 ## 0.4.2
 
 ### Patch Changes
