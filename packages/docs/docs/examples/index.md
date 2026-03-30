@@ -8,7 +8,7 @@ Interactive examples and code snippets for common use cases.
 
 Try out the interactive playground to test password validation in real-time with configurable options:
 
-👉 **[Open Playground](/sentinel-password/playground/)**
+👉 **[Open Playground](https://akankov.github.io/sentinel-password/playground/)**
 
 The playground features:
 - Live password validation
@@ -23,7 +23,7 @@ Explore complete, working examples in different frameworks:
 
 - **[Next.js 15+ Example](https://github.com/akankov/sentinel-password/tree/main/examples/nextjs)** - Signup form with App Router and Tailwind CSS
 - **[Vite + React Example](https://github.com/akankov/sentinel-password/tree/main/examples/vite-react)** - Login form with custom styling
-- **[Playground](/sentinel-password/playground/)** - Interactive component configurator
+- **[Playground](https://akankov.github.io/sentinel-password/playground/)** - Interactive component configurator
 
 ## Quick Links
 
