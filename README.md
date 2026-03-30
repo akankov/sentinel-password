@@ -6,40 +6,40 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Modern TypeScript password validation library with zero dependencies, comprehensive validation rules, and rich user feedback.
+Modern TypeScript password validation library with zero dependencies, React integration, and comprehensive validation rules.
 
-> **Status**: Ready for v0.1.0 release. Core package is feature-complete with 100% test coverage.
+**[Documentation](https://akankov.github.io/sentinel-password/)** | **[Playground](https://akankov.github.io/sentinel-password/playground/)** | **[API Reference](https://akankov.github.io/sentinel-password/api/core.html)**
 
 ## Features
 
 - **Zero Dependencies** - No external dependencies, tree-shakeable, ~5.5KB gzipped (< 10KB limit)
 - **TypeScript-First** - Full type safety with 100% test coverage
+- **React Integration** - Hook and headless accessible components (WCAG 2.1 AAA)
 - **Rich Feedback** - Actionable suggestions for password improvement
 - **Comprehensive Validation** - 7 built-in validators covering OWASP best practices
 - **Flexible API** - Zero-config defaults with full customization options
-- **Framework Agnostic** - Works in Node.js, browsers, and any JavaScript environment
 
 ## Packages
 
-This repo is a pnpm workspace monorepo:
-
-- **`@sentinel-password/core`** – Zero-dependency password validation engine ✅ Ready
-- **`@sentinel-password/react`** – React hook and headless input component (planned)
-- **Docs & examples** – Vitepress docs, playground, and example apps (planned)
+| Package | Description | Version |
+|---------|-------------|---------|
+| [`@sentinel-password/core`](https://www.npmjs.com/package/@sentinel-password/core) | Zero-dependency validation engine | [![npm](https://img.shields.io/npm/v/@sentinel-password/core.svg)](https://www.npmjs.com/package/@sentinel-password/core) |
+| [`@sentinel-password/react`](https://www.npmjs.com/package/@sentinel-password/react) | React hook (`usePasswordValidator`) | [![npm](https://img.shields.io/npm/v/@sentinel-password/react.svg)](https://www.npmjs.com/package/@sentinel-password/react) |
+| [`@sentinel-password/react-components`](https://www.npmjs.com/package/@sentinel-password/react-components) | Headless React components | [![npm](https://img.shields.io/npm/v/@sentinel-password/react-components.svg)](https://www.npmjs.com/package/@sentinel-password/react-components) |
 
 ## Installing
-
-The core package is published as `@sentinel-password/core`.
 
 ```bash
 pnpm add @sentinel-password/core
 # or
 npm install @sentinel-password/core
-# or
-yarn add @sentinel-password/core
 ```
 
-React integration will be published later as `@sentinel-password/react`.
+For React projects:
+
+```bash
+pnpm add @sentinel-password/react @sentinel-password/react-components
+```
 
 ## Quick Start
 
@@ -49,148 +49,71 @@ import { validatePassword } from '@sentinel-password/core'
 const result = validatePassword('MySecure!Pass_w0rd')
 
 if (result.valid) {
-  console.log('Password is valid!')
   console.log(`Strength: ${result.strength}`) // 'very-strong'
-  console.log(`Score: ${result.score}`) // 4
 } else {
-  console.log('Password is invalid')
-  console.log(result.feedback.warning) // First suggestion
   result.feedback.suggestions.forEach(suggestion => {
     console.log(`- ${suggestion}`)
   })
 }
 ```
 
-**See the [Core Package README](./packages/core/README.md) for complete documentation and examples.**
-
-## Configuration
-
-`validatePassword(password, options?)` accepts comprehensive validation options:
+### React
 
 ```typescript
-const result = validatePassword('MyPassword123!', {
-  // Length constraints
-  minLength: 12,              // default: 8
-  maxLength: 128,             // default: 128
-  
-  // Character requirements
-  requireUppercase: true,     // default: false
-  requireLowercase: true,     // default: false
-  requireDigit: true,         // default: false
-  requireSymbol: true,        // default: false
-  
-  // Pattern detection
-  maxRepeatedChars: 3,        // default: 3
-  checkSequential: true,      // default: true (blocks abc, 123, etc.)
-  checkKeyboardPatterns: true, // default: true (blocks qwerty, asdf, etc.)
-  checkCommonPasswords: true, // default: true (blocks top 1K passwords)
-  
-  // Personal information exclusion
-  personalInfo: ['johndoe', 'john.doe@example.com']
-})
-```
+import { usePasswordValidator } from '@sentinel-password/react'
 
-## Validation Result
+function SignupForm() {
+  const { value, isValid, errors, strength, handleChange } =
+    usePasswordValidator({
+      validators: {
+        length: { min: 8 },
+        characterTypes: { requireUppercase: true, requireNumbers: true },
+        commonPassword: { enabled: true },
+      },
+    })
 
-```typescript
-interface ValidationResult {
-  // Overall validation status
-  valid: boolean
-  
-  // Strength scoring
-  score: 0 | 1 | 2 | 3 | 4
-  strength: 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
-  
-  // User feedback
-  feedback: {
-    warning?: string              // Primary warning message
-    suggestions: readonly string[] // All improvement suggestions
-  }
-  
-  // Individual check results
-  checks: {
-    length: boolean             // Meets length requirements
-    characterTypes: boolean     // Meets character type requirements
-    repetition: boolean         // No excessive repeated characters
-    sequential: boolean         // No sequential patterns (abc, 123)
-    keyboardPattern: boolean    // No keyboard patterns (qwerty, asdf)
-    commonPassword: boolean     // Not in top 1K common passwords
-    personalInfo: boolean       // Doesn't contain personal information
-  }
+  return (
+    <div>
+      <input type="password" value={value} onChange={handleChange} />
+      <p>Strength: {strength}</p>
+      {errors.map(e => <p key={e.code}>{e.message}</p>)}
+    </div>
+  )
 }
 ```
 
-### Advanced: Individual Validators
+See the [full documentation](https://akankov.github.io/sentinel-password/guide/getting-started.html) for more examples, or try the [interactive playground](https://akankov.github.io/sentinel-password/playground/).
 
-For advanced use cases, you can import and use individual validators:
+## Configuration
 
-```ts
-import { 
-  validateLength,
-  validateCharacterTypes,
-  validateRepetition,
-  validateSequential,
-  validateKeyboardPattern,
-  validateCommonPassword,
-  validatePersonalInfo,
-  hasUppercase,
-  hasLowercase,
-  hasDigit,
-  hasSymbol
-} from '@sentinel-password/core'
-
-const lengthCheck = validateLength('mypassword', { minLength: 12 })
-// { passed: boolean, message?: string }
+```typescript
+const result = validatePassword('MyPassword123!', {
+  minLength: 12,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  maxRepeatedChars: 3,
+  checkSequential: true,
+  checkKeyboardPatterns: true,
+  checkCommonPasswords: true,
+  personalInfo: ['johndoe', 'john.doe@example.com'],
+})
 ```
-
-### MVP v0.1.0 Public API
-
-The v0.1.0 release provides:
-
-- **Primary API**: `validatePassword(password, options?)` - zero-config function with sensible defaults
-- **Types**: Full TypeScript support with `ValidationResult`, `ValidatorOptions`, `CheckId`, etc.
-- **Individual validators**: Low-level functions for custom validation flows
-- **Future APIs**: Fluent builder and schema-based APIs are planned for post-MVP releases
 
 ## Local Development
 
-Requirements:
-
-- Node.js >= 20
-- pnpm (see `packageManager` in `package.json`)
-
-Install dependencies:
+Requirements: Node.js >= 20, pnpm (see `packageManager` in `package.json`)
 
 ```bash
 pnpm install
-```
-
-Common scripts (run from repo root):
-
-```bash
-pnpm build      # Build all packages via Turborepo
+pnpm build      # Build all packages
 pnpm test       # Run all tests
 pnpm lint       # ESLint + Prettier check
-pnpm lint:fix   # Auto-fix lint issues
 pnpm typecheck  # TypeScript strict mode check
-pnpm dev        # Dev workflow (docs / packages as configured)
+pnpm docs:dev   # Dev docs site
 ```
-
-## Project Goals (MVP)
-
-The v0.1.0 MVP delivers:
-
-- **Zero-config validation**: `validatePassword()` with sensible OWASP-aligned defaults
-- **Comprehensive checks**: Length, character types, repetition, sequential patterns, keyboard patterns, common passwords, personal info
-- **Rich feedback**: Detailed validation results with actionable suggestions
-- **TypeScript-first**: Strict mode with full type inference
-- **Zero dependencies**: Small bundle size (~5.5KB gzipped, < 10KB limit)
-
-**Post-MVP roadmap**:
-- Fluent builder API and schema-based configuration
-- React hook + headless input component
-- Vitepress documentation site with interactive playground
-- Additional framework integrations (Vue, Svelte, Angular)
 
 ## License
 
