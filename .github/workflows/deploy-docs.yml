@@ -70,7 +70,7 @@ jobs:
         run: cp -r examples/playground/dist packages/docs/.vitepress/dist/playground
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@v4
         with:
           path: packages/docs/.vitepress/dist
 
