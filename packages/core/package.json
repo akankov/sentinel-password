@@ -30,6 +30,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bench": "vitest bench",
+    "generate:bloom": "node ../../scripts/generate-bloom-filter.cjs",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "typecheck": "tsc --noEmit",
@@ -62,8 +63,11 @@
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.2",
+    "check-password-strength": "^3.0.0",
+    "password-validator": "^5.3.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.2",
+    "zxcvbn": "^4.4.2"
   }
 }

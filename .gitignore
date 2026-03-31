@@ -46,6 +46,11 @@ Thumbs.db
 opencode.json
 .opencode
 AGENTS.md
+CLAUDE.md
+RELEASE_QUICK_START.md
+
+# VitePress cache
+**/.vitepress/cache/
 
 # Private documentation
 private_docs/

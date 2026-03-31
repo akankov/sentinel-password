@@ -1,21 +1,21 @@
 import type { Validator, ValidatorOptions } from '../types'
 
 /**
- * Bloom filter for top 1,000 common passwords
- * Sourced from SecLists: https://github.com/danielmiessler/SecLists
- * File: Passwords/Common-Credentials/10k-most-common.txt (top 1000)
+ * Bloom filter for common passwords
  *
- * Uses a Bloom filter for space-efficient storage (~1.5KB vs ~8KB for raw 1K array)
- * Reduced from 10K list: old bloom filter was ~48KB
- * False positive rate: ~0.84%
- * 1,000 passwords checked
+ * Source: SecLists https://github.com/danielmiessler/SecLists
+ *   File: Passwords/Common-Credentials/10k-most-common.txt (top 1,000)
+ *   Local: packages/core/data/common-passwords.txt
+ *
+ * Regenerate with: pnpm --filter @sentinel-password/core generate:bloom
  */
 
-// Bloom filter parameters
+// --- BEGIN GENERATED BLOOM FILTER ---
+// Generated from: packages/core/data/common-passwords.txt
+// Passwords: 1000 | Bloom size: 12000 bits | Hash functions: 7
 const BLOOM_SIZE: number = 12000
 const BLOOM_HASH_COUNT: number = 7
 
-// Pre-computed bloom filter buckets (375 x 32-bit integers)
 const BLOOM_BUCKETS: Int32Array = new Int32Array([
   -1274142440, -1983615455, -2110842727, -1440077142, 1782964852, 956870738, 48445478, 290080800,
   -1961772502, -1869995330, 787111091, 140549329, -1508237141, -800970204, -1987272632, -1439602637,
@@ -66,6 +66,7 @@ const BLOOM_BUCKETS: Int32Array = new Int32Array([
   -1484380630, 1101004848, -1054523758, -2116504793, 1118667297, 86058657, 975856680, 749906058,
   1937961650, 620890537, 918765730, -1366546774,
 ])
+// --- END GENERATED BLOOM FILTER ---
 
 /**
  * Hash function for bloom filter
