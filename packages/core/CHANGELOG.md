@@ -1,5 +1,11 @@
 # @sentinel-password/core
 
+## 0.4.6
+
+### Patch Changes
+
+- [#118](https://github.com/akankov/sentinel-password/pull/118) [`e50ee82`](https://github.com/akankov/sentinel-password/commit/e50ee82a5b30739874b943d1f31d76c5b327a439) Thanks [@akankov](https://github.com/akankov)! - Add comparative benchmarks against zxcvbn, check-password-strength, and password-validator. Make bloom filter generation reproducible with tracked password list and generation script.
+
 ## 0.4.5
 
 ### Patch Changes

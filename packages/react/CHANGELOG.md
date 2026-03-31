@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.8
+
+### Patch Changes
+
+- Updated dependencies [[`e50ee82`](https://github.com/akankov/sentinel-password/commit/e50ee82a5b30739874b943d1f31d76c5b327a439)]:
+  - @sentinel-password/core@0.4.6
+
 ## 0.5.7
 
 ### Patch Changes
