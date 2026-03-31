@@ -129,13 +129,7 @@ describe('Long password (200+ chars)', () => {
 
 describe('Batch validation — 100 passwords', () => {
   const passwords: string[] = Array.from({ length: 100 }, (_, i) => {
-    const bases: string[] = [
-      'password',
-      'MyP@ssw0rd!',
-      'qwerty123',
-      'Str0ng!Pass',
-      'abcdef',
-    ]
+    const bases: string[] = ['password', 'MyP@ssw0rd!', 'qwerty123', 'Str0ng!Pass', 'abcdef']
     const base: string = bases[i % bases.length] as string
     return base + String(i)
   })

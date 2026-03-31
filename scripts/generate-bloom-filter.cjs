@@ -35,8 +35,23 @@ const ARRAY_SIZE = Math.ceil(BLOOM_SIZE / BITS_PER_INT32)
 const BEGIN_MARKER = '// --- BEGIN GENERATED BLOOM FILTER ---'
 const END_MARKER = '// --- END GENERATED BLOOM FILTER ---'
 
-const DEFAULT_PASSWORD_FILE = path.join(__dirname, '..', 'packages', 'core', 'data', 'common-passwords.txt')
-const VALIDATOR_FILE = path.join(__dirname, '..', 'packages', 'core', 'src', 'validators', 'common-password.ts')
+const DEFAULT_PASSWORD_FILE = path.join(
+  __dirname,
+  '..',
+  'packages',
+  'core',
+  'data',
+  'common-passwords.txt'
+)
+const VALIDATOR_FILE = path.join(
+  __dirname,
+  '..',
+  'packages',
+  'core',
+  'src',
+  'validators',
+  'common-password.ts'
+)
 
 // --- Hash functions (must match the runtime implementation) ---
 
@@ -124,7 +139,9 @@ console.log(`Reading passwords from: ${passwordFile}`)
 if (!fs.existsSync(passwordFile)) {
   console.error(`ERROR: Password file not found: ${passwordFile}`)
   console.error('Download it with:')
-  console.error('  curl -sL "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10k-most-common.txt" | head -1000 > packages/core/data/common-passwords.txt')
+  console.error(
+    '  curl -sL "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10k-most-common.txt" | head -1000 > packages/core/data/common-passwords.txt'
+  )
   process.exit(1)
 }
 
