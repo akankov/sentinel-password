@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/react-components",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "type": "module",
   "description": "Accessible, headless React components for @sentinel-password - password validation UI made simple",
   "main": "./dist/index.cjs",

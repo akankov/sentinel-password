@@ -1,5 +1,11 @@
 # @sentinel-password/core
 
+## 0.4.4
+
+### Patch Changes
+
+- Update to TypeScript 6.0 and typescript-eslint 8.58
+
 ## 0.4.3
 
 ### Patch Changes
