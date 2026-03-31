@@ -2,10 +2,12 @@
 
 [![npm version](https://img.shields.io/npm/v/@sentinel-password/core.svg)](https://www.npmjs.com/package/@sentinel-password/core)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/@sentinel-password/core)](https://bundlephobia.com/package/@sentinel-password/core)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue.svg)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Modern TypeScript password validation library with zero dependencies, comprehensive validation rules, and rich feedback.
+
+**[Documentation](https://akankov.github.io/sentinel-password/)** | **[Interactive Playground](https://akankov.github.io/sentinel-password/playground/)** | **[API Reference](https://akankov.github.io/sentinel-password/api/core.html)**
 
 ## Features
 
@@ -369,7 +371,8 @@ MIT - see [LICENSE](../../LICENSE) for details.
 
 ## Related Packages
 
-- `@sentinel-password/react` - React hooks and components (coming soon)
+- [`@sentinel-password/react`](https://www.npmjs.com/package/@sentinel-password/react) - React hook for password validation with debouncing
+- [`@sentinel-password/react-components`](https://www.npmjs.com/package/@sentinel-password/react-components) - Accessible, headless React components
 
 ## Acknowledgments
 
