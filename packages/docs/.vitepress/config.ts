@@ -50,6 +50,7 @@ export default defineConfig({
             { text: 'Custom Validators', link: '/guide/custom-validators' },
             { text: 'Internationalization', link: '/guide/i18n' },
             { text: 'Accessibility', link: '/guide/accessibility' },
+            { text: 'Performance', link: '/guide/performance' },
           ],
         },
       ],
