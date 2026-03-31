@@ -1,5 +1,15 @@
 # @sentinel-password/react-components
 
+## 0.4.7
+
+### Patch Changes
+
+- Add documentation site and playground links to package READMEs
+
+- Updated dependencies []:
+  - @sentinel-password/core@0.4.5
+  - @sentinel-password/react@0.5.7
+
 ## 0.4.6
 
 ### Patch Changes

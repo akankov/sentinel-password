@@ -1,5 +1,11 @@
 # @sentinel-password/core
 
+## 0.4.5
+
+### Patch Changes
+
+- Add documentation site and playground links to package READMEs
+
 ## 0.4.4
 
 ### Patch Changes

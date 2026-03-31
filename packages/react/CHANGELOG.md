@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.7
+
+### Patch Changes
+
+- Add documentation site and playground links to package READMEs
+
+- Updated dependencies []:
+  - @sentinel-password/core@0.4.5
+
 ## 0.5.6
 
 ### Patch Changes
