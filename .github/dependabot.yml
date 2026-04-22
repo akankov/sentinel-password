@@ -10,6 +10,14 @@ updates:
       interval: 'weekly'
       day: 'monday'
     open-pull-requests-limit: 5
+    ignore:
+      # eslint-plugin-react 7.37.5 is incompatible with ESLint 10
+      # (calls context.getFilename() which ESLint 10 removed).
+      # Pin examples on eslint 9 until the plugin ships a v10-compatible release.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
     groups:
       react:
         patterns:
