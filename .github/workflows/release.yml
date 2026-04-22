@@ -1,11 +1,13 @@
 name: Release
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -31,7 +33,6 @@ jobs:
         with:
           node-version: '24'
           cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -40,41 +41,13 @@ jobs:
         run: pnpm build
 
       - name: Create Release Pull Request or Publish
-        id: changesets
         uses: changesets/action@v1
         with:
-          publish: pnpm release --provenance
           version: pnpm run version
+          publish: pnpm release
           commit: 'chore: version packages'
           title: 'chore: version packages'
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Create GitHub Release
-        if: steps.changesets.outputs.published == 'true'
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const releases = JSON.parse('${{ steps.changesets.outputs.publishedPackages }}');
-
-            for (const release of releases) {
-              const tag = `${release.name}@${release.version}`;
-              const name = `${release.name} v${release.version}`;
-              
-              try {
-                await github.rest.repos.createRelease({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  tag_name: tag,
-                  name: name,
-                  draft: false,
-                  prerelease: false,
-                  generate_release_notes: true
-                });
-                console.log(`Created release for ${tag}`);
-              } catch (error) {
-                console.error(`Failed to create release for ${tag}:`, error.message);
-              }
-            }
+          NPM_CONFIG_PROVENANCE: true
