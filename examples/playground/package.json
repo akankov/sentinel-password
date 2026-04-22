@@ -14,7 +14,7 @@
     "@sentinel-password/react": "workspace:*",
     "@sentinel-password/react-components": "workspace:*",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
