@@ -54,16 +54,15 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.2.1",
     "prettier": "^3.8.3",
-    "turbo": "^2.9.6",
+    "turbo": "^2.9.8",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.0"
+    "typescript-eslint": "^8.59.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild"
     ],
     "overrides": {
-      "esbuild": ">=0.25.0",
       "vite@<6.4.2": "^6.4.2"
     }
   }
