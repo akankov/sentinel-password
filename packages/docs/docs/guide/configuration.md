@@ -1,342 +1,255 @@
 # Configuration
 
-Learn how to configure Sentinel Password for your specific requirements.
+`validatePassword` takes a single flat options object — every field is optional. This page shows policy presets and patterns for shaping the configuration to your context.
 
 ## Basic Configuration
-
-The simplest configuration uses a single validator:
 
 ```typescript
 import { validatePassword } from '@sentinel-password/core'
 
-const config = {
-  validators: {
-    length: { min: 8 }
-  }
-}
-
-const result = validatePassword('mypassword', config)
+const result = validatePassword('mypassword', { minLength: 8 })
 ```
+
+See the [`ValidatorOptions` type](/api/core#validatoroptions) for the full list of fields.
 
 ## Configuration Presets
 
 ### Minimal (Low Security)
 
-Suitable for low-risk applications:
+For low-risk applications:
 
 ```typescript
-const minimalConfig = {
-  validators: {
-    length: { min: 6 }
-  }
-}
+const minimal = { minLength: 6 }
 ```
 
 ### Balanced (Medium Security)
 
-Good balance between security and usability:
+A reasonable default for consumer apps:
 
 ```typescript
-const balancedConfig = {
-  validators: {
-    length: { min: 8, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireNumbers: true
-    }
-  }
+const balanced = {
+  minLength: 8,
+  maxLength: 128,
+  requireUppercase: true,
+  requireDigit: true,
 }
 ```
 
 ### Strict (High Security)
 
-For enterprise or high-security applications:
+For enterprise or sensitive workflows:
 
 ```typescript
-const strictConfig = {
-  validators: {
-    length: { min: 12, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true,
-      minSymbols: 2
-    },
-    commonPassword: { enabled: true },
-    keyboardPattern: { enabled: true },
-    sequential: { enabled: true },
-    repetition: { enabled: true }
-  }
+const strict = {
+  minLength: 12,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  maxRepeatedChars: 2,
+  // checkSequential, checkKeyboardPatterns, checkCommonPasswords default to true
 }
 ```
 
 ### Maximum (Very High Security)
 
-All validators enabled with strict settings:
-
 ```typescript
-const maximumConfig = {
-  validators: {
-    length: { min: 16, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true,
-      minUppercase: 2,
-      minLowercase: 2,
-      minNumbers: 2,
-      minSymbols: 2
-    },
-    commonPassword: { enabled: true },
-    keyboardPattern: { 
-      enabled: true,
-      maxConsecutive: 3
-    },
-    sequential: { 
-      enabled: true,
-      maxConsecutive: 2
-    },
-    repetition: { 
-      enabled: true,
-      maxConsecutive: 2
-    },
-    personalInfo: { 
-      enabled: true,
-      fields: [] // Add user's personal info
-    }
-  }
+const maximum = {
+  minLength: 16,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  maxRepeatedChars: 2,
+  personalInfo: [], // populate with user fields when available
 }
 ```
 
+::: tip Defaults already sit between Minimal and Balanced
+With no options at all, `validatePassword` enforces `minLength: 8`, `maxLength: 128`, `maxRepeatedChars: 3`, and runs the sequential, keyboard-pattern, and common-password checks. The `require*` flags are off by default.
+:::
+
 ## Environment-Based Configuration
 
-Adjust configuration based on environment:
-
 ```typescript
-const getConfig = (env: 'dev' | 'staging' | 'prod') => {
-  if (env === 'dev') {
-    return { validators: { length: { min: 4 } } }
-  }
-  
-  if (env === 'staging') {
-    return {
-      validators: {
-        length: { min: 8 },
-        characterTypes: { requireUppercase: true }
-      }
-    }
-  }
-  
-  // Production
+import type { ValidatorOptions } from '@sentinel-password/core'
+
+const getConfig = (env: 'dev' | 'staging' | 'prod'): ValidatorOptions => {
+  if (env === 'dev') return { minLength: 4 }
+  if (env === 'staging') return { minLength: 8, requireUppercase: true }
   return {
-    validators: {
-      length: { min: 12 },
-      characterTypes: {
-        requireUppercase: true,
-        requireNumbers: true,
-        requireSymbols: true
-      },
-      commonPassword: { enabled: true }
-    }
+    minLength: 12,
+    requireUppercase: true,
+    requireDigit: true,
+    requireSymbol: true,
   }
 }
 
-const config = getConfig(process.env.NODE_ENV)
+const config = getConfig(process.env.NODE_ENV as 'dev' | 'staging' | 'prod')
 ```
 
 ## Dynamic Configuration
 
-Update configuration based on user context:
+Tighten the policy for privileged users and feed identity into `personalInfo`:
 
 ```typescript
-const getUserConfig = (user: User) => {
-  const baseConfig = {
-    validators: {
-      length: { min: 8 },
-      characterTypes: {
-        requireUppercase: true,
-        requireNumbers: true
-      }
-    }
+interface User {
+  email: string
+  firstName: string
+  lastName: string
+  role: 'user' | 'admin'
+}
+
+const getUserConfig = (user: User): ValidatorOptions => {
+  const base: ValidatorOptions = {
+    minLength: 8,
+    requireUppercase: true,
+    requireDigit: true,
+    personalInfo: [user.email, user.firstName, user.lastName].filter(Boolean),
   }
-  
-  // Add personal info validation
-  if (user.email || user.name) {
-    baseConfig.validators.personalInfo = {
-      enabled: true,
-      fields: [
-        user.email,
-        user.firstName,
-        user.lastName
-      ].filter(Boolean)
-    }
-  }
-  
-  // Stricter for admin users
+
   if (user.role === 'admin') {
-    baseConfig.validators.length = { min: 16 }
-    baseConfig.validators.characterTypes.requireSymbols = true
-    baseConfig.validators.commonPassword = { enabled: true }
+    return { ...base, minLength: 16, requireSymbol: true }
   }
-  
-  return baseConfig
+
+  return base
 }
 ```
 
-## Debounce Configuration
+## Sharing Configuration With the Client
 
-Control when validation runs:
+Define the policy once and use it both in the React hook and on the server:
 
 ```typescript
-// React Hook
-usePasswordValidator({
-  validators: config,
-  debounceMs: 300  // Wait 300ms after typing stops
+// shared/password-policy.ts
+import type { ValidatorOptions } from '@sentinel-password/core'
+
+export const PASSWORD_POLICY: ValidatorOptions = {
+  minLength: 12,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+}
+```
+
+```tsx
+// client
+import { usePasswordValidator } from '@sentinel-password/react'
+import { PASSWORD_POLICY } from '../shared/password-policy'
+
+const { password, setPassword, result } = usePasswordValidator(PASSWORD_POLICY)
+```
+
+```typescript
+// server
+import { validatePassword } from '@sentinel-password/core'
+import { PASSWORD_POLICY } from '../shared/password-policy'
+
+const result = validatePassword(req.body.password, {
+  ...PASSWORD_POLICY,
+  personalInfo: [req.body.email, req.body.name],
 })
-
-// React Component
-<PasswordInput
-  validators={config}
-  debounceMs={500}  // Wait 500ms
-/>
-
-// No debounce (instant validation)
-<PasswordInput
-  validators={config}
-  debounceMs={0}
-/>
 ```
 
-## Validation Timing
+See the [Server-Side Usage guide](/guide/server-side) for full Express/Fastify/NestJS examples.
 
-Control when validation occurs:
+## Debouncing (React Hook)
 
-```typescript
-// Validate on mount
-<PasswordInput
-  validators={config}
-  validateOnMount={true}
-/>
+`usePasswordValidator` debounces validation by default — control timing with `debounceMs`:
 
-// Validate only on blur (not on change)
-<PasswordInput
-  validators={config}
-  validateOnChange={false}
-  onBlur={(e) => {
-    // Trigger validation manually
-  }}
-/>
+```tsx
+import { usePasswordValidator } from '@sentinel-password/react'
+
+// Default — 300ms after typing stops
+usePasswordValidator({ minLength: 8 })
+
+// Slower debounce
+usePasswordValidator({ minLength: 8, debounceMs: 500 })
+
+// Instant validation on every keystroke
+usePasswordValidator({ minLength: 8, debounceMs: 0, validateOnChange: true })
 ```
 
-## Error Customization
+## Localized Feedback
 
-Customize error messages:
-
-```typescript
-const result = validatePassword(password, config)
-
-const errorMessages = {
-  PASSWORD_TOO_SHORT: 'Your password needs more characters',
-  MISSING_UPPERCASE: 'Add at least one capital letter',
-  MISSING_NUMBERS: 'Include some numbers',
-  COMMON_PASSWORD: 'This password is too easy to guess'
-}
-
-const customErrors = result.errors.map(error => ({
-  ...error,
-  message: errorMessages[error.code] || error.message
-}))
-```
-
-## Internationalization
-
-Support multiple languages:
+Validators return English messages today. To translate, map the suggestion strings to your locale at the application layer:
 
 ```typescript
-const translations = {
-  en: {
-    PASSWORD_TOO_SHORT: 'Password must be at least {min} characters',
-    MISSING_UPPERCASE: 'Password must contain uppercase letters'
-  },
+const result = validatePassword(password, options)
+
+const translations: Record<string, Record<string, string>> = {
   es: {
-    PASSWORD_TOO_SHORT: 'La contraseña debe tener al menos {min} caracteres',
-    MISSING_UPPERCASE: 'La contraseña debe contener letras mayúsculas'
-  }
+    'Password must be at least 8 characters': 'La contraseña debe tener al menos 8 caracteres',
+    'Password is too common. Please choose a more unique password.':
+      'La contraseña es demasiado común. Elija una contraseña más única.',
+  },
 }
 
-const getLocalizedErrors = (errors, locale = 'en') => {
-  return errors.map(error => ({
-    ...error,
-    message: translations[locale][error.code] || error.message
-  }))
-}
+const localized = result.feedback.suggestions.map(
+  (msg) => translations['es']?.[msg] ?? msg
+)
 ```
+
+A future release will support pluggable message templates. See [Internationalization](/guide/i18n).
 
 ## Best Practices
 
-### 1. Don't Over-Restrict
+### Don't Over-Restrict
 
 Balance security with usability:
 
 ```typescript
-// ❌ Too restrictive
+// Too restrictive — blocks reasonable passwords
 {
-  validators: {
-    length: { min: 32, max: 32 },  // Exactly 32 chars
-    characterTypes: {
-      minUppercase: 5,
-      minLowercase: 5,
-      minNumbers: 5,
-      minSymbols: 5
-    }
-  }
+  minLength: 32,
+  maxLength: 32,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
 }
 
-// ✅ Better balance
+// Better balance
 {
-  validators: {
-    length: { min: 12, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireNumbers: true,
-      requireSymbols: true
-    }
-  }
+  minLength: 12,
+  maxLength: 128,
+  requireUppercase: true,
+  requireDigit: true,
+  requireSymbol: true,
 }
 ```
 
-### 2. Enable Common Password Check
+### Always Pass `personalInfo` When You Have It
 
-Always check for common passwords:
+The check is essentially free and catches `JohnSmith2024!` for `["John", "Smith"]`:
 
 ```typescript
-{
-  validators: {
-    commonPassword: { enabled: true }
-  }
-}
+validatePassword(password, {
+  ...policy,
+  personalInfo: [user.email, user.firstName, user.lastName].filter(Boolean),
+})
 ```
 
-### 3. Consider Context
+### Match Requirements to Risk
 
-Adjust requirements based on what's being protected:
+| Surface | Suggested preset |
+|---------|------------------|
+| Blog comments, throwaway accounts | Minimal |
+| E-commerce, consumer apps | Balanced |
+| Banking, healthcare, B2B SaaS | Strict |
+| Admin panels, root credentials | Maximum |
 
-- **Blog comments**: Minimal requirements
-- **E-commerce**: Balanced requirements
-- **Banking/Healthcare**: Strict requirements
-- **Admin panels**: Maximum requirements
+### Show Requirements Up Front
 
-### 4. Provide Clear Feedback
+Don't make users guess the rules — surface them in the UI before they type:
 
-Show requirements upfront:
-
-```typescript
+```tsx
 <PasswordInput
   label="Create Password"
-  description="Must be 12+ characters with uppercase, numbers, and symbols"
-  validators={config}
+  description="Must be 12+ characters with uppercase, digit, and symbol"
 />
 ```
 
@@ -345,3 +258,4 @@ Show requirements upfront:
 - [Validators Guide](/guide/validators)
 - [Core API](/api/core)
 - [Getting Started](/guide/getting-started)
+- [Server-Side Usage](/guide/server-side)

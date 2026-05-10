@@ -21,26 +21,19 @@ Unlike rigid password validators, Sentinel Password lets you define exactly what
 ```typescript
 // Enterprise app with strict requirements
 const strictConfig = {
-  validators: {
-    length: { min: 16, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true,
-      minSymbols: 2
-    },
-    commonPassword: { enabled: true },
-    keyboardPattern: { enabled: true }
-  }
+  minLength: 16,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  // checkCommonPasswords and checkKeyboardPatterns default to true
 }
 
 // Consumer app with balanced requirements
 const balancedConfig = {
-  validators: {
-    length: { min: 8 },
-    characterTypes: { requireNumbers: true }
-  }
+  minLength: 8,
+  requireDigit: true,
 }
 ```
 
@@ -71,14 +64,13 @@ Compare this to popular alternatives that can be 50KB+ with dozens of dependenci
 
 React components are completely unstyled, giving you full design control:
 
-```typescript
+```tsx
 <PasswordInput
   label="Password"
-  className="my-input-wrapper"
-  inputClassName="my-custom-input"
+  containerClassName="my-input-wrapper"
+  className="my-custom-input"
   labelClassName="my-custom-label"
-  errorClassName="my-custom-error"
-  validators={{ length: { min: 8 } }}
+  validationClassName="my-custom-error"
 />
 ```
 
@@ -91,11 +83,10 @@ Easy to customize for any language:
 ```typescript
 const result = validatePassword('weak', config)
 
-// Customize error messages
-const localizedErrors = result.errors.map(error => ({
-  ...error,
-  message: translations[error.code][userLanguage]
-}))
+// Map English suggestion strings to your locale
+const localized = result.feedback.suggestions.map(
+  (msg) => translations[userLanguage]?.[msg] ?? msg
+)
 ```
 
 ### 🔒 Security Focused
@@ -138,18 +129,17 @@ $: validation = validatePassword(password, config)
 Written in TypeScript with comprehensive type definitions:
 
 ```typescript
-import type { 
+import type {
   ValidationResult,
-  ValidatorConfig,
-  ValidationError,
-  PasswordStrength 
+  ValidatorOptions,
+  StrengthScore,
+  StrengthLabel,
 } from '@sentinel-password/core'
 
 // Full IntelliSense and type checking
-const config: ValidatorConfig = {
-  validators: {
-    length: { min: 8 } // TypeScript knows all available options
-  }
+const options: ValidatorOptions = {
+  minLength: 8, // TypeScript knows all available options
+  requireUppercase: true,
 }
 ```
 
@@ -189,12 +179,12 @@ Pattern detection and common password checks help users create stronger password
 
 Pre-built components and hooks save development time:
 
-```typescript
+```tsx
 // Instead of building from scratch...
 import { PasswordInput } from '@sentinel-password/react-components'
 
 // Just use it!
-<PasswordInput validators={{ length: { min: 8 } }} />
+<PasswordInput label="Password" />
 ```
 
 ## Get Started

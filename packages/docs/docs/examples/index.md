@@ -6,7 +6,7 @@ Interactive examples and code snippets for common use cases.
 
 ### Interactive Playground
 
-Try out the interactive playground to test password validation in real-time with configurable options:
+Try out the interactive playground to test password validation in real time:
 
 👉 **[Open Playground](https://akankov.github.io/sentinel-password/playground/)**
 
@@ -15,15 +15,15 @@ The playground features:
 - Configurable validation options
 - Visual strength meter
 - Detailed validation results
-- Auto-generated code examples
 
 ### Working Examples
 
-Explore complete, working examples in different frameworks:
+Complete, runnable examples in different stacks:
 
-- **[Next.js 15+ Example](https://github.com/akankov/sentinel-password/tree/main/examples/nextjs)** - Signup form with App Router and Tailwind CSS
-- **[Vite + React Example](https://github.com/akankov/sentinel-password/tree/main/examples/vite-react)** - Login form with custom styling
-- **[Playground](https://akankov.github.io/sentinel-password/playground/)** - Interactive component configurator
+- **[Next.js 15+ Example](https://github.com/akankov/sentinel-password/tree/main/examples/nextjs)** — Signup form with App Router and Tailwind CSS
+- **[Vite + React Example](https://github.com/akankov/sentinel-password/tree/main/examples/vite-react)** — Login form with custom styling
+- **[Express Backend Example](https://github.com/akankov/sentinel-password/tree/main/examples/express-backend)** — Server-side `/signup` validation with Express 5. See the [Server-Side Usage guide](/guide/server-side) for Fastify, NestJS, and edge-runtime variants.
+- **[Playground](https://akankov.github.io/sentinel-password/playground/)** — Interactive component configurator
 
 ## Quick Links
 
@@ -35,83 +35,63 @@ Explore complete, working examples in different frameworks:
 
 ## Basic Validation
 
-Simple password validation with the core package:
-
 ```typescript
 import { validatePassword } from '@sentinel-password/core'
 
-const password = 'MySecureP@ss123'
-
-const result = validatePassword(password, {
-  validators: {
-    length: { min: 8, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true
-    }
-  }
+const result = validatePassword('MySecureP@ss123', {
+  minLength: 8,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
 })
 
 console.log(result)
 // {
-//   isValid: true,
-//   errors: [],
-//   warnings: [],
-//   strength: 'strong'
+//   valid: true,
+//   score: 4,
+//   strength: 'very-strong',
+//   feedback: { suggestions: [] },
+//   checks: { length: true, characterTypes: true, ... },
 // }
 ```
 
 ## React Form
 
-Complete signup form with password validation:
+A signup form using `usePasswordValidator`:
 
-```typescript
+```tsx
 import { useState } from 'react'
 import { usePasswordValidator } from '@sentinel-password/react'
 
 function SignupForm() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  
-  const {
-    value: password,
-    isValid,
-    errors,
-    strength,
-    handleChange
-  } = usePasswordValidator({
-    validators: {
-      length: { min: 8 },
-      characterTypes: {
-        requireUppercase: true,
-        requireNumbers: true
-      },
-      commonPassword: { enabled: true }
-    }
+
+  const { password, setPassword, result } = usePasswordValidator({
+    minLength: 8,
+    requireUppercase: true,
+    requireDigit: true,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!isValid) {
-      alert('Please fix password errors')
+    if (!result?.valid) {
+      alert('Please fix password issues')
       return
     }
-    
-    // Submit to API
+
     await fetch('/api/signup', {
       method: 'POST',
-      body: JSON.stringify({ email, password })
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email, password }),
     })
-    
+
     setSubmitted(true)
   }
 
-  if (submitted) {
-    return <p>Account created successfully!</p>
-  }
+  if (submitted) return <p>Account created successfully!</p>
 
   return (
     <form onSubmit={handleSubmit}>
@@ -132,20 +112,24 @@ function SignupForm() {
           id="password"
           type="password"
           value={password}
-          onChange={handleChange}
-          aria-invalid={!isValid}
+          onChange={(e) => setPassword(e.target.value)}
+          aria-invalid={result && !result.valid ? true : undefined}
         />
-        
-        {errors.map(error => (
-          <p key={error.code} style={{ color: 'red' }}>
-            {error.message}
+
+        {result?.feedback.suggestions.map((suggestion, i) => (
+          <p key={i} style={{ color: 'red' }}>
+            {suggestion}
           </p>
         ))}
-        
-        <p>Strength: <strong>{strength}</strong></p>
+
+        {result && (
+          <p>
+            Strength: <strong>{result.strength}</strong>
+          </p>
+        )}
       </div>
 
-      <button type="submit" disabled={!isValid || !email}>
+      <button type="submit" disabled={!result?.valid || !email}>
         Sign Up
       </button>
     </form>
@@ -155,9 +139,9 @@ function SignupForm() {
 
 ## Custom Styling
 
-Style the PasswordInput component with Tailwind CSS:
+`PasswordInput` is fully headless. Each subtree gets its own class name prop:
 
-```typescript
+```tsx
 import { PasswordInput } from '@sentinel-password/react-components'
 
 function StyledForm() {
@@ -165,101 +149,78 @@ function StyledForm() {
     <div className="max-w-md mx-auto p-6">
       <PasswordInput
         label="Create Password"
-        description="Must be at least 8 characters"
-        className="mb-6"
+        description="At least 8 characters"
+        containerClassName="mb-6"
         labelClassName="block text-sm font-semibold text-gray-900 mb-2"
         descriptionClassName="text-sm text-gray-600 mb-3"
         inputWrapperClassName="relative"
-        inputClassName="w-full px-4 py-3 pr-24 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
-        toggleButtonClassName="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+        className="w-full px-4 py-3 pr-24 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all"
+        toggleButtonClassName="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-md"
         validationClassName="mt-3 space-y-2"
-        validators={{
-          length: { min: 8 },
-          characterTypes: {
-            requireUppercase: true,
-            requireNumbers: true
-          }
-        }}
       />
     </div>
   )
 }
 ```
 
+::: tip `PasswordInput` uses default validation
+The component currently runs the built-in defaults (min length 8, all `check*` flags on) and does not accept a `validators`/`validatorOptions` prop yet. If you need a custom policy, use [`usePasswordValidator`](/api/react) and render your own input.
+:::
+
 ## Real-time Feedback
 
-Visual strength indicator:
+A strength bar driven by the hook's `result.score` (0–4):
 
-```typescript
+```tsx
 import { usePasswordValidator } from '@sentinel-password/react'
 
 function PasswordWithStrength() {
-  const {
-    value,
-    isValid,
-    errors,
-    strength,
-    handleChange
-  } = usePasswordValidator({
-    validators: {
-      length: { min: 8 },
-      characterTypes: {
-        requireUppercase: true,
-        requireNumbers: true,
-        requireSymbols: true
-      }
-    }
+  const { password, setPassword, result } = usePasswordValidator({
+    minLength: 8,
+    requireUppercase: true,
+    requireDigit: true,
+    requireSymbol: true,
   })
 
-  const getStrengthColor = () => {
-    if (strength === 'weak') return 'bg-red-500'
-    if (strength === 'medium') return 'bg-yellow-500'
-    return 'bg-green-500'
-  }
+  const score = result?.score ?? 0
+  const widthPct = ((score + 1) / 5) * 100
 
-  const getStrengthWidth = () => {
-    if (strength === 'weak') return 'w-1/3'
-    if (strength === 'medium') return 'w-2/3'
-    return 'w-full'
-  }
+  const color =
+    score <= 1 ? 'bg-red-500' : score === 2 ? 'bg-yellow-500' : 'bg-green-500'
 
   return (
     <div>
-      <label htmlFor="password">Password</label>
+      <label htmlFor="pw">Password</label>
       <input
-        id="password"
+        id="pw"
         type="password"
-        value={value}
-        onChange={handleChange}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
       />
-      
-      {/* Strength bar */}
+
       <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
-        <div 
-          className={`h-full rounded-full transition-all ${getStrengthColor()} ${getStrengthWidth()}`}
+        <div
+          className={`h-full rounded-full transition-all ${color}`}
+          style={{ width: `${widthPct}%` }}
         />
       </div>
-      
+
       <p className="mt-1 text-sm text-gray-600">
-        Strength: <span className="font-semibold">{strength}</span>
+        Strength: <span className="font-semibold">{result?.strength ?? '—'}</span>
       </p>
-      
-      {/* Validation errors */}
-      {errors.length > 0 && (
+
+      {result && !result.valid && (
         <ul className="mt-2 space-y-1">
-          {errors.map(error => (
-            <li key={error.code} className="text-sm text-red-600">
-              ✗ {error.message}
+          {result.feedback.suggestions.map((msg, i) => (
+            <li key={i} className="text-sm text-red-600">
+              ✗ {msg}
             </li>
           ))}
         </ul>
       )}
-      
-      {/* Success state */}
-      {isValid && value && (
-        <p className="mt-2 text-sm text-green-600">
-          ✓ Password meets all requirements
-        </p>
+
+      {result?.valid && password && (
+        <p className="mt-2 text-sm text-green-600">✓ Password meets all requirements</p>
       )}
     </div>
   )
@@ -268,9 +229,9 @@ function PasswordWithStrength() {
 
 ## Multi-step Forms
 
-Password validation in a multi-step wizard:
+Wire the user's email and name into `personalInfo` so the password can't include them:
 
-```typescript
+```tsx
 import { useState } from 'react'
 import { usePasswordValidator } from '@sentinel-password/react'
 
@@ -280,92 +241,69 @@ function MultiStepSignup() {
   const [step, setStep] = useState<Step>('email')
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
-  
-  const {
-    value: password,
-    isValid: passwordValid,
-    errors,
-    handleChange
-  } = usePasswordValidator({
-    validators: {
-      length: { min: 8 },
-      characterTypes: {
-        requireUppercase: true,
-        requireNumbers: true
-      },
-      personalInfo: {
-        enabled: true,
-        fields: [email, name].filter(Boolean)
-      }
-    }
+
+  const { password, setPassword, result } = usePasswordValidator({
+    minLength: 8,
+    requireUppercase: true,
+    requireDigit: true,
+    personalInfo: [email, name].filter(Boolean),
   })
 
-  const nextStep = () => {
+  const next = () => {
     if (step === 'email' && email) setStep('password')
-    else if (step === 'password' && passwordValid) setStep('profile')
+    else if (step === 'password' && result?.valid) setStep('profile')
     else if (step === 'profile' && name) setStep('complete')
   }
 
-  const prevStep = () => {
+  const back = () => {
     if (step === 'password') setStep('email')
     else if (step === 'profile') setStep('password')
   }
 
   return (
     <div>
-      <h2>Create Account - Step {
-        step === 'email' ? '1' :
-        step === 'password' ? '2' :
-        step === 'profile' ? '3' : '4'
-      } of 3</h2>
-      
+      <h2>
+        Create Account — Step{' '}
+        {step === 'email' ? 1 : step === 'password' ? 2 : step === 'profile' ? 3 : 4} of 3
+      </h2>
+
       {step === 'email' && (
         <div>
           <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button onClick={nextStep} disabled={!email}>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <button onClick={next} disabled={!email}>
             Next
           </button>
         </div>
       )}
-      
+
       {step === 'password' && (
         <div>
           <label>Password</label>
           <input
             type="password"
             value={password}
-            onChange={handleChange}
+            onChange={(e) => setPassword(e.target.value)}
           />
-          {errors.map(error => (
-            <p key={error.code}>{error.message}</p>
-          ))}
-          <button onClick={prevStep}>Back</button>
-          <button onClick={nextStep} disabled={!passwordValid}>
+          {result?.feedback.suggestions.map((msg, i) => <p key={i}>{msg}</p>)}
+          <button onClick={back}>Back</button>
+          <button onClick={next} disabled={!result?.valid}>
             Next
           </button>
         </div>
       )}
-      
+
       {step === 'profile' && (
         <div>
           <label>Full Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <button onClick={prevStep}>Back</button>
-          <button onClick={nextStep} disabled={!name}>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+          <button onClick={back}>Back</button>
+          <button onClick={next} disabled={!name}>
             Complete
           </button>
         </div>
       )}
-      
+
       {step === 'complete' && (
         <div>
           <h3>Account Created!</h3>
@@ -380,10 +318,11 @@ function MultiStepSignup() {
 
 ## More Examples
 
-Browse our [Storybook](https://github.com/akankov/sentinel-password) for interactive examples.
+Browse the [Storybook](https://github.com/akankov/sentinel-password) and the [examples/](https://github.com/akankov/sentinel-password/tree/main/examples) directory for runnable apps.
 
 ## See Also
 
 - [Getting Started](/guide/getting-started)
 - [API Reference](/api/core)
 - [Validators Guide](/guide/validators)
+- [Server-Side Usage](/guide/server-side)

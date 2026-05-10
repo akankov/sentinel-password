@@ -92,13 +92,10 @@ Provides accessible labels for buttons:
 
 Announces validation changes to screen readers:
 
-```typescript
-<div 
-  role="alert" 
-  aria-live="polite"
->
-  {errors.map(error => (
-    <p key={error.code}>{error.message}</p>
+```tsx
+<div role="alert" aria-live="polite">
+  {result?.feedback.suggestions.map((msg, i) => (
+    <p key={i}>{msg}</p>
   ))}
 </div>
 ```
@@ -371,15 +368,13 @@ Use tools like:
 - [WAVE](https://wave.webaim.org/)
 - [Lighthouse](https://developers.google.com/web/tools/lighthouse)
 
-```typescript
+```tsx
 import { render } from '@testing-library/react'
 import { axe } from 'jest-axe'
 
 test('PasswordInput is accessible', async () => {
-  const { container } = render(
-    <PasswordInput label="Password" validators={{ length: { min: 8 } }} />
-  )
-  
+  const { container } = render(<PasswordInput label="Password" />)
+
   const results = await axe(container)
   expect(results).toHaveNoViolations()
 })
@@ -431,16 +426,8 @@ function AccessibleSignupForm() {
       <PasswordInput
         label="Password"
         description="Must be at least 12 characters with uppercase, numbers, and symbols"
-        validators={{
-          length: { min: 12 },
-          characterTypes: {
-            requireUppercase: true,
-            requireNumbers: true,
-            requireSymbols: true
-          }
-        }}
-        className="password-field"
-        inputClassName="password-input"
+        containerClassName="password-field"
+        className="password-input"
       />
       
       <button type="submit">

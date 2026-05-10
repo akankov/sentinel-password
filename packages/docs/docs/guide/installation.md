@@ -92,20 +92,21 @@ bun add @sentinel-password/react-components
 All packages are written in TypeScript and include full type definitions:
 
 ```typescript
-import type { 
+import type {
   ValidationResult,
-  ValidatorConfig,
-  PasswordStrength 
+  ValidatorOptions,
+  StrengthScore,
+  StrengthLabel,
 } from '@sentinel-password/core'
 
-import type { 
+import type {
   UsePasswordValidatorOptions,
-  UsePasswordValidatorReturn 
+  UsePasswordValidatorReturn,
 } from '@sentinel-password/react'
 
-import type { 
+import type {
   PasswordInputProps,
-  ValidationMessage 
+  ValidationMessage,
 } from '@sentinel-password/react-components'
 ```
 
@@ -129,11 +130,9 @@ For quick prototyping, you can use a CDN:
 <!-- ESM -->
 <script type="module">
   import { validatePassword } from 'https://esm.sh/@sentinel-password/core'
-  
-  const result = validatePassword('password123', {
-    validators: { length: { min: 8 } }
-  })
-  console.log(result)
+
+  const result = validatePassword('password123', { minLength: 8 })
+  console.log(result.valid, result.strength)
 </script>
 ```
 
@@ -148,13 +147,10 @@ After installation, verify everything works:
 ```javascript
 import { validatePassword } from '@sentinel-password/core'
 
-const result = validatePassword('Test1234!', {
-  validators: {
-    length: { min: 8 }
-  }
-})
+const result = validatePassword('Test1234!', { minLength: 8 })
 
-console.log(result.isValid) // true
+console.log(result.valid) // true
+console.log(result.strength) // 'strong' or 'very-strong'
 ```
 
 ## Next Steps

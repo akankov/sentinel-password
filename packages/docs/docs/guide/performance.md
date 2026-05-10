@@ -70,8 +70,9 @@ The React hook includes built-in debouncing (300ms default) to avoid validating 
 ```typescript
 import { usePasswordValidator } from '@sentinel-password/react'
 
-const { result } = usePasswordValidator(password, {
-  debounceMs: 300, // Default — validates 300ms after user stops typing
+const { password, setPassword, result } = usePasswordValidator({
+  minLength: 8,
+  debounceMs: 300, // Default — validates 300ms after typing stops
 })
 ```
 
@@ -98,6 +99,8 @@ If you only need specific validators, import them directly. Bundlers will tree-s
 import { validateLength, validateCharacterTypes } from '@sentinel-password/core'
 
 const lengthCheck = validateLength(password, { minLength: 12 })
+// { passed: true | false, message?: string }
+
 const charCheck = validateCharacterTypes(password, {
   requireUppercase: true,
   requireDigit: true,

@@ -1,208 +1,191 @@
 # Validators
 
-Comprehensive guide to all available password validators.
+A complete guide to the seven built-in validators. All seven run inside a single call to `validatePassword(password, options)` — you don't pick them individually; you tune their behavior through the flat options object.
 
-## Overview
+Each validator is also exported standalone if you want to call it directly (handy for testing or for tree-shaking when you only need one).
 
-Sentinel Password provides 7 built-in validators that can be mixed and matched to create your ideal password policy.
+## How Validators Combine
+
+`validatePassword` runs all seven checks unconditionally and reports the result in `result.checks`. To make a check effectively a no-op:
+
+- `length`, `repetition`: relax the threshold (`minLength: 1`, `maxRepeatedChars: 9999`)
+- `characterTypes`: leave the four `require*` options off (the default)
+- `sequential`, `keyboardPattern`, `commonPassword`: set `checkSequential`, `checkKeyboardPatterns`, or `checkCommonPasswords` to `false`
+- `personalInfo`: omit the `personalInfo` array (default), or pass an empty array
+
+```typescript
+import { validatePassword } from '@sentinel-password/core'
+
+const result = validatePassword('MyP@ssw0rd!', {
+  minLength: 12,
+  requireUppercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  personalInfo: ['user@example.com', 'Alex'],
+})
+
+console.log(result.checks)
+// { length: false, characterTypes: true, repetition: true, sequential: true,
+//   keyboardPattern: true, commonPassword: true, personalInfo: true }
+```
 
 ## Available Validators
 
-### Length Validator
+### Length
 
-Controls minimum and maximum password length.
+Caps the password length on both sides.
 
-**Configuration:**
+**Options:**
+
+| Option | Default | Effect |
+|--------|---------|--------|
+| `minLength` | `8` | Reject passwords shorter than this |
+| `maxLength` | `128` | Reject passwords longer than this |
+
+**Standalone:**
 ```typescript
-{
-  validators: {
-    length: {
-      min: 8,      // Minimum length (default: 8)
-      max: 128     // Maximum length (default: 128)
-    }
-  }
-}
+import { validateLength } from '@sentinel-password/core'
+
+validateLength('abc', { minLength: 8 })
+// { passed: false, message: 'Password must be at least 8 characters' }
 ```
 
-**Error Codes:**
-- `PASSWORD_TOO_SHORT` - Password is below minimum length
-- `PASSWORD_TOO_LONG` - Password exceeds maximum length
+### Character Types
 
-**Example:**
+Enforces required character classes.
+
+**Options:**
+
+| Option | Default | Effect |
+|--------|---------|--------|
+| `requireUppercase` | `false` | Require ≥1 uppercase letter |
+| `requireLowercase` | `false` | Require ≥1 lowercase letter |
+| `requireDigit` | `false` | Require ≥1 digit |
+| `requireSymbol` | `false` | Require ≥1 symbol |
+
+**Standalone:**
 ```typescript
-validatePassword('short', { validators: { length: { min: 8 } } })
-// { isValid: false, errors: [{ code: 'PASSWORD_TOO_SHORT', ... }] }
+import { validateCharacterTypes, hasUppercase, hasDigit } from '@sentinel-password/core'
+
+validateCharacterTypes('alllower1', { requireUppercase: true })
+// { passed: false, message: 'Password must contain at least one uppercase letter' }
+
+hasUppercase('Hi')  // true
+hasDigit('hi')      // false
 ```
 
-### Character Types Validator
+### Repetition
 
-Requires specific character types (uppercase, lowercase, numbers, symbols).
+Rejects long runs of the same character (`aaaa`, `1111`).
 
-**Configuration:**
+**Options:**
+
+| Option | Default | Effect |
+|--------|---------|--------|
+| `maxRepeatedChars` | `3` | Max allowed identical consecutive characters |
+
+**Standalone:**
 ```typescript
-{
-  validators: {
-    characterTypes: {
-      requireUppercase: true,   // Require at least one uppercase letter
-      requireLowercase: true,   // Require at least one lowercase letter
-      requireNumbers: true,     // Require at least one number
-      requireSymbols: true,     // Require at least one symbol
-      minUppercase: 2,          // Minimum uppercase letters
-      minLowercase: 2,          // Minimum lowercase letters
-      minNumbers: 2,            // Minimum numbers
-      minSymbols: 2             // Minimum symbols
-    }
-  }
-}
+import { validateRepetition } from '@sentinel-password/core'
+
+validateRepetition('Paaaaass1!', { maxRepeatedChars: 3 })
+// { passed: false, message: 'Password contains too many repeated characters' }
 ```
 
-**Error Codes:**
-- `MISSING_UPPERCASE` - Missing required uppercase letters
-- `MISSING_LOWERCASE` - Missing required lowercase letters
-- `MISSING_NUMBERS` - Missing required numbers
-- `MISSING_SYMBOLS` - Missing required symbols
+### Sequential
 
-### Common Password Validator
+Detects ascending or descending runs in the alphabet or digits (`abc`, `xyz`, `123`, `987`).
 
-Checks password against a list of 10,000+ commonly used passwords.
+**Options:**
 
-**Configuration:**
+| Option | Default | Effect |
+|--------|---------|--------|
+| `checkSequential` | `true` | Disable with `false` to allow sequences |
+
+**Standalone:**
 ```typescript
-{
-  validators: {
-    commonPassword: {
-      enabled: true
-    }
-  }
-}
+import { validateSequential } from '@sentinel-password/core'
+
+validateSequential('abc1xyz!')
+// { passed: false, message: 'Password contains sequential characters (e.g., abc, 123)' }
 ```
 
-**Error Codes:**
-- `COMMON_PASSWORD` - Password is too common
+### Keyboard Pattern
 
-**Examples of common passwords:**
-- `password`, `123456`, `qwerty`
-- `welcome`, `admin`, `letmein`
-- Dictionary words like `monkey`, `dragon`
+Catches runs along common keyboard layouts (`qwerty`, `asdfgh`, `zxcvbn`, `!@#$%`).
 
-### Keyboard Pattern Validator
+**Options:**
 
-Detects keyboard patterns like `qwerty`, `asdfgh`.
+| Option | Default | Effect |
+|--------|---------|--------|
+| `checkKeyboardPatterns` | `true` | Disable with `false` to allow keyboard patterns |
 
-**Configuration:**
+**Standalone:**
 ```typescript
-{
-  validators: {
-    keyboardPattern: {
-      enabled: true,
-      maxConsecutive: 5  // Max consecutive keyboard chars (default: 5)
-    }
-  }
-}
+import { validateKeyboardPattern } from '@sentinel-password/core'
+
+validateKeyboardPattern('qwerty123!')
+// { passed: false, message: 'Password contains common keyboard patterns' }
 ```
 
-**Error Codes:**
-- `KEYBOARD_PATTERN` - Contains keyboard pattern
+### Common Password
 
-**Detected patterns:**
-- `qwerty`, `asdfgh`, `zxcvbn`
-- `!@#$%`, `12345`
+Looks the password up in a precomputed Bloom filter of the top 1,000 common passwords. O(1) lookup, no network calls.
 
-### Sequential Validator
+**Options:**
 
-Detects sequential characters like `abc`, `123`, `xyz`.
+| Option | Default | Effect |
+|--------|---------|--------|
+| `checkCommonPasswords` | `true` | Disable with `false` to skip the lookup |
 
-**Configuration:**
+**Standalone:**
 ```typescript
-{
-  validators: {
-    sequential: {
-      enabled: true,
-      maxConsecutive: 3  // Max consecutive sequential chars (default: 3)
-    }
-  }
-}
+import { validateCommonPassword } from '@sentinel-password/core'
+
+validateCommonPassword('password')
+// { passed: false, message: 'Password is too common. Please choose a more unique password.' }
 ```
 
-**Error Codes:**
-- `SEQUENTIAL_CHARS` - Contains sequential characters
+### Personal Info
 
-**Examples:**
-- Alphabetic: `abc`, `xyz`, `fed` (reverse)
-- Numeric: `123`, `456`, `987` (reverse)
+Rejects passwords that contain a substring of any provided identifier (case-insensitive). Pass any user-identifying strings — email, name, username — that the password should not include.
 
-### Repetition Validator
+**Options:**
 
-Detects repeated characters like `aaa`, `111`.
+| Option | Default | Effect |
+|--------|---------|--------|
+| `personalInfo` | `undefined` | Array of strings the password must not contain (substring match, case-insensitive) |
 
-**Configuration:**
+**Standalone:**
 ```typescript
-{
-  validators: {
-    repetition: {
-      enabled: true,
-      maxConsecutive: 2  // Max consecutive repeated chars (default: 2)
-    }
-  }
-}
+import { validatePersonalInfo } from '@sentinel-password/core'
+
+validatePersonalInfo('john1234!', { personalInfo: ['john@example.com', 'John', 'Doe'] })
+// { passed: false, message: 'Password contains personal information' }
 ```
 
-**Error Codes:**
-- `REPETITIVE_CHARS` - Too many repeated characters
+::: tip
+Pass `personalInfo` whenever you have user context (signup form, profile update). It's a cheap, high-signal check — substring match catches `JohnDoe2024!` for `[ "John", "Doe" ]`.
+:::
 
-**Examples:**
-- `aaaaaa` - same character repeated
-- `111111` - same number repeated
+## Strict Policy Example
 
-### Personal Info Validator
-
-Checks if password contains personal information.
-
-**Configuration:**
-```typescript
-{
-  validators: {
-    personalInfo: {
-      enabled: true,
-      fields: ['john.doe@example.com', 'John', 'Doe']
-    }
-  }
-}
-```
-
-**Error Codes:**
-- `CONTAINS_PERSONAL_INFO` - Password contains personal information
-
-**Use cases:**
-- Email addresses
-- Names (first, last)
-- Usernames
-- Company names
-
-## Combining Validators
-
-Mix and match validators for comprehensive validation:
+A common "high security" preset:
 
 ```typescript
-const config = {
-  validators: {
-    length: { min: 12, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true
-    },
-    commonPassword: { enabled: true },
-    keyboardPattern: { enabled: true },
-    sequential: { enabled: true },
-    repetition: { enabled: true },
-    personalInfo: { 
-      enabled: true,
-      fields: ['user@example.com']
-    }
-  }
-}
+import { validatePassword } from '@sentinel-password/core'
+
+const result = validatePassword(password, {
+  minLength: 12,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  maxRepeatedChars: 2,
+  // checkSequential, checkKeyboardPatterns, checkCommonPasswords default to true
+  personalInfo: [user.email, user.firstName, user.lastName].filter(Boolean),
+})
 ```
 
 ## See Also

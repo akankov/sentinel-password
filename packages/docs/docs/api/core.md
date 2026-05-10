@@ -1,6 +1,6 @@
 # Core Package API
 
-The `@sentinel-password/core` package provides the foundational password validation functionality.
+The `@sentinel-password/core` package provides the foundational password validation functionality. It is zero-dependency, isomorphic, and ships both ESM and CommonJS builds.
 
 ## Installation
 
@@ -12,13 +12,13 @@ npm install @sentinel-password/core
 
 ### `validatePassword()`
 
-Validates a password against configured validators.
+Run all built-in checks against a password and get a structured result with strength, feedback, and per-check booleans.
 
 **Signature:**
 ```typescript
 function validatePassword(
   password: string,
-  config: ValidatorConfig
+  options?: ValidatorOptions
 ): ValidationResult
 ```
 
@@ -27,18 +27,9 @@ function validatePassword(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `password` | `string` | The password to validate |
-| `config` | `ValidatorConfig` | Validation configuration |
+| `options` | `ValidatorOptions` | Optional validation configuration (all fields optional) |
 
 **Returns:** `ValidationResult`
-
-```typescript
-interface ValidationResult {
-  isValid: boolean
-  errors: ValidationError[]
-  warnings: ValidationError[]
-  strength: PasswordStrength // 'weak' | 'medium' | 'strong'
-}
-```
 
 **Example:**
 
@@ -46,310 +37,222 @@ interface ValidationResult {
 import { validatePassword } from '@sentinel-password/core'
 
 const result = validatePassword('MyP@ssw0rd!', {
-  validators: {
-    length: { min: 8, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true
-    }
-  }
+  minLength: 8,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
 })
 
-console.log(result)
+console.log(result.valid)              // true
+console.log(result.strength)           // 'very-strong'
+console.log(result.score)              // 4
+console.log(result.feedback.warning)   // undefined when valid
+console.log(result.feedback.suggestions) // []
+console.log(result.checks)
 // {
-//   isValid: true,
-//   errors: [],
-//   warnings: [],
-//   strength: 'strong'
+//   length: true, characterTypes: true, repetition: true,
+//   sequential: true, keyboardPattern: true,
+//   commonPassword: true, personalInfo: true,
 // }
+```
+
+## Individual Validators
+
+Each built-in check is also exported on its own for targeted use and tree-shaking.
+
+```typescript
+import {
+  validateLength,
+  validateCharacterTypes,
+  validateRepetition,
+  validateSequential,
+  validateKeyboardPattern,
+  validateCommonPassword,
+  validatePersonalInfo,
+  hasUppercase,
+  hasLowercase,
+  hasDigit,
+  hasSymbol,
+} from '@sentinel-password/core'
+
+const lengthCheck = validateLength('abc', { minLength: 8 })
+// { passed: false, message: 'Password must be at least 8 characters' }
+```
+
+Every validator returns a `ValidatorCheck`:
+
+```typescript
+interface ValidatorCheck {
+  passed: boolean
+  message?: string
+}
 ```
 
 ## Types
 
-### `ValidatorConfig`
+### `ValidatorOptions`
 
-Main configuration object for validators:
+A flat configuration object — every field is optional.
 
 ```typescript
-interface ValidatorConfig {
-  validators: {
-    length?: LengthValidatorConfig
-    characterTypes?: CharacterTypesValidatorConfig
-    commonPassword?: CommonPasswordValidatorConfig
-    keyboardPattern?: KeyboardPatternValidatorConfig
-    sequential?: SequentialValidatorConfig
-    repetition?: RepetitionValidatorConfig
-    personalInfo?: PersonalInfoValidatorConfig
+interface ValidatorOptions {
+  minLength?: number              // Default: 8
+  maxLength?: number              // Default: 128
+  requireUppercase?: boolean      // Default: false
+  requireLowercase?: boolean      // Default: false
+  requireDigit?: boolean          // Default: false
+  requireSymbol?: boolean         // Default: false
+  maxRepeatedChars?: number       // Default: 3
+  checkSequential?: boolean       // Default: true
+  checkKeyboardPatterns?: boolean // Default: true
+  checkCommonPasswords?: boolean  // Default: true
+  personalInfo?: string[]         // Default: undefined (disabled)
+}
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `minLength` | `8` | Minimum password length |
+| `maxLength` | `128` | Maximum password length |
+| `requireUppercase` | `false` | Require at least one uppercase letter |
+| `requireLowercase` | `false` | Require at least one lowercase letter |
+| `requireDigit` | `false` | Require at least one digit |
+| `requireSymbol` | `false` | Require at least one symbol |
+| `maxRepeatedChars` | `3` | Max consecutive repeated characters allowed |
+| `checkSequential` | `true` | Reject sequential characters (`abc`, `123`) |
+| `checkKeyboardPatterns` | `true` | Reject keyboard runs (`qwerty`, `asdfgh`) |
+| `checkCommonPasswords` | `true` | Reject the top 1,000 common passwords |
+| `personalInfo` | — | Array of strings (email, name) the password must not contain |
+
+### `ValidationResult`
+
+```typescript
+interface ValidationResult {
+  valid: boolean
+  score: StrengthScore
+  strength: StrengthLabel
+  feedback: {
+    warning?: string
+    suggestions: readonly string[]
   }
+  checks: Record<CheckId, boolean>
 }
 ```
 
-### `ValidationError`
+| Field | Type | Description |
+|-------|------|-------------|
+| `valid` | `boolean` | `true` only if every check passed |
+| `score` | `StrengthScore` (`0`–`4`) | Strength score derived from passed-check ratio |
+| `strength` | `StrengthLabel` | Human-readable label (see below) |
+| `feedback.warning` | `string \| undefined` | First failure message, if any |
+| `feedback.suggestions` | `readonly string[]` | All failure messages, in check order |
+| `checks` | `Record<CheckId, boolean>` | Per-check pass/fail map |
 
-Represents a validation error or warning:
+### `StrengthScore` and `StrengthLabel`
+
+Five strength tiers — score and label are linked.
 
 ```typescript
-interface ValidationError {
-  code: string
-  message: string
-  severity: 'error' | 'warning'
-  validator: string
-}
+type StrengthScore = 0 | 1 | 2 | 3 | 4
+type StrengthLabel = 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
 ```
 
-**Common Error Codes:**
+| Score | Label |
+|-------|-------|
+| `0` | `'very-weak'` |
+| `1` | `'weak'` |
+| `2` | `'medium'` |
+| `3` | `'strong'` |
+| `4` | `'very-strong'` |
 
-| Code | Validator | Description |
-|------|-----------|-------------|
-| `PASSWORD_TOO_SHORT` | length | Password is below minimum length |
-| `PASSWORD_TOO_LONG` | length | Password exceeds maximum length |
-| `MISSING_UPPERCASE` | characterTypes | Missing uppercase letters |
-| `MISSING_LOWERCASE` | characterTypes | Missing lowercase letters |
-| `MISSING_NUMBERS` | characterTypes | Missing numbers |
-| `MISSING_SYMBOLS` | characterTypes | Missing symbols |
-| `COMMON_PASSWORD` | commonPassword | Password is too common |
-| `KEYBOARD_PATTERN` | keyboardPattern | Contains keyboard pattern |
-| `SEQUENTIAL_CHARS` | sequential | Contains sequential characters |
-| `REPETITIVE_CHARS` | repetition | Contains too many repeated characters |
-| `CONTAINS_PERSONAL_INFO` | personalInfo | Contains personal information |
+### `CheckId`
 
-### `PasswordStrength`
-
-Password strength indicator:
+Identifiers for the seven built-in checks.
 
 ```typescript
-type PasswordStrength = 'weak' | 'medium' | 'strong'
+type CheckId =
+  | 'length'
+  | 'characterTypes'
+  | 'repetition'
+  | 'sequential'
+  | 'keyboardPattern'
+  | 'commonPassword'
+  | 'personalInfo'
 ```
 
-Strength is calculated based on:
-- Password length
-- Character diversity (uppercase, lowercase, numbers, symbols)
-- Absence of common patterns
-- Overall validator pass rate
-
-## Validator Configurations
-
-### Length Validator
-
-Controls password length requirements:
+### `ValidatorCheck` and `Validator`
 
 ```typescript
-interface LengthValidatorConfig {
-  min?: number  // Minimum length (default: 8)
-  max?: number  // Maximum length (default: 128)
+interface ValidatorCheck {
+  passed: boolean
+  message?: string
 }
-```
 
-**Example:**
-```typescript
-{
-  validators: {
-    length: { min: 12, max: 64 }
-  }
-}
-```
-
-### Character Types Validator
-
-Requires specific character types:
-
-```typescript
-interface CharacterTypesValidatorConfig {
-  requireUppercase?: boolean
-  requireLowercase?: boolean
-  requireNumbers?: boolean
-  requireSymbols?: boolean
-  minUppercase?: number
-  minLowercase?: number
-  minNumbers?: number
-  minSymbols?: number
-}
-```
-
-**Example:**
-```typescript
-{
-  validators: {
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true,
-      minSymbols: 2
-    }
-  }
-}
-```
-
-### Common Password Validator
-
-Checks against common password list:
-
-```typescript
-interface CommonPasswordValidatorConfig {
-  enabled: boolean
-}
-```
-
-**Example:**
-```typescript
-{
-  validators: {
-    commonPassword: { enabled: true }
-  }
-}
-```
-
-### Keyboard Pattern Validator
-
-Detects keyboard patterns like "qwerty":
-
-```typescript
-interface KeyboardPatternValidatorConfig {
-  enabled: boolean
-  maxConsecutive?: number  // Max consecutive keyboard chars (default: 5)
-}
-```
-
-**Example:**
-```typescript
-{
-  validators: {
-    keyboardPattern: { 
-      enabled: true,
-      maxConsecutive: 3
-    }
-  }
-}
-```
-
-### Sequential Validator
-
-Detects sequential characters like "abc" or "123":
-
-```typescript
-interface SequentialValidatorConfig {
-  enabled: boolean
-  maxConsecutive?: number  // Max consecutive sequential chars (default: 3)
-}
-```
-
-**Example:**
-```typescript
-{
-  validators: {
-    sequential: { 
-      enabled: true,
-      maxConsecutive: 3
-    }
-  }
-}
-```
-
-### Repetition Validator
-
-Detects repeated characters like "aaa":
-
-```typescript
-interface RepetitionValidatorConfig {
-  enabled: boolean
-  maxConsecutive?: number  // Max consecutive repeated chars (default: 2)
-}
-```
-
-**Example:**
-```typescript
-{
-  validators: {
-    repetition: { 
-      enabled: true,
-      maxConsecutive: 2
-    }
-  }
-}
-```
-
-### Personal Info Validator
-
-Checks for personal information in password:
-
-```typescript
-interface PersonalInfoValidatorConfig {
-  enabled: boolean
-  fields?: string[]  // Personal info to check against
-}
-```
-
-**Example:**
-```typescript
-{
-  validators: {
-    personalInfo: { 
-      enabled: true,
-      fields: ['john.doe@example.com', 'John', 'Doe']
-    }
-  }
-}
+type Validator = (password: string, options?: ValidatorOptions) => ValidatorCheck
 ```
 
 ## Advanced Usage
 
-### Custom Error Messages
-
-Customize error messages for your application:
-
-```typescript
-const result = validatePassword('weak', config)
-
-const customErrors = result.errors.map(error => ({
-  ...error,
-  message: errorMessages[error.code] || error.message
-}))
-```
-
-### Combining Multiple Validators
-
-Mix and match validators for comprehensive validation:
-
-```typescript
-const strictConfig = {
-  validators: {
-    length: { min: 12, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true
-    },
-    commonPassword: { enabled: true },
-    keyboardPattern: { enabled: true },
-    sequential: { enabled: true },
-    repetition: { enabled: true }
-  }
-}
-```
-
 ### Strength-Based Logic
 
-Use password strength for conditional logic:
+Use `score` and `strength` for tiered acceptance:
 
 ```typescript
-const result = validatePassword(password, config)
+const result = validatePassword(password, options)
 
-if (result.strength === 'weak' && result.isValid) {
-  // Show warning but allow weak passwords
-  console.warn('Password is valid but weak')
-} else if (result.strength === 'strong') {
-  // Reward strong passwords
-  console.log('Excellent password!')
+if (!result.valid) {
+  // Reject; show suggestions
+  return { error: result.feedback.warning, suggestions: result.feedback.suggestions }
 }
+if (result.strength === 'medium') {
+  // Allow but encourage strengthening
+  console.warn('Password meets minimum requirements but could be stronger')
+}
+```
+
+### Disabling Specific Checks
+
+Make validation more permissive:
+
+```typescript
+const result = validatePassword(password, {
+  checkKeyboardPatterns: false,
+  checkSequential: false,
+  checkCommonPasswords: false,
+})
+```
+
+### Personal Info
+
+Pass any user-identifying strings — email, name, username — to reject passwords that contain them. Matching is case-insensitive and substring-based.
+
+```typescript
+validatePassword('john1234!', {
+  personalInfo: ['john@example.com', 'John', 'Doe'],
+})
+// { valid: false, feedback: { warning: 'Password contains personal information', ... } }
+```
+
+### Tree-Shaking Individual Validators
+
+Bundlers will tree-shake unused validators because the package is `sideEffects: false`:
+
+```typescript
+import { validateLength, validateCharacterTypes } from '@sentinel-password/core'
+
+const lengthCheck = validateLength(password, { minLength: 12 })
+const charCheck = validateCharacterTypes(password, {
+  requireUppercase: true,
+  requireDigit: true,
+})
 ```
 
 ## See Also
 
 - [React Hook API](/api/react)
 - [React Components API](/api/react-components)
-- [Validator Details](/guide/validators)
+- [Validators Guide](/guide/validators)
 - [Configuration Guide](/guide/configuration)
+- [Server-Side Usage](/guide/server-side)
