@@ -157,16 +157,18 @@ Toggle password visibility:
 
 Always provide clear labels:
 
-```typescript
+```tsx
 // ✅ Good
 <PasswordInput
   label="Create Password"
-  description="Must be at least 8 characters with uppercase and numbers"
+  description="At least 8 characters; avoids common passwords and obvious patterns"
 />
 
 // ❌ Bad (no label)
 <input type="password" />
 ```
+
+The description should match the policy actually enforced. `PasswordInput` validates against the built-in defaults; for stricter requirements, drive the input from `usePasswordValidator` and write your own description.
 
 ### Error Announcements
 
@@ -425,7 +427,7 @@ function AccessibleSignupForm() {
       
       <PasswordInput
         label="Password"
-        description="Must be at least 12 characters with uppercase, numbers, and symbols"
+        description="At least 8 characters; avoids common passwords and obvious patterns"
         containerClassName="password-field"
         className="password-input"
       />

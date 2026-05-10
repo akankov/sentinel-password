@@ -182,7 +182,7 @@ export const CustomStyling: Story = {
   ),
   args: {
     label: 'Create Password',
-    description: 'Must be at least 8 characters with mixed case and numbers',
+    description: 'At least 8 characters; avoids common passwords and obvious patterns',
   },
 }
 

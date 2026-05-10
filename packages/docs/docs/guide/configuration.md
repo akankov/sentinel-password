@@ -247,13 +247,41 @@ validatePassword(password, {
 
 ### Show Requirements Up Front
 
-Don't make users guess the rules — surface them in the UI before they type:
+Don't make users guess the rules — surface them in the UI before they type, and make sure the UI copy matches the policy you actually enforce.
+
+`PasswordInput` always validates against the defaults (`minLength: 8`, common-password / sequential / keyboard-pattern checks on, no required character types). For any stricter policy, use `usePasswordValidator` so the requirements you describe in the UI are the same ones being checked:
 
 ```tsx
-<PasswordInput
-  label="Create Password"
-  description="Must be 12+ characters with uppercase, digit, and symbol"
-/>
+import { usePasswordValidator } from '@sentinel-password/react'
+
+const policy = {
+  minLength: 12,
+  requireUppercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+}
+
+function PasswordField() {
+  const { password, setPassword, result } = usePasswordValidator(policy)
+
+  return (
+    <div>
+      <label htmlFor="pw">Create Password</label>
+      <p id="pw-help">Must be 12+ characters with uppercase, digit, and symbol</p>
+      <input
+        id="pw"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        aria-describedby="pw-help"
+        aria-invalid={result && !result.valid ? true : undefined}
+      />
+      {result?.feedback.suggestions.map((msg, i) => (
+        <p key={i}>{msg}</p>
+      ))}
+    </div>
+  )
+}
 ```
 
 ## See Also
