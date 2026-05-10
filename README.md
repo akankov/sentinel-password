@@ -59,24 +59,27 @@ if (result.valid) {
 
 ### React
 
-```typescript
+```tsx
 import { usePasswordValidator } from '@sentinel-password/react'
 
 function SignupForm() {
-  const { value, isValid, errors, strength, handleChange } =
-    usePasswordValidator({
-      validators: {
-        length: { min: 8 },
-        characterTypes: { requireUppercase: true, requireNumbers: true },
-        commonPassword: { enabled: true },
-      },
-    })
+  const { password, setPassword, result } = usePasswordValidator({
+    minLength: 8,
+    requireUppercase: true,
+    requireDigit: true,
+  })
 
   return (
     <div>
-      <input type="password" value={value} onChange={handleChange} />
-      <p>Strength: {strength}</p>
-      {errors.map(e => <p key={e.code}>{e.message}</p>)}
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <p>Strength: {result?.strength ?? '—'}</p>
+      {result?.feedback.suggestions.map((msg, i) => (
+        <p key={i}>{msg}</p>
+      ))}
     </div>
   )
 }
