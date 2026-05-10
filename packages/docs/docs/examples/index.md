@@ -38,7 +38,7 @@ Complete, runnable examples in different stacks:
 ```typescript
 import { validatePassword } from '@sentinel-password/core'
 
-const result = validatePassword('MySecureP@ss123', {
+const result = validatePassword('Quartz-Glider!9pump', {
   minLength: 8,
   maxLength: 128,
   requireUppercase: true,
@@ -56,6 +56,10 @@ console.log(result)
 //   checks: { length: true, characterTypes: true, ... },
 // }
 ```
+
+::: tip Common pitfall
+Suffixes like `123`, `abc`, or `qwerty` trigger the sequential and keyboard-pattern checks even when the rest of the password looks strong. `MySecureP@ss123` looks plausible but fails — it satisfies every character-type requirement *and* returns `valid: false` with `strength: 'strong'`. The strength label and the `valid` flag aren't redundant: `valid` requires every check to pass; `strength` reflects the ratio.
+:::
 
 ## React Form
 

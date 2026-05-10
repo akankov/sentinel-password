@@ -89,29 +89,27 @@ interface ValidationResult {
 Customize validation rules to match your requirements:
 
 ```typescript
-const result = validatePassword('MyPassword123!', {
+const result = validatePassword('Tr0ub4dor&3-isLong!', {
   // Length constraints
   minLength: 12,              // default: 8
   maxLength: 128,             // default: 128
-  
+
   // Character requirements
   requireUppercase: true,     // default: false
   requireLowercase: true,     // default: false
   requireDigit: true,         // default: false
   requireSymbol: true,        // default: false
-  
+
   // Pattern detection
   maxRepeatedChars: 3,        // default: 3
   checkSequential: true,      // default: true
   checkKeyboardPatterns: true, // default: true
   checkCommonPasswords: true, // default: true
-  
+
   // Personal information exclusion
-  personalInfo: [
-    'johndoe',
-    'john.doe@example.com'
-  ]
+  personalInfo: ['johndoe', 'john.doe@example.com'],
 })
+// result.valid === true, result.strength === 'very-strong'
 ```
 
 ## Usage Examples
@@ -124,7 +122,7 @@ import { validatePassword } from '@sentinel-password/core'
 // Valid password
 const result1 = validatePassword('Tr0ub4dor&3')
 console.log(result1.valid) // true
-console.log(result1.strength) // 'strong'
+console.log(result1.strength) // 'very-strong'
 
 // Invalid password (too short)
 const result2 = validatePassword('pass')

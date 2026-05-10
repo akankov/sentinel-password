@@ -147,11 +147,15 @@ After installation, verify everything works:
 ```javascript
 import { validatePassword } from '@sentinel-password/core'
 
-const result = validatePassword('Test1234!', { minLength: 8 })
+const result = validatePassword('Test-Pa55word!', { minLength: 8 })
 
 console.log(result.valid) // true
-console.log(result.strength) // 'strong' or 'very-strong'
+console.log(result.strength) // 'very-strong'
 ```
+
+::: tip Why not `Test1234!`?
+The `1234` sequence trips the sequential + keyboard-pattern detectors even though every other check passes — `valid` comes back `false` with `strength: 'strong'`. The validator's job is to catch exactly these "looks fine, isn't" passwords.
+:::
 
 ## Next Steps
 
