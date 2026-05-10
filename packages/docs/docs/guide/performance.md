@@ -78,18 +78,29 @@ const { password, setPassword, result } = usePasswordValidator({
 
 ### Disable Checks You Don't Need
 
-If you don't need all validators, disable them to reduce work:
+`validatePassword` always invokes all seven built-in validators — there is no way to skip a validator entirely from the top-level call. Three of them, however, have explicit disable flags that short-circuit the validator's inner work via an early-return:
 
 ```typescript
 import { validatePassword } from '@sentinel-password/core'
 
-// Faster — only checks length and character types
 const result = validatePassword(password, {
-  checkCommonPasswords: false,
-  checkKeyboardPatterns: false,
-  checkSequential: false,
+  checkCommonPasswords: false,    // skips Bloom-filter lookup
+  checkKeyboardPatterns: false,   // skips QWERTY/AZERTY scan
+  checkSequential: false,         // skips abc/123 scan
 })
+// `length`, `characterTypes`, `repetition`, and `personalInfo` still run.
 ```
+
+Two notes on what this actually does:
+
+- The disabled validators are **still called** and **still appear in `result.checks`** — they just always report `passed: true` when their flag is off. Don't treat `result.checks.sequential === true` as proof the password was checked for sequences if you've disabled the flag.
+- The other four validators have no disable flag. To make them effectively no-ops:
+  - `length` — set `minLength: 1, maxLength: 9999`.
+  - `repetition` — set `maxRepeatedChars: 9999`.
+  - `characterTypes` — leave the `require*` flags off (the default).
+  - `personalInfo` — omit the `personalInfo` array (the default; the validator early-returns on empty arrays).
+
+The savings are real but small — validation already runs in microseconds end-to-end (see the [Individual Validator Performance](#individual-validator-performance) table). If you genuinely need only one or two checks, prefer the tree-shaking pattern below.
 
 ### Tree-Shaking Individual Validators
 
