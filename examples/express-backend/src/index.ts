@@ -48,7 +48,7 @@ app.post('/signup', (req: Request<unknown, unknown, SignupBody>, res: Response) 
   })
 })
 
-const port: number = Number(process.env['PORT'] ?? 3000)
+const port: number = Number(process.env['PORT']) || 3000
 app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`express-backend example listening on http://localhost:${port}`)
