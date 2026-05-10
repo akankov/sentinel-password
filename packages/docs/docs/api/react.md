@@ -27,8 +27,8 @@ function usePasswordValidator(
 
 ```typescript
 interface UsePasswordValidatorOptions extends ValidatorOptions {
-  debounceMs?: number       // Default: 300. Set to 0 to disable.
-  validateOnMount?: boolean // Default: false
+  debounceMs?: number        // Default: 300. Set to 0 to disable.
+  validateOnMount?: boolean  // Default: false. No-op today — see table below.
   validateOnChange?: boolean // Default: false
 }
 ```
@@ -36,7 +36,7 @@ interface UsePasswordValidatorOptions extends ValidatorOptions {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Delay in ms after `setPassword` before validating. `0` disables debouncing (paired with `validateOnChange: true` for instant validation). |
-| `validateOnMount` | `boolean` | `false` | If true and an initial password is set before mount, run validation once on mount. |
+| `validateOnMount` | `boolean` | `false` | **No-op in the current release.** The hook initializes `password` to `''` and the mount effect only validates when `password.length > 0`, but there is no `initialPassword` option to seed a non-empty value. To validate before user input, call `validate()` manually after your first `setPassword`. |
 | `validateOnChange` | `boolean` | `false` | If true *and* `debounceMs === 0`, validate synchronously inside `setPassword`. |
 | ...all `ValidatorOptions` | — | — | All flat options from [`@sentinel-password/core`](/api/core#validatoroptions) (`minLength`, `requireUppercase`, `personalInfo`, etc.). |
 
