@@ -141,26 +141,30 @@ function SignupForm() {
 
 ### Uncontrolled With Default Value
 
+`PasswordInput` does not currently forward refs. For uncontrolled usage, give the input a `name` (it flows through to the underlying `<input>`) and read the value from `FormData` on submit:
+
 ```tsx
 import { PasswordInput } from '@sentinel-password/react-components'
-import { useRef } from 'react'
 
 function ResetForm() {
-  const ref = useRef<HTMLInputElement>(null)
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('Submitted:', ref.current?.value)
+    const data = new FormData(e.currentTarget)
+    console.log('Submitted:', data.get('password'))
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <PasswordInput ref={ref} label="New Password" defaultValue="" />
+      <PasswordInput label="New Password" name="password" defaultValue="" />
       <button type="submit">Reset</button>
     </form>
   )
 }
 ```
+
+::: tip Refs are not forwarded
+The component is a plain function component, not wrapped in `React.forwardRef`. Passing `ref={...}` will be silently ignored. Use the controlled pattern (`value` + `onChange`) when you need direct access to the value, or the `FormData` pattern above for uncontrolled forms.
+:::
 
 ## Styling
 
