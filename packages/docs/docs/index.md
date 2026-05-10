@@ -22,7 +22,7 @@ hero:
 features:
   - icon: 🎯
     title: Flexible & Configurable
-    details: Define your own validation rules with granular control over password requirements. Mix and match validators to fit your exact needs.
+    details: Tune all seven built-in checks through a single flat options object — relax thresholds, require character types, or disable individual checks via their flags.
   
   - icon: ♿
     title: Accessibility First

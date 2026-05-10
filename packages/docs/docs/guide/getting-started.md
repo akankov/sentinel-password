@@ -139,19 +139,19 @@ function SignupForm() {
 
 ## Configuration Options
 
-All validators are optional and can be mixed and matched:
+All seven built-in checks run on **every** call to `validatePassword`. The options below tune their thresholds, and a few can be effectively disabled — see the [Validators guide](/guide/validators) for how to neutralize each one.
 
 ### Available Validators
 
-| Validator | Description |
-|-----------|-------------|
-| `length` | Minimum and maximum password length |
-| `characterTypes` | Required character types (uppercase, lowercase, numbers, symbols) |
-| `commonPassword` | Checks against common password lists |
-| `keyboardPattern` | Detects keyboard patterns like "qwerty" |
-| `sequential` | Detects sequential characters like "abc123" |
-| `repetition` | Detects repeated characters like "aaa" |
-| `personalInfo` | Checks for personal information (name, email, etc.) |
+| Validator | Description | How to relax / disable |
+|-----------|-------------|------------------------|
+| `length` | Minimum and maximum password length | Set `minLength: 1`, `maxLength: 9999` |
+| `characterTypes` | Required character types | Leave the `require*` flags off (default) |
+| `commonPassword` | Checks against the top common-passwords list | `checkCommonPasswords: false` |
+| `keyboardPattern` | Detects keyboard runs like "qwerty" | `checkKeyboardPatterns: false` |
+| `sequential` | Detects sequential characters like "abc123" | `checkSequential: false` |
+| `repetition` | Detects repeated characters like "aaa" | Set `maxRepeatedChars` very high |
+| `personalInfo` | Rejects passwords containing supplied identifiers | Omit `personalInfo` (default) |
 
 ### Example: Strong Password Policy
 
