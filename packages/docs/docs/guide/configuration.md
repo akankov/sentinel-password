@@ -76,9 +76,12 @@ With no options at all, `validatePassword` enforces `minLength: 8`, `maxLength: 
 ```typescript
 import type { ValidatorOptions } from '@sentinel-password/core'
 
-const getConfig = (env: 'dev' | 'staging' | 'prod'): ValidatorOptions => {
-  if (env === 'dev') return { minLength: 4 }
-  if (env === 'staging') return { minLength: 8, requireUppercase: true }
+// Match the standard NODE_ENV values. Anything unrecognized — including
+// undefined — falls through to the strictest (production) preset, which is
+// the right fail-safe default for a security check.
+const getConfig = (env: string | undefined): ValidatorOptions => {
+  if (env === 'development') return { minLength: 4 }
+  if (env === 'test') return { minLength: 4 }
   return {
     minLength: 12,
     requireUppercase: true,
@@ -87,7 +90,7 @@ const getConfig = (env: 'dev' | 'staging' | 'prod'): ValidatorOptions => {
   }
 }
 
-const config = getConfig(process.env.NODE_ENV as 'dev' | 'staging' | 'prod')
+const config = getConfig(process.env.NODE_ENV)
 ```
 
 ## Dynamic Configuration
