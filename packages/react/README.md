@@ -82,7 +82,7 @@ Extends all [`@sentinel-password/core` options](https://www.npmjs.com/package/@s
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Debounce delay in ms (0 to disable) |
 | `validateOnMount` | `boolean` | `false` | No-op today — the hook starts with an empty password and there's no `initialPassword` option to seed a value. Call `validate()` manually after the first `setPassword` if you need to validate before user input. |
-| `validateOnChange` | `boolean` | `false` | Validate on every change vs. after debounce |
+| `validateOnChange` | `boolean` | `false` | Only matters when `debounceMs === 0`: `true` validates synchronously on every change, `false` disables automatic validation (call `validate()` manually). With the default `debounceMs > 0`, debounced validation runs on every change regardless of this flag. |
 
 ## Related Packages
 
