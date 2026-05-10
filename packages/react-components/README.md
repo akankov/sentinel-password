@@ -4,7 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Accessible, headless React components for password validation built on top of `@sentinel-password/core` and `@sentinel-password/react`.
+Accessible, headless React components for password validation, built on top of `@sentinel-password/core`.
 
 **[Documentation](https://akankov.github.io/sentinel-password/)** | **[Interactive Playground](https://akankov.github.io/sentinel-password/playground/)** | **[API Reference](https://akankov.github.io/sentinel-password/api/react-components.html)**
 

@@ -299,9 +299,6 @@ importers:
       '@sentinel-password/core':
         specifier: workspace:*
         version: link:../core
-      '@sentinel-password/react':
-        specifier: workspace:*
-        version: link:../react
     devDependencies:
       '@storybook/addon-a11y':
         specifier: ^10.3.6

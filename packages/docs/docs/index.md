@@ -50,7 +50,7 @@ features:
   
   - icon: 📱
     title: Framework Agnostic
-    details: Use the core package with any JavaScript framework, or leverage our React hooks and components for seamless integration.
+    details: Use the core package with any JavaScript framework, or pull in our React hook and headless components for seamless integration.
   
   - icon: ✨
     title: TypeScript First

@@ -7,7 +7,7 @@ Sentinel Password provides three packages to fit different use cases:
 | Package | Description | Size | Dependencies |
 |---------|-------------|------|--------------|
 | `@sentinel-password/core` | Core validation library for any JavaScript framework | <5KB | Zero |
-| `@sentinel-password/react` | React hooks for password validation | ~2.5KB | React 18+ |
+| `@sentinel-password/react` | `usePasswordValidator` hook for password validation | ~2.5KB | React 18+ |
 | `@sentinel-password/react-components` | Pre-built accessible React components | ~6KB | React 18+ |
 
 ## Installation Methods
