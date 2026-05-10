@@ -41,6 +41,7 @@ export default defineConfig({
           items: [
             { text: 'Validators', link: '/guide/validators' },
             { text: 'Configuration', link: '/guide/configuration' },
+            { text: 'Server-Side Usage', link: '/guide/server-side' },
             { text: 'Error Handling', link: '/guide/error-handling' },
           ],
         },
