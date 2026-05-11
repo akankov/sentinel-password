@@ -121,8 +121,8 @@ This project follows strict code style guidelines:
 
 ### Accessibility and Internationalization
 
-- Support i18n from day one - no hardcoded English strings
-- WCAG 2.1 AAA accessibility compliance required
+- **Accessibility**: write components that *can meet* WCAG 2.1 AAA — semantic HTML, ARIA primitives, keyboard support, live regions, `useId()`-linked labels. Page-level conformance (contrast, focus-visible, reduced-motion, surrounding markup) is the consumer's responsibility. If your change adds a gap (e.g., a hardcoded user-facing string that can't be localized today), document it in the [Accessibility guide's Known Gaps section](../packages/docs/docs/guide/accessibility.md#known-gaps).
+- **Internationalization**: i18n is not built into core yet — validators emit English strings today, by design. If you add a new validator message, keep it **short, stable, and English** so consumers can use it as a translation key via the [lookup-table pattern](../packages/docs/docs/guide/i18n.md). Use template literals (`` `Password must be at least ${n} characters` ``) for dynamic numbers; don't introduce locale-specific phrasing. **Don't change existing English strings in patch/minor releases** — that breaks every consumer's translation table. Major releases can rephrase, with a migration note. A future release will introduce pluggable message templates.
 
 ## Commit Guidelines
 
