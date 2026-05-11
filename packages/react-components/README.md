@@ -11,7 +11,7 @@ Accessible, headless React components for password validation, built on top of `
 ## Features
 
 - **Headless & Unstyled** - Bring your own styles
-- **WCAG 2.1 AAA** - Full accessibility compliance
+- **Designed for WCAG 2.1 AAA** - Semantic HTML, ARIA live region, full keyboard support, `useId()`-linked label. Page-level conformance depends on the consumer's CSS (contrast) and surrounding markup — see [Accessibility](#accessibility) below.
 - **Keyboard Navigation** - Complete keyboard support
 - **TypeScript** - Full type safety
 - **Lightweight** - Minimal bundle size
@@ -97,13 +97,24 @@ See the [API reference](https://akankov.github.io/sentinel-password/api/react-co
 
 ## Accessibility
 
-This component follows WCAG 2.1 AAA guidelines:
+The component is designed to *meet* WCAG 2.1 AAA criteria when integrated correctly. It provides:
 
-- Semantic HTML elements
-- ARIA labels and descriptions
-- Live regions for validation feedback
-- Keyboard navigation support
-- Focus management
+- Semantic HTML (`<label htmlFor>` linked to the input via `useId()`)
+- ARIA attributes managed by the component: `aria-invalid` (`true`/omitted), `aria-describedby`, `aria-pressed` on the toggle button
+- A live region (`role="alert" aria-live="polite" aria-atomic="true"`) that mounts only when there's feedback to announce
+- Keyboard support: `Tab` between input and toggle, `Escape` to clear the input, `Space`/`Enter` on the toggle button
+- Focus management for the input and toggle
+
+The consumer is responsible for:
+
+- **Color contrast** — the component is headless, so CSS is yours. WCAG AAA requires 7:1 for normal text and 4.5:1 for large text.
+- **Surrounding markup** — heading structure, landmarks, form semantics, and overall page conformance.
+- **Reduced-motion / forced-colors / focus-visible** — these depend on your stylesheet.
+- **Localization of toggle text** — see "Known gaps" below.
+
+### Known gaps
+
+- **Toggle button text is hardcoded English.** The visible label ("Show"/"Hide") and `aria-label` ("Show password"/"Hide password") on the visibility toggle are not configurable today. For non-English locales, swap `showToggleButton={false}` and render your own localized toggle, or stay tuned for `toggleShowText`/`toggleHideText` props in a future release.
 
 ## Related Packages
 

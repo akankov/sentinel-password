@@ -19,7 +19,7 @@ npm install @sentinel-password/react-components @sentinel-password/core
 A headless password input that runs validation through `@sentinel-password/core` and exposes the result via callback.
 
 **Features:**
-- WCAG 2.1 AAA compliant
+- Designed for WCAG 2.1 AAA (see [Accessibility guide](/guide/accessibility) for what the component covers vs. what's the consumer's responsibility)
 - Full ARIA support (`aria-invalid`, `aria-describedby`, `aria-live`, `aria-pressed`)
 - Keyboard navigation, including `Escape` to clear
 - Show/hide password toggle

@@ -1,17 +1,27 @@
 # Accessibility
 
-Sentinel Password is built with WCAG 2.1 AAA accessibility in mind. This guide covers accessibility features and best practices.
+`PasswordInput` from `@sentinel-password/react-components` is **designed to meet WCAG 2.1 AAA criteria** — but conformance is a property of your full rendered page, not just a component. This guide covers what the component handles, what's left to you, and the known gaps.
 
-## WCAG 2.1 AAA Compliance
+## WCAG 2.1 AAA Alignment
 
-Our React components meet the highest accessibility standards:
+The component provides the building blocks for AAA:
 
-- ✅ Semantic HTML
-- ✅ ARIA attributes
-- ✅ Keyboard navigation
-- ✅ Screen reader support
-- ✅ Color contrast (when styled properly)
-- ✅ Focus management
+- ✅ Semantic HTML with `useId()`-linked `<label>`
+- ✅ ARIA attributes managed for you: `aria-invalid` (set when invalid, omitted otherwise), `aria-describedby`, `aria-pressed` on the toggle
+- ✅ Live region (`role="alert" aria-live="polite" aria-atomic="true"`) for validation announcements
+- ✅ Keyboard support: `Tab`, `Escape` to clear, `Space`/`Enter` on the toggle
+- ✅ Focus management for the component's own elements
+
+The consumer is responsible for:
+
+- ⚠️ **Color contrast** — the component is headless. AAA requires 7:1 for normal text, 4.5:1 for large text.
+- ⚠️ **Surrounding markup** — heading structure, landmarks, form semantics.
+- ⚠️ **Reduced motion / high contrast / `focus-visible`** — these depend on your stylesheet.
+- ⚠️ **Localization of toggle text** — see [Known Gaps](#known-gaps) below.
+
+### Known Gaps
+
+- **English-only toggle button.** The visible "Show"/"Hide" text and the `aria-label` on the visibility toggle are hardcoded in [`PasswordInput.tsx`](https://github.com/akankov/sentinel-password/blob/main/packages/react-components/src/components/PasswordInput.tsx). For non-English locales, render your own localized toggle by setting `showToggleButton={false}` and managing visibility via the `showPassword` / `onShowPasswordChange` props, or wait for a future release to expose `toggleShowText` / `toggleHideText`.
 
 ## Semantic HTML
 

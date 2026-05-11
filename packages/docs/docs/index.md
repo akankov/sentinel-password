@@ -25,8 +25,8 @@ features:
     details: Tune all seven built-in checks through a single flat options object — relax thresholds, require character types, or disable individual checks via their flags.
   
   - icon: ♿
-    title: Accessibility First
-    details: WCAG 2.1 AAA compliant components with full ARIA support, keyboard navigation, and screen reader friendly feedback.
+    title: Designed for AAA
+    details: Built with WCAG 2.1 AAA in mind — semantic HTML, ARIA live region, keyboard navigation, and a `useId()`-linked label. Full page conformance depends on your CSS (contrast) and surrounding markup.
   
   - icon: 🎨
     title: Headless Components

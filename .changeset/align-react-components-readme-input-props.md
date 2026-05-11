@@ -18,4 +18,12 @@ Also corrected the `validateOnMount` row in the same README, which said
 as normal validation (so the result lands ~`debounceMs` after mount unless
 `debounceMs: 0`).
 
+Softened the package README's WCAG claims from "Full accessibility compliance"
+to "Designed for WCAG 2.1 AAA". Conformance is a page-level property; the
+component supplies the building blocks (semantic HTML, ARIA primitives,
+keyboard support, live region) but the consumer owns CSS (contrast,
+focus-visible, reduced-motion), surrounding markup, and localization of the
+toggle button text. Added a "Known gaps" subsection that explicitly names the
+hardcoded English toggle text as a current limitation.
+
 No runtime behavior change.
