@@ -330,8 +330,9 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 
 ### 5. Keyboard Pattern Detection
 
-- Blocks common keyboard patterns (e.g., "qwerty", "asdf", "zxcvbn")
-- Supports QWERTY, AZERTY, and QWERTZ layouts
+- Blocks runs along common keyboard layouts: QWERTY (`qwerty`, `asdfgh`, `zxcvbn`), AZERTY (`azerty`, `qsdfg`), QWERTZ (`qwertz`, `yxcvb`), Dvorak (`aoeu`, `htns`), Colemak (`arst`, `dhne`), and Cyrillic (`йцукен`, `фывап`)
+- Catches numeric runs: full top row (`1234567890`), reverse (`0987654321`), and numeric-keypad rows/columns (`789`, `456`, `123`, `741`, `852`, `963`)
+- Does **not** match the shifted symbol row (`!@#$%…`) — only unshifted runs
 - Configurable via `checkKeyboardPatterns`
 
 ### 6. Common Password Detection

@@ -44,6 +44,13 @@ validator's real output.
   very rarely flagged as "common"). The source has documented this in
   `common-password.ts` since the validator landed; the README/API docs
   just hadn't carried the detail.
+- Keyboard-pattern detection section in the README now lists every
+  layout the source actually covers — QWERTY, AZERTY, QWERTZ,
+  Dvorak, Colemak, and Cyrillic — plus the numeric row and keypad
+  patterns and the "shifted symbol row is not detected" caveat. The
+  previous list ("QWERTY, AZERTY, and QWERTZ") undersold the
+  detector for Dvorak/Colemak users and entirely omitted the
+  Russian-keyboard catch, which is in `keyboard-pattern.ts`.
 - Sequential-pattern detection is now described accurately on two
   axes:
   - It matches *any* three consecutive ascending/descending runs,
