@@ -41,20 +41,33 @@ pnpm build
 
 ### Testing
 
-Run all tests:
+Run all tests across the workspace:
+
 ```bash
 pnpm test
 ```
 
-Run tests for a specific file:
+Run tests for one package (path is relative to that package, not the repo root):
+
 ```bash
-pnpm test -- path/to/file.test.ts
+pnpm --filter @sentinel-password/core test tests/validators/length.test.ts
 ```
 
-Run tests in watch mode:
+> Notes:
+>
+> - **Always scope with `--filter`.** The bare `pnpm test -- path/to/file.test.ts` form does *not* work from the repo root: the root `test` script is `turbo run test`, which forwards the path to every workspace's `vitest run`. Each workspace resolves the path relative to its own cwd, so most workspaces produce noise instead of the focused run you expected.
+> - **Pass positional args directly, without `--`.** When a package's `test` script is `vitest run`, `pnpm --filter <pkg> test <path>` correctly appends `<path>` to vitest. Adding `--` in between swallows the path silently — vitest then runs the whole test suite instead of just that file.
+
+Run tests in watch mode for one package:
+
 ```bash
-cd packages/core
-pnpm test:watch
+pnpm --filter @sentinel-password/core test:watch
+```
+
+Run the core package's coverage gate (100% statements/branches/functions/lines required — fails on regression):
+
+```bash
+pnpm --filter @sentinel-password/core test:coverage
 ```
 
 ### Linting and Formatting
