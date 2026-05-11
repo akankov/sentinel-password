@@ -20,7 +20,7 @@ A changeset is a file that describes:
 - A summary of what changed
 
 When changesets are merged to `main`, our automated workflow:
-1. Creates a "Version Packages" PR with updated versions and CHANGELOGs
+1. Creates a `chore: version packages` PR with updated versions and CHANGELOGs
 2. When that PR is merged, automatically publishes to npm and creates GitHub releases
 
 ## When to Add a Changeset
