@@ -105,6 +105,10 @@ The detector matches more than the obvious cases:
 
 If a password is rejected for "sequential characters" and you don't see an obvious `abc`/`123`, scan for any three adjacent characters whose `charCodeAt` values increment or decrement by 1 — they're often inside punctuation runs (`-.`, `./`, `!"#`).
 
+::: warning Overlap with keyboard-pattern
+The numeric runs `123`, `456`, `789` (and their reverses `321`, `654`, `987`) are *also* matched by the [Keyboard Pattern](#keyboard-pattern) validator's numeric-keypad list. Setting `checkSequential: false` alone will **not** allow a password like `password123` through — `checkKeyboardPatterns` (default `true`) still catches the `123` substring. To accept those numeric runs you must disable **both** flags: `{ checkSequential: false, checkKeyboardPatterns: false }`. The two validators were designed as independent defences (one catches arbitrary code-point runs, the other catches keyboard-locality runs), so this overlap is by design — but it can be surprising when you're trying to isolate behaviour.
+:::
+
 **Options:**
 
 | Option | Default | Effect |
@@ -122,6 +126,10 @@ validateSequential('abc1xyz!')
 ### Keyboard Pattern
 
 Catches runs along common keyboard layouts (`qwerty`, `asdfgh`, `zxcvbn`) plus the numeric row (`1234567890`) and numeric-keypad rows/columns (`789`, `456`, `123`, `741`, `852`, `963`). Supports QWERTY, AZERTY, QWERTZ, Dvorak, Colemak, and Cyrillic layouts. The shifted symbol row (`!@#$%…`) is **not** in the pattern set today — only unshifted runs are detected.
+
+::: warning Overlap with sequential
+The numeric-keypad rows `123`, `456`, `789` (and their reverses) are *also* caught by the [Sequential](#sequential) validator's `charCodeAt`-consecutive check — Sequential catches them as code-point runs, Keyboard Pattern catches them as numeric-keypad substrings. The two validators are independent gates: `checkKeyboardPatterns: false` alone won't allow `password123` through because `checkSequential` (default `true`) still rejects it. Disable both (`checkSequential: false, checkKeyboardPatterns: false`) to accept simple numeric runs.
+:::
 
 **Options:**
 
