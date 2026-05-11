@@ -40,11 +40,19 @@ export default function SignupForm() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="mb-4">
+            {/*
+              Decorative — the <h2>Account Created!</h2> below conveys the
+              success state to assistive tech. aria-hidden prevents the icon
+              from being announced as noise; focusable="false" prevents
+              old-IE/Edge from making it a tab stop.
+            */}
             <svg
               className="mx-auto h-16 w-16 text-green-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"
