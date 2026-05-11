@@ -20,6 +20,8 @@ Accessible, headless React components for password validation, built on top of `
 
 ## Installation
 
+`@sentinel-password/core` is a regular `dependency` of this package (not a peer), so installing `@sentinel-password/react-components` automatically pulls in core. You only need to add core explicitly if you're importing from it directly elsewhere in your app.
+
 ```bash
 npm install @sentinel-password/react-components
 # or
@@ -27,6 +29,8 @@ pnpm add @sentinel-password/react-components
 # or
 yarn add @sentinel-password/react-components
 ```
+
+**Peer dependencies:** React 18 or 19 and React DOM 18 or 19 — bring your own.
 
 ## Quick Start
 

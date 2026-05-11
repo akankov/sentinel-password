@@ -26,4 +26,10 @@ focus-visible, reduced-motion), surrounding markup, and localization of the
 toggle button text. Added a "Known gaps" subsection that explicitly names the
 hardcoded English toggle text as a current limitation.
 
+Added a one-line note above the install commands clarifying that
+`@sentinel-password/core` is a regular `dependency` (not a peer), so the
+single-line install pulls it in transitively. Matches the parallel note added
+to `@sentinel-password/react`'s README and inoculates against future "fix"
+PRs that would add core back to the install command.
+
 No runtime behavior change.
