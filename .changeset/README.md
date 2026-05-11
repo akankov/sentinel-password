@@ -67,7 +67,7 @@ pnpm changeset:add
 
 ## More Information
 
-See [RELEASE.md](../RELEASE.md) for the complete release process documentation.
+See [RELEASE_QUICK_START.md](../RELEASE_QUICK_START.md) for the complete release process documentation.
 
 ---
 

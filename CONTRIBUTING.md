@@ -163,10 +163,27 @@ When creating a PR, please include:
 
 This is a pnpm workspace monorepo:
 
-- `packages/core` - Zero-dependency password validation engine
-- `packages/react` - React hook and headless input component (planned)
-- `.github/` - GitHub workflows and templates
-- `.changeset/` - Changesets for versioning
+**Published packages** (`packages/*`):
+
+- `packages/core` — Zero-dependency password validation engine (`@sentinel-password/core`)
+- `packages/react` — `usePasswordValidator` React hook (`@sentinel-password/react`)
+- `packages/react-components` — Headless `PasswordInput` component (`@sentinel-password/react-components`)
+
+**Internal packages** (not published — listed in `.changeset/config.json` `ignore`):
+
+- `packages/docs` — VitePress documentation site
+
+**Runnable examples** (`examples/*`, all `private: true`):
+
+- `examples/nextjs` — Signup form with App Router and Tailwind CSS
+- `examples/vite-react` — Signup form with custom CSS
+- `examples/express-backend` — Server-side `/signup` validation with Express 5
+- `examples/playground` — Interactive demo of the `PasswordInput` component
+
+**Repo plumbing:**
+
+- `.github/` — GitHub workflows and templates
+- `.changeset/` — Changesets for versioning
 
 ## Testing Guidelines
 
