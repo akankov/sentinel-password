@@ -15,19 +15,19 @@ Our React components meet the highest accessibility standards:
 
 ## Semantic HTML
 
-The `<PasswordInput>` component uses proper semantic HTML:
+The `<PasswordInput>` component renders this DOM tree. **Initial state** (no value entered yet, no validation has run):
 
 ```html
-<div class="password-field">
-  <label for="password-123">Create Password</label>
-  <p id="password-desc-123">Must be at least 8 characters</p>
-  
-  <div class="input-wrapper">
+<div data-password-input-container>
+  <label for=":r1:">Create Password</label>
+  <div id=":r2:">Must be at least 8 characters</div>
+
+  <div data-password-input-wrapper>
     <input
-      id="password-123"
+      id=":r1:"
       type="password"
-      aria-invalid="false"
-      aria-describedby="password-desc-123 password-errors-123"
+      autocomplete="new-password"
+      aria-describedby=":r2:"
     />
     <button
       type="button"
@@ -37,27 +37,59 @@ The `<PasswordInput>` component uses proper semantic HTML:
       Show
     </button>
   </div>
-  
-  <div 
-    id="password-errors-123" 
-    role="alert" 
+  <!-- No validation region yet — see below -->
+</div>
+```
+
+**After the user types an invalid password**, two things change: `aria-invalid="true"` appears on the input, and the validation region is inserted with the live messages and added to `aria-describedby`:
+
+```html
+<div data-password-input-container>
+  <label for=":r1:">Create Password</label>
+  <div id=":r2:">Must be at least 8 characters</div>
+
+  <div data-password-input-wrapper>
+    <input
+      id=":r1:"
+      type="password"
+      autocomplete="new-password"
+      aria-invalid="true"
+      aria-describedby=":r2: :r3:"
+    />
+    <button type="button" aria-label="Hide password" aria-pressed="true">Hide</button>
+  </div>
+
+  <div
+    id=":r3:"
+    role="alert"
     aria-live="polite"
+    aria-atomic="true"
+    data-password-validation
   >
-    <!-- Validation messages -->
+    <ul>
+      <li data-severity="warning">Password must be at least 8 characters</li>
+      <li data-severity="error">Password must be at least 8 characters</li>
+    </ul>
   </div>
 </div>
 ```
+
+Two patterns worth calling out:
+
+- **`aria-invalid` is `true` or absent**, never `"false"`. The component uses `aria-invalid={invalid ? true : undefined}` so a freshly mounted (untouched) input is not pre-announced as valid by assistive tech.
+- **The validation region is conditional**, not persistent. The whole `<div role="alert">` only mounts when there's a message to render (warning text or one or more suggestions). A valid password produces no region at all.
+- **IDs (`:r1:`, `:r2:`, `:r3:`) come from `React.useId()`** so they're stable per-instance and SSR-safe — concrete values vary across renders/processes; don't query the DOM by hard-coded ID.
 
 ## ARIA Attributes
 
 ### `aria-invalid`
 
-Indicates validation state:
+Indicates validation state. The general ARIA pattern is to set `aria-invalid={!isValid}` — `true` or `false` — but the bundled `PasswordInput` deliberately renders `aria-invalid` as `true` *or omits the attribute entirely* (using `true | undefined`), so a freshly mounted input isn't pre-announced as "valid" by screen readers:
 
-```typescript
+```tsx
 <input
   type="password"
-  aria-invalid={!isValid}
+  aria-invalid={isInvalid ? true : undefined}
 />
 ```
 
