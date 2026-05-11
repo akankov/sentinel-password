@@ -232,10 +232,23 @@ Pass user-identifying strings — name, username, email — to reject passwords 
 validatePassword('john1234!', {
   personalInfo: ['john@example.com', 'John', 'Doe'],
 })
-// { valid: false, feedback: { warning: 'Password contains personal information', ... } }
-// — matches "john" from the email's local part. Identifiers under 3 characters are
-//   ignored. To match a domain, pass it separately (e.g. add 'example' to the list).
+// {
+//   valid: false,
+//   feedback: {
+//     warning: 'Password contains sequential characters (e.g., abc, 123)',
+//     suggestions: [
+//       'Password contains sequential characters (e.g., abc, 123)',
+//       'Password contains personal information',
+//       'Password contains common keyboard patterns',
+//     ],
+//   },
+//   checks: { ..., sequential: false, keyboardPattern: false, personalInfo: false },
+// }
 ```
+
+This input fails three checks at once — `personalInfo` (matches "john" from the email's local part), `sequential` (the `234` substring), and `keyboardPattern` (`1234` is on the numeric row). `warning` is always the *first* suggestion in aggregator order (length → characterTypes → repetition → sequential → commonPassword → personalInfo → keyboardPattern), which is why the warning here is the sequential message, not the personal-info one. To surface specifically which check rejected the password, inspect `result.checks`.
+
+Identifiers under 3 characters are ignored. To match a domain, pass it separately (e.g. add `'example'` to the list).
 
 **Email handling:** values containing `@` are reduced to the part before `@` before matching, so `'john.doe@example.com'` is treated as `'john.doe'`. The domain is not checked. Add it as a separate entry if you want it rejected too.
 
