@@ -2,13 +2,19 @@
 
 ## Package Overview
 
-Sentinel Password provides three packages to fit different use cases:
+Sentinel Password ships three packages — pick the one that matches what you're building:
 
-| Package | Description | Size | Dependencies |
-|---------|-------------|------|--------------|
-| `@sentinel-password/core` | Core validation library for any JavaScript framework | <5KB | Zero |
-| `@sentinel-password/react` | React hooks for password validation | ~2.5KB | React 18+ |
-| `@sentinel-password/react-components` | Pre-built accessible React components | ~6KB | React 18+ |
+| Package | Gzipped (ESM) | Raw (ESM) | Runtime deps | Peer deps |
+|---------|---------------|-----------|--------------|-----------|
+| `@sentinel-password/core` | ~5.4 KB | ~15.8 KB | none | none |
+| `@sentinel-password/react` | ~0.7 KB | ~2.5 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19 |
+| `@sentinel-password/react-components` | ~1.7 KB | ~6.0 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19, React DOM 18 or 19 |
+
+- **`@sentinel-password/core`** — zero-dependency validation engine. Use directly with vanilla JS, Node, Deno, Bun, or any framework.
+- **`@sentinel-password/react`** — `usePasswordValidator` hook with debouncing and state management.
+- **`@sentinel-password/react-components`** — headless, accessible `PasswordInput` component.
+
+> Sizes are the ESM build measured at the time of this release; CJS is slightly larger. Runtime deps install automatically with your package-manager command — you only ever need to `npm install` the package you're using. Peer deps are bring-your-own.
 
 ## Installation Methods
 
@@ -81,31 +87,32 @@ bun add @sentinel-password/react-components
 ### Core Package
 - **No runtime dependencies**
 - Works with any JavaScript environment (Node.js, browsers, Deno, Bun)
-- TypeScript 5+ for development
+- TypeScript 6+ for development (root devDep is `typescript: ^6.0.3`)
 
 ### React Packages
-- React 18.0.0 or higher (or React 19+)
-- React DOM 18.0.0 or higher (for components package)
+- React 18 or 19 (peer range: `^18.0.0 || ^19.0.0`)
+- React DOM 18 or 19 (same range, required only for `@sentinel-password/react-components`)
 
 ## TypeScript Support
 
 All packages are written in TypeScript and include full type definitions:
 
 ```typescript
-import type { 
+import type {
   ValidationResult,
-  ValidatorConfig,
-  PasswordStrength 
+  ValidatorOptions,
+  StrengthScore,
+  StrengthLabel,
 } from '@sentinel-password/core'
 
-import type { 
+import type {
   UsePasswordValidatorOptions,
-  UsePasswordValidatorReturn 
+  UsePasswordValidatorReturn,
 } from '@sentinel-password/react'
 
-import type { 
+import type {
   PasswordInputProps,
-  ValidationMessage 
+  ValidationMessage,
 } from '@sentinel-password/react-components'
 ```
 
@@ -129,11 +136,9 @@ For quick prototyping, you can use a CDN:
 <!-- ESM -->
 <script type="module">
   import { validatePassword } from 'https://esm.sh/@sentinel-password/core'
-  
-  const result = validatePassword('password123', {
-    validators: { length: { min: 8 } }
-  })
-  console.log(result)
+
+  const result = validatePassword('password123', { minLength: 8 })
+  console.log(result.valid, result.strength)
 </script>
 ```
 
@@ -148,14 +153,15 @@ After installation, verify everything works:
 ```javascript
 import { validatePassword } from '@sentinel-password/core'
 
-const result = validatePassword('Test1234!', {
-  validators: {
-    length: { min: 8 }
-  }
-})
+const result = validatePassword('Test-Pa55word!', { minLength: 8 })
 
-console.log(result.isValid) // true
+console.log(result.valid) // true
+console.log(result.strength) // 'very-strong'
 ```
+
+::: tip Why not `Test1234!`?
+The `1234` sequence trips the sequential + keyboard-pattern detectors even though every other check passes — `valid` comes back `false` with `strength: 'strong'`. The validator's job is to catch exactly these "looks fine, isn't" passwords.
+:::
 
 ## Next Steps
 

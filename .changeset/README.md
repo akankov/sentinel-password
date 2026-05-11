@@ -20,7 +20,7 @@ A changeset is a file that describes:
 - A summary of what changed
 
 When changesets are merged to `main`, our automated workflow:
-1. Creates a "Version Packages" PR with updated versions and CHANGELOGs
+1. Creates a `chore: version packages` PR with updated versions and CHANGELOGs
 2. When that PR is merged, automatically publishes to npm and creates GitHub releases
 
 ## When to Add a Changeset
@@ -65,9 +65,19 @@ pnpm changeset:add
 # Summary: Change validatePassword to return Promise instead of sync result
 ```
 
-## More Information
+## Release Process
 
-See [RELEASE.md](../RELEASE.md) for the complete release process documentation.
+The release pipeline lives in [`.github/workflows/release.yml`](../.github/workflows/release.yml) and runs on every push to `main`:
+
+1. **On your feature PR**, add a changeset describing user-visible changes (`pnpm changeset:add`) and commit the generated `.changeset/*.md` file with the rest of your PR.
+2. **Merge your PR.** The Release workflow detects pending changesets and opens (or updates) a PR titled `chore: version packages` containing the version bumps and generated `CHANGELOG.md` entries.
+3. **When you're ready to release**, merge the `chore: version packages` PR. The workflow runs again and publishes to npm via **Trusted Publishing (OIDC)** with build provenance — no `NPM_TOKEN` secret is required. Per-package GitHub releases are created automatically.
+
+The `ignore` array in [`.changeset/config.json`](./config.json) keeps `@sentinel-password/docs` and the example apps out of the publish flow.
+
+---
+
+*Original documentation: <https://github.com/changesets/changesets>*
 
 ---
 

@@ -17,13 +17,17 @@ React hook for password validation using `@sentinel-password/core`. Provides deb
 
 ## Installation
 
+`@sentinel-password/core` is a regular `dependency` of this package (not a peer), so installing `@sentinel-password/react` automatically pulls in core. You only need to add it explicitly if you're importing from core directly elsewhere in your app.
+
 ```bash
-npm install @sentinel-password/react @sentinel-password/core
+npm install @sentinel-password/react
 # or
-pnpm add @sentinel-password/react @sentinel-password/core
+pnpm add @sentinel-password/react
 # or
-yarn add @sentinel-password/react @sentinel-password/core
+yarn add @sentinel-password/react
 ```
+
+**Peer dependencies:** React 18 or 19 — bring your own.
 
 ## Quick Start
 
@@ -68,7 +72,7 @@ Returns an object with:
 | Property | Type | Description |
 |----------|------|-------------|
 | `password` | `string` | Current password value |
-| `setPassword` | `(password: string) => void` | Update password and trigger validation |
+| `setPassword` | `(password: string) => void` | Update the password. Whether validation also fires depends on `debounceMs` / `validateOnChange` — see those rows below. In manual mode (`debounceMs: 0` + `validateOnChange: false`) this only updates state; call `validate()` to evaluate. |
 | `result` | `ValidationResult \| undefined` | Validation result (undefined until first validation) |
 | `isValidating` | `boolean` | Whether validation is in progress (during debounce) |
 | `validate` | `() => void` | Manually trigger validation |
@@ -81,8 +85,9 @@ Extends all [`@sentinel-password/core` options](https://www.npmjs.com/package/@s
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Debounce delay in ms (0 to disable) |
-| `validateOnMount` | `boolean` | `false` | Validate immediately on mount |
-| `validateOnChange` | `boolean` | `false` | Validate on every change vs. after debounce |
+| `initialPassword` | `string` | `''` | Seed value for the hook's `password` state. Use this together with `validateOnMount` to validate a pre-filled value (e.g. edit-profile flows) on first render. The input stays fully controlled by `setPassword` afterwards. |
+| `validateOnMount` | `boolean` | `false` | Validate the seed value (see `initialPassword`) once on mount. Skips empty values, so it's a no-op when `initialPassword` is empty or omitted. |
+| `validateOnChange` | `boolean` | `false` | Only matters when `debounceMs === 0`: `true` validates synchronously on every change, `false` disables automatic validation (call `validate()` manually). With the default `debounceMs > 0`, debounced validation runs on every change regardless of this flag. |
 
 ## Related Packages
 

@@ -8,13 +8,16 @@ import type React from 'react'
 function PasswordValidatorDemo({
   debounceMs = 300,
   minLength = 8,
+  validateOnChange = false,
 }: {
   debounceMs?: number
   minLength?: number
+  validateOnChange?: boolean
 }): React.ReactElement {
-  const { password, setPassword, result, isValidating, reset } = usePasswordValidator({
+  const { password, setPassword, result, isValidating, validate, reset } = usePasswordValidator({
     debounceMs,
     minLength,
+    validateOnChange,
   })
 
   return (
@@ -104,19 +107,34 @@ function PasswordValidatorDemo({
         </div>
       )}
 
-      <button
-        onClick={(): void => reset()}
-        style={{
-          padding: '8px 16px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-        }}
-      >
-        Reset
-      </button>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button
+          onClick={(): void => validate()}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#28a745',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Validate Now
+        </button>
+        <button
+          onClick={(): void => reset()}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          Reset
+        </button>
+      </div>
     </div>
   )
 }
@@ -140,10 +158,16 @@ export const Basic: Story = {
   },
 }
 
+/**
+ * Validate synchronously on every keystroke. With `debounceMs: 0` the hook
+ * gates automatic validation behind `validateOnChange: true`; setting only
+ * `debounceMs: 0` would put the hook in manual mode and produce no result.
+ */
 export const NoDebounce: Story = {
   args: {
     debounceMs: 0,
     minLength: 8,
+    validateOnChange: true,
   },
 }
 
@@ -151,5 +175,18 @@ export const StrictRequirements: Story = {
   args: {
     debounceMs: 300,
     minLength: 12,
+  },
+}
+
+/**
+ * Manual mode: `debounceMs: 0` and `validateOnChange: false` disables
+ * automatic validation entirely. The result only updates when the user
+ * clicks the "Validate Now" button (which calls `validate()` from the hook).
+ */
+export const ManualValidation: Story = {
+  args: {
+    debounceMs: 0,
+    minLength: 8,
+    validateOnChange: false,
   },
 }

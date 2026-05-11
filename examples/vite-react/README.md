@@ -4,13 +4,20 @@ This example demonstrates how to integrate **Sentinel Password** into a Vite + R
 
 ## Features
 
-- Simple login form with email and password
-- Real-time password validation
+- Signup form with email and password
+- Real-time password validation; submit button is gated on `result.valid`
 - Show/hide password toggle
-- WCAG 2.1 AAA accessible
+- The `PasswordInput` component (from `@sentinel-password/react-components`) is designed to meet WCAG 2.1 AAA — semantic HTML, ARIA live region, keyboard support, `useId()`-linked label. Page-level conformance (contrast ratio, surrounding markup, reduced-motion handling) is the consumer's. The surrounding example app is a demo shell — on successful submit the form is replaced with a `role="status" aria-live="polite"` success card (no `alert()`), and placeholder navigation has been replaced with documentation links to keep the demo honest.
 - Beautiful, responsive design
 
+> **Why signup, not login?** Strength-based submit gating belongs on signup or
+> change-password screens, where you're evaluating a *new* candidate password.
+> Applying it to a login form would reject existing users whose passwords
+> pre-date the current policy.
+
 ## Getting Started
+
+Run these commands from the **repo root** (not from inside this directory). The workspace is set up so `pnpm --filter vite-react <script>` runs only this example.
 
 Install dependencies:
 
@@ -21,10 +28,12 @@ pnpm install
 Run the development server:
 
 ```bash
-pnpm dev
+pnpm --filter vite-react dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) to view the app.
+
+> A bare `pnpm dev` from the repo root is `turbo run dev`, which fans out to every workspace with a `dev` script — the docs site plus all four example apps. (Storybooks are separate root scripts — `pnpm storybook` / `pnpm storybook:components` — not `dev` tasks, so they aren't included.) Almost never what you want.
 
 ## Usage
 
@@ -32,17 +41,26 @@ The example uses the `@sentinel-password/react-components` package:
 
 ```tsx
 import { PasswordInput } from '@sentinel-password/react-components'
+import { useState } from 'react'
+
+const [password, setPassword] = useState('')
+const [passwordValid, setPasswordValid] = useState(false)
 
 <PasswordInput
   label="Password"
-  description="Must be at least 8 characters long"
+  description="At least 8 characters; avoids common passwords and obvious patterns"
   value={password}
   onChange={setPassword}
-  onValidationChange={(result) => {
-    console.log('Valid:', result.valid)
-  }}
+  onValidationChange={(result) => setPasswordValid(result.valid)}
 />
+
+<button type="submit" disabled={!passwordValid}>Create account</button>
 ```
+
+> **Don't log validation results in production.** This example deliberately stores
+> only `result.valid` rather than the full `result`. The full result includes
+> password-derived inferences (`checks`, `feedback.suggestions`) — leaking the
+> failure shape from logs can help an attacker.
 
 ## Learn More
 

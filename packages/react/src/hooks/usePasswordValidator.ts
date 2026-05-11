@@ -51,13 +51,27 @@ import type { UsePasswordValidatorOptions, UsePasswordValidatorReturn } from '..
  * ```
  *
  * @example
- * **Validate on mount**
+ * **Seed the hook and validate the seeded value on mount**
+ * Use `initialPassword` together with `validateOnMount` to validate a
+ * pre-filled value (e.g. an edit-profile flow that echoes a value back
+ * to the user) without waiting for keystrokes:
+ *
  * ```tsx
- * const { password, setPassword, result } = usePasswordValidator({
- *   validateOnMount: true,
- *   debounceMs: 0 // No debounce for immediate feedback
- * })
+ * import { usePasswordValidator } from '@sentinel-password/react'
+ *
+ * function EditProfile({ existingPassword }: { existingPassword: string }) {
+ *   const { password, setPassword, result } = usePasswordValidator({
+ *     initialPassword: existingPassword,
+ *     validateOnMount: true,
+ *     minLength: 8,
+ *   })
+ *   // `result` is populated on first render with the validation of
+ *   // `existingPassword`; subsequent edits go through `setPassword`.
+ * }
  * ```
+ *
+ * `validateOnMount` skips empty values, so it's a no-op when
+ * `initialPassword` is empty or omitted.
  *
  * @example
  * **With custom validation rules**
@@ -102,11 +116,12 @@ export function usePasswordValidator(
     debounceMs = 300,
     validateOnMount = false,
     validateOnChange = false,
+    initialPassword = '',
     ...validatorOptions
   }: UsePasswordValidatorOptions = options
 
   const [password, setPasswordState]: [string, React.Dispatch<React.SetStateAction<string>>] =
-    useState<string>('')
+    useState<string>(initialPassword)
   const [result, setResult]: [
     ValidationResult | undefined,
     React.Dispatch<React.SetStateAction<ValidationResult | undefined>>,

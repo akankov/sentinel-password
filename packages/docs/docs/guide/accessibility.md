@@ -1,33 +1,43 @@
 # Accessibility
 
-Sentinel Password is built with WCAG 2.1 AAA accessibility in mind. This guide covers accessibility features and best practices.
+`PasswordInput` from `@sentinel-password/react-components` is **designed to meet WCAG 2.1 AAA criteria** — but conformance is a property of your full rendered page, not just a component. This guide covers what the component handles, what's left to you, and the known gaps.
 
-## WCAG 2.1 AAA Compliance
+## WCAG 2.1 AAA Alignment
 
-Our React components meet the highest accessibility standards:
+The component provides the building blocks for AAA:
 
-- ✅ Semantic HTML
-- ✅ ARIA attributes
-- ✅ Keyboard navigation
-- ✅ Screen reader support
-- ✅ Color contrast (when styled properly)
-- ✅ Focus management
+- ✅ Semantic HTML with `useId()`-linked `<label>`
+- ✅ ARIA attributes managed for you: `aria-invalid` (set when invalid, omitted otherwise), `aria-describedby`, `aria-pressed` on the toggle
+- ✅ Live region (`role="alert" aria-live="polite" aria-atomic="true"`) for validation announcements
+- ✅ Keyboard support: `Tab`, `Escape` to clear, `Space`/`Enter` on the toggle
+- ✅ Focus management for the component's own elements
+
+The consumer is responsible for:
+
+- ⚠️ **Color contrast** — the component is headless. AAA requires 7:1 for normal text, 4.5:1 for large text.
+- ⚠️ **Surrounding markup** — heading structure, landmarks, form semantics.
+- ⚠️ **Reduced motion / high contrast / `focus-visible`** — these depend on your stylesheet.
+- ⚠️ **Localization of toggle text** — see [Known Gaps](#known-gaps) below.
+
+### Known Gaps
+
+- **English-only toggle button.** The visible "Show"/"Hide" text and the `aria-label` on the visibility toggle are hardcoded in [`PasswordInput.tsx`](https://github.com/akankov/sentinel-password/blob/main/packages/react-components/src/components/PasswordInput.tsx). For non-English locales, render your own localized toggle by setting `showToggleButton={false}` and managing visibility via the `showPassword` / `onShowPasswordChange` props, or wait for a future release to expose `toggleShowText` / `toggleHideText`.
 
 ## Semantic HTML
 
-The `<PasswordInput>` component uses proper semantic HTML:
+The `<PasswordInput>` component renders this DOM tree. **Initial state** (no value entered yet, no validation has run):
 
 ```html
-<div class="password-field">
-  <label for="password-123">Create Password</label>
-  <p id="password-desc-123">Must be at least 8 characters</p>
-  
-  <div class="input-wrapper">
+<div data-password-input-container>
+  <label for=":r1:">Create Password</label>
+  <div id=":r2:">Must be at least 8 characters</div>
+
+  <div data-password-input-wrapper>
     <input
-      id="password-123"
+      id=":r1:"
       type="password"
-      aria-invalid="false"
-      aria-describedby="password-desc-123 password-errors-123"
+      autocomplete="new-password"
+      aria-describedby=":r2:"
     />
     <button
       type="button"
@@ -37,27 +47,58 @@ The `<PasswordInput>` component uses proper semantic HTML:
       Show
     </button>
   </div>
-  
-  <div 
-    id="password-errors-123" 
-    role="alert" 
+  <!-- No validation region yet — see below -->
+</div>
+```
+
+**After the user types an invalid password**, two things change: `aria-invalid="true"` appears on the input, and the validation region is inserted with the live messages and added to `aria-describedby`:
+
+```html
+<div data-password-input-container>
+  <label for=":r1:">Create Password</label>
+  <div id=":r2:">Must be at least 8 characters</div>
+
+  <div data-password-input-wrapper>
+    <input
+      id=":r1:"
+      type="password"
+      autocomplete="new-password"
+      aria-invalid="true"
+      aria-describedby=":r2: :r3:"
+    />
+    <button type="button" aria-label="Hide password" aria-pressed="true">Hide</button>
+  </div>
+
+  <div
+    id=":r3:"
+    role="alert"
     aria-live="polite"
+    aria-atomic="true"
+    data-password-validation
   >
-    <!-- Validation messages -->
+    <ul>
+      <li data-severity="warning">Password must be at least 8 characters</li>
+    </ul>
   </div>
 </div>
 ```
+
+Two patterns worth calling out:
+
+- **`aria-invalid` is `true` or absent**, never `"false"`. The component uses `aria-invalid={invalid ? true : undefined}` so a freshly mounted (untouched) input is not pre-announced as valid by assistive tech.
+- **The validation region is conditional**, not persistent. The whole `<div role="alert">` only mounts when there's a message to render (warning text or one or more suggestions). A valid password produces no region at all.
+- **IDs (`:r1:`, `:r2:`, `:r3:`) come from `React.useId()`** so they're stable per-instance and SSR-safe — concrete values vary across renders/processes; don't query the DOM by hard-coded ID.
 
 ## ARIA Attributes
 
 ### `aria-invalid`
 
-Indicates validation state:
+Indicates validation state. The general ARIA pattern is to set `aria-invalid={!isValid}` — `true` or `false` — but the bundled `PasswordInput` deliberately renders `aria-invalid` as `true` *or omits the attribute entirely* (using `true | undefined`), so a freshly mounted input isn't pre-announced as "valid" by screen readers:
 
-```typescript
+```tsx
 <input
   type="password"
-  aria-invalid={!isValid}
+  aria-invalid={isInvalid ? true : undefined}
 />
 ```
 
@@ -92,13 +133,10 @@ Provides accessible labels for buttons:
 
 Announces validation changes to screen readers:
 
-```typescript
-<div 
-  role="alert" 
-  aria-live="polite"
->
-  {errors.map(error => (
-    <p key={error.code}>{error.message}</p>
+```tsx
+<div role="alert" aria-live="polite">
+  {result?.feedback.suggestions.map((msg, i) => (
+    <p key={i}>{msg}</p>
   ))}
 </div>
 ```
@@ -160,16 +198,18 @@ Toggle password visibility:
 
 Always provide clear labels:
 
-```typescript
+```tsx
 // ✅ Good
 <PasswordInput
   label="Create Password"
-  description="Must be at least 8 characters with uppercase and numbers"
+  description="At least 8 characters; avoids common passwords and obvious patterns"
 />
 
 // ❌ Bad (no label)
 <input type="password" />
 ```
+
+The description should match the policy actually enforced. `PasswordInput` validates against the built-in defaults; for stricter requirements, drive the input from `usePasswordValidator` and write your own description.
 
 ### Error Announcements
 
@@ -371,15 +411,13 @@ Use tools like:
 - [WAVE](https://wave.webaim.org/)
 - [Lighthouse](https://developers.google.com/web/tools/lighthouse)
 
-```typescript
+```tsx
 import { render } from '@testing-library/react'
 import { axe } from 'jest-axe'
 
 test('PasswordInput is accessible', async () => {
-  const { container } = render(
-    <PasswordInput label="Password" validators={{ length: { min: 8 } }} />
-  )
-  
+  const { container } = render(<PasswordInput label="Password" />)
+
   const results = await axe(container)
   expect(results).toHaveNoViolations()
 })
@@ -430,17 +468,9 @@ function AccessibleSignupForm() {
       
       <PasswordInput
         label="Password"
-        description="Must be at least 12 characters with uppercase, numbers, and symbols"
-        validators={{
-          length: { min: 12 },
-          characterTypes: {
-            requireUppercase: true,
-            requireNumbers: true,
-            requireSymbols: true
-          }
-        }}
-        className="password-field"
-        inputClassName="password-input"
+        description="At least 8 characters; avoids common passwords and obvious patterns"
+        containerClassName="password-field"
+        className="password-input"
       />
       
       <button type="submit">

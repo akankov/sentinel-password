@@ -67,8 +67,7 @@
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {
-    "@sentinel-password/core": "workspace:*",
-    "@sentinel-password/react": "workspace:*"
+    "@sentinel-password/core": "workspace:*"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "^10.3.6",

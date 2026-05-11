@@ -8,7 +8,7 @@
 
 - Updated dependencies [[`303dd99`](https://github.com/akankov/sentinel-password/commit/303dd996487be759e08a88e25ab4ab3a70b879e3)]:
   - @sentinel-password/core@1.1.3
-  - @sentinel-password/react@1.1.3
+  - @sentinel-password/react@1.1.3 _(no longer a runtime dependency; removed in a subsequent release — see the entry generated from the `align-react-package-metadata` changeset.)_
 
 ## 1.1.2
 

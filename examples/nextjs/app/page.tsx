@@ -9,14 +9,26 @@ export default function SignupForm() {
     password: '',
     name: '',
   })
+  // We deliberately store only the boolean we need, not the whole
+  // ValidationResult — keeping less password-derived state around.
+  const [passwordValid, setPasswordValid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  const formReady =
+    formData.name.length > 0 && formData.email.length > 0 && passwordValid && !isSubmitting
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Defense in depth: the submit button is disabled when the password is
+    // invalid, but never trust the disabled state alone — re-check here.
+    if (!formReady) return
     setIsSubmitting(true)
 
-    // Simulate API call
+    // Simulate API call. In a real app, send the password to your backend
+    // over HTTPS, hash it with Argon2/bcrypt server-side, and persist the
+    // hash. Never log or persist the plaintext password or its validation
+    // result.
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     setSubmitted(true)
@@ -28,11 +40,19 @@ export default function SignupForm() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="mb-4">
+            {/*
+              Decorative — the <h2>Account Created!</h2> below conveys the
+              success state to assistive tech. aria-hidden prevents the icon
+              from being announced as noise; focusable="false" prevents
+              old-IE/Edge from making it a tab stop.
+            */}
             <svg
               className="mx-auto h-16 w-16 text-green-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"
@@ -50,6 +70,12 @@ export default function SignupForm() {
             onClick={() => {
               setSubmitted(false)
               setFormData({ email: '', password: '', name: '' })
+              // Also reset the validation boolean — PasswordInput doesn't
+              // re-validate when its `value` prop is cleared programmatically,
+              // so without this the next signup could submit with an empty
+              // password (the button gate would stay open from the prior valid
+              // password).
+              setPasswordValid(false)
             }}
             className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
@@ -105,13 +131,19 @@ export default function SignupForm() {
             {/* Password Field with Sentinel Password */}
             <PasswordInput
               label="Password"
-              description="Must be at least 8 characters long"
+              description="At least 8 characters; avoids common passwords and obvious patterns"
               value={formData.password}
-              onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
-              onValidationChange={(result) => {
-                // Can track validation state if needed
-                console.log('Validation:', result)
+              onChange={(value) => {
+                setFormData((prev) => ({ ...prev, password: value }))
+                // Optimistically invalidate so the submit gate can't outrun
+                // the debounced validation. PasswordInput debounces by
+                // 300 ms — without this line, `passwordValid` can stay
+                // `true` while the user is mid-type into something invalid.
+                // `onValidationChange` will restore `true` once the new
+                // value is confirmed valid.
+                setPasswordValid(false)
               }}
+              onValidationChange={(result) => setPasswordValid(result.valid)}
               containerClassName="mb-6"
               labelClassName="block text-sm font-semibold text-gray-900 mb-2"
               descriptionClassName="text-sm text-gray-600 mb-3"
@@ -124,19 +156,25 @@ export default function SignupForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting || !formData.email || !formData.password || !formData.name}
+              disabled={!formReady}
               className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-700">
-              Sign In
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Sign-in flow is out of scope for this demo — see the{' '}
+            <a
+              href="https://akankov.github.io/sentinel-password/guide/server-side"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-indigo-600 hover:text-indigo-700"
+            >
+              Server-Side Usage guide
             </a>
-          </div>
+            .
+          </p>
         </div>
 
         <div className="mt-8 text-center text-sm text-gray-600">

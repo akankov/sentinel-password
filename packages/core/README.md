@@ -44,8 +44,10 @@ if (result.valid) {
   console.log(`Strength: ${result.strength}`) // 'very-strong'
   console.log(`Score: ${result.score}`) // 4
 } else {
+  // `feedback.warning` is always equal to `feedback.suggestions[0]` — the
+  // first failure, surfaced for prominent display. Iterate `suggestions`
+  // for the full list; the first entry is the warning.
   console.log('Password is invalid')
-  console.log(result.feedback.warning) // First suggestion
   result.feedback.suggestions.forEach(suggestion => {
     console.log(`- ${suggestion}`)
   })
@@ -76,9 +78,9 @@ interface ValidationResult {
     length: boolean             // Meets length requirements
     characterTypes: boolean     // Meets character type requirements
     repetition: boolean         // No excessive repeated characters
-    sequential: boolean         // No sequential patterns (abc, 123)
+    sequential: boolean         // No three characters with consecutive charCodeAt values (abc, 123, xyz, plus runs like '!"#' or '9:;')
     keyboardPattern: boolean    // No keyboard patterns (qwerty, asdf)
-    commonPassword: boolean     // Not in top 1K common passwords
+    commonPassword: boolean     // Not in top 1K common passwords (Bloom filter, ~0.84% false-positive rate)
     personalInfo: boolean       // Doesn't contain personal information
   }
 }
@@ -89,29 +91,27 @@ interface ValidationResult {
 Customize validation rules to match your requirements:
 
 ```typescript
-const result = validatePassword('MyPassword123!', {
+const result = validatePassword('Tr0ub4dor&3-isLong!', {
   // Length constraints
   minLength: 12,              // default: 8
   maxLength: 128,             // default: 128
-  
+
   // Character requirements
   requireUppercase: true,     // default: false
   requireLowercase: true,     // default: false
   requireDigit: true,         // default: false
   requireSymbol: true,        // default: false
-  
+
   // Pattern detection
   maxRepeatedChars: 3,        // default: 3
   checkSequential: true,      // default: true
   checkKeyboardPatterns: true, // default: true
   checkCommonPasswords: true, // default: true
-  
+
   // Personal information exclusion
-  personalInfo: [
-    'johndoe',
-    'john.doe@example.com'
-  ]
+  personalInfo: ['johndoe', 'john.doe@example.com'],
 })
+// result.valid === true, result.strength === 'very-strong'
 ```
 
 ## Usage Examples
@@ -124,7 +124,7 @@ import { validatePassword } from '@sentinel-password/core'
 // Valid password
 const result1 = validatePassword('Tr0ub4dor&3')
 console.log(result1.valid) // true
-console.log(result1.strength) // 'strong'
+console.log(result1.strength) // 'very-strong'
 
 // Invalid password (too short)
 const result2 = validatePassword('pass')
@@ -149,14 +149,16 @@ const result = validatePassword('password', {
 console.log(result.valid) // false
 console.log(result.checks.length) // false
 console.log(result.checks.characterTypes) // false
+console.log(result.checks.commonPassword) // false — 'password' is in the common-password list
 console.log(result.feedback.suggestions)
 // [
 //   'Password must be at least 12 characters',
-//   'Add uppercase letters',
-//   'Add numbers',
-//   'Add special characters (!@#$%^&*)'
+//   'Password must contain at least one uppercase letter, digit, symbol',
+//   'Password is too common. Please choose a more unique password.'
 // ]
 ```
+
+The character-type validator returns a single combined message listing every missing type — not one suggestion per missing type. Note that `'password'` also trips the common-password check, so a third suggestion always appears regardless of length and character-type settings.
 
 ### Blocking Personal Information
 
@@ -255,10 +257,11 @@ const charTypeCheck = validateCharacterTypes(password, {
   requireUppercase: true,
   requireLowercase: true,
   requireDigit: true,
-  requireSymbol: true
+  requireSymbol: true,
 })
 console.log(charTypeCheck.passed) // false
-console.log(charTypeCheck.message) // 'Add special characters (!@#$%^&*)'
+console.log(charTypeCheck.message) // 'Password must contain at least one symbol'
+// (one combined message listing every missing type — not one message per type)
 ```
 
 ### Character Type Helpers
@@ -323,20 +326,22 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 
 ### 4. Sequential Pattern Detection
 
-- Blocks sequential patterns (e.g., "abc", "123", "xyz")
+- Blocks any three characters whose `charCodeAt` values are consecutive ascending or descending — `abc`, `123`, `xyz` plus less-obvious runs like `!"#`, `,-.`, `9:;` (equivalent to consecutive Unicode code points for the BMP, which covers every character a typical password uses)
 - Works forward and backward
 - Configurable via `checkSequential`
 
 ### 5. Keyboard Pattern Detection
 
-- Blocks common keyboard patterns (e.g., "qwerty", "asdf", "zxcvbn")
-- Supports QWERTY, AZERTY, and QWERTZ layouts
+- Blocks runs along common keyboard layouts: QWERTY (`qwerty`, `asdfgh`, `zxcvbn`), AZERTY (`azerty`, `qsdfg`), QWERTZ (`qwertz`, `yxcvb`), Dvorak (`aoeu`, `htns`), Colemak (`arst`, `dhne`), and Cyrillic (`йцукен`, `фывап`)
+- Catches numeric runs: full top row (`1234567890`), reverse (`0987654321`), and numeric-keypad rows/columns (`789`, `456`, `123`, `741`, `852`, `963`)
+- Does **not** match the shifted symbol row (`!@#$%…`) — only unshifted runs
 - Configurable via `checkKeyboardPatterns`
 
 ### 6. Common Password Detection
 
-- Blocks top 1,000 most common passwords
-- Uses bloom filter for efficient memory usage
+- Blocks the top 1,000 most common passwords
+- Uses a Bloom filter for efficient memory usage (~1.5 KB vs ~8 KB for the raw list)
+- No false negatives (every password in the list is rejected) and a ~0.84% false-positive rate — uncommon passwords are very rarely flagged as "common"
 - Configurable via `checkCommonPasswords`
 
 ### 7. Personal Information Detection
@@ -352,14 +357,16 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 - **Zero dependencies** - no additional packages needed
 - **Tree-shakeable** - only import what you use
 
-## Browser Support
+## Runtime Support
 
-Works in all modern browsers and Node.js environments:
+The published package is plain ES2022 with no Node or browser-specific APIs, so it runs anywhere those features are available:
 
 - Chrome/Edge 88+
 - Firefox 78+
 - Safari 14+
-- Node.js 18+
+- Node.js 18+ (and Deno, Bun, Cloudflare Workers, Vercel Edge — see the [Server-Side Usage guide](https://akankov.github.io/sentinel-password/guide/server-side))
+
+> **Building this monorepo** requires Node.js 20+ (`engines.node` at the repo root). The 18+ minimum above applies to *running* the published `@sentinel-password/core` package, not to developing it.
 
 ## Contributing
 

@@ -141,14 +141,36 @@ export function PasswordInput({
           setInternalValue('')
         }
         onChange?.('')
-        setValidationResult(undefined)
+
+        // Cancel any pending debounce so a stale validation doesn't land
+        // after the clear and overwrite the result we're about to set.
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current)
+          debounceTimerRef.current = null
+        }
+
+        if (validateOnChange) {
+          // Synchronously validate the cleared (empty) state so the
+          // result-propagation effect fires `onValidationChange` with a
+          // real `validatePassword('')` result (`valid: false`). The
+          // previous behavior set the result to `undefined`, which the
+          // propagation effect skips — leaving consumers' submit gates
+          // open after Escape and forcing them to "optimistically
+          // invalidate" from `onChange` as a workaround.
+          setValidationResult(validatePassword(''))
+        } else {
+          // Manual-validation mode: clear without firing
+          // `onValidationChange` (consumer drives validation themselves).
+          setValidationResult(undefined)
+        }
+
         inputRef.current?.focus()
       }
 
       // Pass through to user's onKeyDown handler
       inputProps.onKeyDown?.(event)
     },
-    [isControlled, onChange, inputProps]
+    [isControlled, onChange, validateOnChange, inputProps]
   )
 
   // Validate on mount if requested
@@ -175,27 +197,18 @@ export function PasswordInput({
   const validationMessages: ValidationMessage[] = React.useMemo(() => {
     if (!validationResult || !showValidationMessages) return []
 
-    const messages: ValidationMessage[] = []
-
-    // Add warning if present
-    if (validationResult.feedback.warning) {
-      messages.push({
-        id: 'warning',
-        message: validationResult.feedback.warning,
-        severity: 'warning',
-      })
-    }
-
-    // Add suggestions as info messages
-    validationResult.feedback.suggestions.forEach((suggestion, index) => {
-      messages.push({
-        id: `suggestion-${index}`,
-        message: suggestion,
-        severity: validationResult.valid ? 'success' : 'error',
-      })
-    })
-
-    return messages
+    // `feedback.warning` is always === `feedback.suggestions[0]` (it's the
+    // first failure message, surfaced for prominent display by the
+    // aggregator). Iterate suggestions once and render the first with
+    // `severity: 'warning'` (the prominent slot) and the rest with
+    // `severity: 'error'`. Previously we pushed `warning` as a separate
+    // entry then also iterated suggestions, which duplicated the first
+    // message in the rendered list.
+    return validationResult.feedback.suggestions.map((suggestion, index) => ({
+      id: index === 0 ? 'warning' : `suggestion-${index}`,
+      message: suggestion,
+      severity: index === 0 ? 'warning' : 'error',
+    }))
   }, [validationResult, showValidationMessages])
 
   // Determine ARIA attributes

@@ -125,7 +125,12 @@ function App() {
             />
 
             {validationResult && (
-              <div className="validation-result">
+              <div
+                className="validation-result"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 <div className="result-header">
                   <h3>Validation Result</h3>
                   <span className={`status-badge ${validationResult.valid ? 'valid' : 'invalid'}`}>
@@ -140,7 +145,7 @@ function App() {
                       className="strength-value"
                       style={{ color: getStrengthColor(validationResult.score) }}
                     >
-                      {getStrengthLabel(validationResult.strength)}
+                      {getStrengthLabel(validationResult.strength)} ({validationResult.score}/4)
                     </span>
                   </div>
                   <div className="strength-bar">
@@ -198,9 +203,15 @@ function App() {
                         value={option.value as number}
                         min={option.min}
                         max={option.max}
-                        onChange={(e) =>
-                          handleConfigChange(option.id, parseInt(e.target.value, 10))
-                        }
+                        onChange={(e) => {
+                          // parseInt('') is NaN; setTimeout(fn, NaN) has
+                          // undefined behavior (some engines treat it as 0,
+                          // others as 1). Clamp to 0 — that's what the
+                          // matrix in api/react.md documents as the
+                          // synchronous-validation case.
+                          const parsed = parseInt(e.target.value, 10)
+                          handleConfigChange(option.id, Number.isFinite(parsed) ? parsed : 0)
+                        }}
                         className="number-input"
                       />
                     )}

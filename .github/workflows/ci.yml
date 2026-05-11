@@ -46,6 +46,9 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Coverage (core, 100% threshold enforced)
+        run: pnpm --filter @sentinel-password/core test:coverage
+
       - name: Type check
         run: pnpm typecheck
 

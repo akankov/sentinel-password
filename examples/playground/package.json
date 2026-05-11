@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@sentinel-password/core": "workspace:*",
-    "@sentinel-password/react": "workspace:*",
     "@sentinel-password/react-components": "workspace:*",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

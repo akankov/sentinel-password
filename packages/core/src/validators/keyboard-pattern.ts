@@ -146,6 +146,15 @@ const KEYBOARD_PATTERNS: readonly string[] = [
  * validateKeyboardPattern('MyP@ssw0rd') // { passed: true }
  * validateKeyboardPattern('asdfgh', { checkKeyboardPatterns: false }) // { passed: true }
  * ```
+ *
+ * @remarks
+ * **Overlap with `validateSequential`:** The numeric-keypad rows `123`,
+ * `456`, `789` (and their reverses) are also caught by the sequential
+ * validator's `charCodeAt`-consecutive check. To allow simple numeric
+ * runs in a password you must set BOTH `checkKeyboardPatterns: false`
+ * AND `checkSequential: false` — disabling either alone will not let
+ * `password123` through. The two checks are deliberately independent
+ * defences (keyboard-locality runs vs. code-point runs).
  */
 export function validateKeyboardPattern(
   password: string,

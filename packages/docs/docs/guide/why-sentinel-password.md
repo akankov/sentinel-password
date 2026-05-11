@@ -21,49 +21,43 @@ Unlike rigid password validators, Sentinel Password lets you define exactly what
 ```typescript
 // Enterprise app with strict requirements
 const strictConfig = {
-  validators: {
-    length: { min: 16, max: 128 },
-    characterTypes: {
-      requireUppercase: true,
-      requireLowercase: true,
-      requireNumbers: true,
-      requireSymbols: true,
-      minSymbols: 2
-    },
-    commonPassword: { enabled: true },
-    keyboardPattern: { enabled: true }
-  }
+  minLength: 16,
+  maxLength: 128,
+  requireUppercase: true,
+  requireLowercase: true,
+  requireDigit: true,
+  requireSymbol: true,
+  // checkCommonPasswords and checkKeyboardPatterns default to true
 }
 
 // Consumer app with balanced requirements
 const balancedConfig = {
-  validators: {
-    length: { min: 8 },
-    characterTypes: { requireNumbers: true }
-  }
+  minLength: 8,
+  requireDigit: true,
 }
 ```
 
 ### ♿ Accessibility First
 
-Built from the ground up with WCAG 2.1 AAA compliance:
+`PasswordInput` is designed to meet WCAG 2.1 AAA. The component provides:
 
-- ✅ Semantic HTML with proper ARIA attributes
-- ✅ Screen reader friendly error messages
-- ✅ Keyboard navigation support
-- ✅ Live region announcements for validation state
-- ✅ High contrast support
-- ✅ Focus management
+- ✅ Semantic HTML with a `useId()`-linked `<label>`
+- ✅ ARIA attributes managed for you (`aria-invalid`, `aria-describedby`, `aria-pressed` on the toggle)
+- ✅ Live region (`role="alert" aria-live="polite"`) for validation announcements
+- ✅ Keyboard support (Tab, Escape to clear, Space/Enter on toggle)
+- ✅ Focus management for the component's own elements
+
+Page-level conformance is the consumer's responsibility — contrast (AAA wants 7:1), surrounding markup, reduced-motion/forced-colors/focus-visible CSS, and localization of the bundled English toggle text. See the [Accessibility guide](/guide/accessibility) for the full split and the known gaps.
 
 ### 📦 Tiny Bundle Size
 
-Core package is **<5KB gzipped** with **zero dependencies**:
+Core package is **~5.5 KB gzipped** with **zero dependencies** (CI fails if it exceeds 10 KB):
 
 | Package | Size (gzipped) | Dependencies |
 |---------|----------------|--------------|
-| `@sentinel-password/core` | ~4.8KB | 0 |
-| `@sentinel-password/react` | ~2.5KB | React only |
-| `@sentinel-password/react-components` | ~6KB | React only |
+| `@sentinel-password/core` | ~5.5 KB | Zero |
+| `@sentinel-password/react` | ~0.7 KB | `@sentinel-password/core` (runtime, installed transitively); React 18/19 (peer) |
+| `@sentinel-password/react-components` | ~1.7 KB | `@sentinel-password/core` (runtime, installed transitively); React 18/19 and React DOM 18/19 (peers) |
 
 Compare this to popular alternatives that can be 50KB+ with dozens of dependencies.
 
@@ -71,14 +65,13 @@ Compare this to popular alternatives that can be 50KB+ with dozens of dependenci
 
 React components are completely unstyled, giving you full design control:
 
-```typescript
+```tsx
 <PasswordInput
   label="Password"
-  className="my-input-wrapper"
-  inputClassName="my-custom-input"
+  containerClassName="my-input-wrapper"
+  className="my-custom-input"
   labelClassName="my-custom-label"
-  errorClassName="my-custom-error"
-  validators={{ length: { min: 8 } }}
+  validationClassName="my-custom-error"
 />
 ```
 
@@ -91,18 +84,17 @@ Easy to customize for any language:
 ```typescript
 const result = validatePassword('weak', config)
 
-// Customize error messages
-const localizedErrors = result.errors.map(error => ({
-  ...error,
-  message: translations[error.code][userLanguage]
-}))
+// Map English suggestion strings to your locale
+const localized = result.feedback.suggestions.map(
+  (msg) => translations[userLanguage]?.[msg] ?? msg
+)
 ```
 
 ### 🔒 Security Focused
 
 Helps users create stronger passwords by checking for:
 
-- ✅ Common passwords (10k+ most common passwords)
+- ✅ Common passwords (top 1,000 most common passwords, O(1) Bloom-filter lookup)
 - ✅ Keyboard patterns (`qwerty`, `asdfgh`)
 - ✅ Sequential characters (`abc123`, `987654`)
 - ✅ Repetitive patterns (`aaaaaa`, `111111`)
@@ -138,18 +130,17 @@ $: validation = validatePassword(password, config)
 Written in TypeScript with comprehensive type definitions:
 
 ```typescript
-import type { 
+import type {
   ValidationResult,
-  ValidatorConfig,
-  ValidationError,
-  PasswordStrength 
+  ValidatorOptions,
+  StrengthScore,
+  StrengthLabel,
 } from '@sentinel-password/core'
 
 // Full IntelliSense and type checking
-const config: ValidatorConfig = {
-  validators: {
-    length: { min: 8 } // TypeScript knows all available options
-  }
+const options: ValidatorOptions = {
+  minLength: 8, // TypeScript knows all available options
+  requireUppercase: true,
 }
 ```
 
@@ -157,9 +148,9 @@ const config: ValidatorConfig = {
 
 | Feature | Sentinel Password | Traditional Regex | Other Libraries |
 |---------|-------------------|-------------------|-----------------|
-| Bundle Size | <5KB | N/A | 20-100KB+ |
+| Bundle Size | ~5.5 KB | N/A | 20-100KB+ |
 | Dependencies | 0 | 0 | 5-50+ |
-| Accessibility | WCAG 2.1 AAA | ❌ | Varies |
+| Accessibility | Designed for AAA | ❌ | Varies |
 | Customizable | ✅ Full control | ⚠️ Limited | ⚠️ Partial |
 | React Support | ✅ Native hooks | ❌ | ⚠️ Varies |
 | TypeScript | ✅ Full types | N/A | ⚠️ Varies |
@@ -189,12 +180,12 @@ Pattern detection and common password checks help users create stronger password
 
 Pre-built components and hooks save development time:
 
-```typescript
+```tsx
 // Instead of building from scratch...
 import { PasswordInput } from '@sentinel-password/react-components'
 
 // Just use it!
-<PasswordInput validators={{ length: { min: 8 } }} />
+<PasswordInput label="Password" />
 ```
 
 ## Get Started

@@ -59,6 +59,14 @@ const hasSequentialPattern = (str: string): boolean => {
  * @remarks
  * Enabled by default. Checks for 3 or more consecutive characters in sequence.
  * Case-sensitive: detects both "abc" and "ABC" as separate patterns.
+ *
+ * **Overlap with `validateKeyboardPattern`:** The numeric runs `123`, `456`,
+ * `789` (and their reverses) are also matched by the keyboard-pattern
+ * validator's numeric-keypad list. To allow simple numeric runs in a
+ * password you must set BOTH `checkSequential: false` AND
+ * `checkKeyboardPatterns: false` — disabling either alone will not let
+ * `password123` through. The two checks are deliberately independent
+ * defences (code-point runs vs. keyboard-locality runs).
  */
 export const validateSequential: Validator = (password, options = {}) => {
   const { checkSequential = true }: Partial<{ checkSequential: boolean }> = options

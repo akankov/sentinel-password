@@ -76,12 +76,12 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * ```
  *
  * @example
- * **With weak password**
+ * **With a known-common password**
  * ```typescript
  * const result = validatePassword('password')
- * console.log(result.valid)      // false
- * console.log(result.score)      // 1
- * console.log(result.strength)   // 'weak'
+ * console.log(result.valid)      // false (commonPassword check rejected it)
+ * console.log(result.score)      // 4
+ * console.log(result.strength)   // 'very-strong'
  * console.log(result.feedback.warning)
  * // "Password is too common. Please choose a more unique password."
  * console.log(result.feedback.suggestions)
@@ -89,6 +89,8 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * console.log(result.checks)
  * // { length: true, characterTypes: true, repetition: true, sequential: true,
  * //   keyboardPattern: true, commonPassword: false, personalInfo: true }
+ * // ↑ 6 of 7 checks pass, so score is 4 ("very-strong") even though valid is false.
+ * // Always use `valid` (or `result.checks`) for acceptance decisions, not `strength`.
  * ```
  *
  * @example
@@ -165,6 +167,16 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * - Common password check: enabled (top 1,000 passwords)
  * - Personal info check: disabled (provide personalInfo array to enable)
  *
+ * **Scoring:**
+ * - `score` = `Math.min(4, Math.floor((passedChecks / 7) * 5))` — purely a
+ *   passed-check ratio.
+ * - `strength` is the human label for that score (`very-weak` … `very-strong`).
+ * - Because scoring is ratio-based, a password that fails *only* the
+ *   common-password (or personal-info, or sequential, etc.) check still passes
+ *   6 of 7 checks and lands on `score: 4 / strength: 'very-strong'` while
+ *   `valid` is `false`. Use `valid` (or inspect `result.checks`) for
+ *   acceptance decisions; use `strength` for UX cues like progress bars.
+ *
  * **Performance:**
  * - All validators run in O(n) time or better
  * - Typical validation: < 1ms for passwords up to 128 characters
@@ -173,7 +185,16 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * **Security:**
  * - All checks are case-insensitive where applicable
  * - No password data is logged or stored
- * - Constant-time operations prevent timing attacks
+ * - Runs purely in-process — no network calls, the password never leaves the
+ *   caller's runtime
+ * - This is a *strength* validator, not a password-comparison primitive. The
+ *   validators use early-return `includes()`/loops and are not constant-time,
+ *   but timing is not a relevant attack surface here: the patterns being
+ *   checked (length, character types, common-password list, keyboard layouts)
+ *   are all public — there's no secret to leak via timing. When you compare
+ *   a password against a stored hash, use a library like Argon2/bcrypt that
+ *   provides constant-time verification — that's a separate concern from
+ *   strength validation.
  */
 export function validatePassword(
   password: string,

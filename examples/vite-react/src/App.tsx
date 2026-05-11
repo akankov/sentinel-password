@@ -2,41 +2,62 @@ import { useState } from 'react'
 import { PasswordInput } from '@sentinel-password/react-components'
 import './App.css'
 
-interface ValidationResult {
-  valid: boolean
-  score: number
-  strength: string
-}
-
 function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isValid, setIsValid] = useState(false)
+  // We deliberately store only the boolean we need, not the whole
+  // ValidationResult — keeping less password-derived state around.
+  const [passwordValid, setPasswordValid] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleValidationChange = (result: ValidationResult) => {
-    setIsValid(result.valid)
-  }
+  // Strength-based submit gating is appropriate here because this is a
+  // signup form — we're evaluating a *new* password the user is about to
+  // commit. Never apply this pattern to a login form: a strict policy
+  // would reject existing users whose passwords pre-date the policy.
+  const formReady = email.length > 0 && passwordValid && !isSubmitting
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isValid || !email) return
+    if (!formReady) return
+    setIsSubmitting(true)
 
-    setSubmitted(true)
-
-    // Simulate API call
+    // Simulate API call. In a real app, send the password to your backend
+    // over HTTPS, hash it with Argon2/bcrypt server-side, and never log or
+    // persist the plaintext.
     setTimeout(() => {
-      alert(`Login successful for ${email}!`)
-      setSubmitted(false)
-      setEmail('')
-      setPassword('')
+      setSubmitted(true)
+      setIsSubmitting(false)
     }, 1000)
+  }
+
+  if (submitted) {
+    return (
+      <div className="app-container">
+        <div className="login-card" role="status" aria-live="polite">
+          <h1>Account created</h1>
+          <p className="subtitle">Welcome aboard! Your account for {email} is ready.</p>
+          <button
+            type="button"
+            className="submit-button"
+            onClick={() => {
+              setSubmitted(false)
+              setEmail('')
+              setPassword('')
+              setPasswordValid(false)
+            }}
+          >
+            Create another account
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="app-container">
       <div className="login-card">
-        <h1>Login to Your Account</h1>
+        <h1>Create your account</h1>
         <p className="subtitle">Secured by Sentinel Password</p>
 
         <form onSubmit={handleSubmit}>
@@ -55,10 +76,19 @@ function App() {
 
           <PasswordInput
             label="Password"
-            description="Must be at least 8 characters long"
+            description="At least 8 characters; avoids common passwords and obvious patterns"
             value={password}
-            onChange={setPassword}
-            onValidationChange={handleValidationChange}
+            onChange={(value) => {
+              setPassword(value)
+              // Optimistically invalidate so the submit gate can't outrun
+              // the debounced validation. PasswordInput debounces by 300 ms
+              // and Escape doesn't fire onValidationChange at all — without
+              // this line, passwordValid can stay `true` while the actual
+              // password becomes invalid or empty. onValidationChange will
+              // restore `true` once the new value is confirmed valid.
+              setPasswordValid(false)
+            }}
+            onValidationChange={(result) => setPasswordValid(result.valid)}
             containerClassName="password-container"
             labelClassName="password-label"
             descriptionClassName="password-description"
@@ -68,30 +98,39 @@ function App() {
             validationClassName="validation-messages"
           />
 
-          <button
-            type="submit"
-            disabled={!isValid || !email || submitted}
-            className="submit-button"
-          >
-            {submitted ? 'Logging in...' : 'Login'}
+          <button type="submit" disabled={!formReady} className="submit-button">
+            {isSubmitting ? 'Creating account...' : 'Create account'}
           </button>
         </form>
 
-        <div className="footer-link">
-          Don't have an account? <a href="#">Sign up</a>
-        </div>
+        <p className="footer-link">
+          Sign-in flow is out of scope — strength gating like this only belongs on signup or
+          change-password screens, never on login. See the{' '}
+          <a
+            href="https://akankov.github.io/sentinel-password/guide/server-side"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Server-Side Usage guide
+          </a>{' '}
+          for the full picture.
+        </p>
       </div>
 
       <div className="info-section">
         <h2>About This Example</h2>
         <p>
-          This is a simple login form built with <strong>Vite + React</strong> and{' '}
+          This is a signup form built with <strong>Vite + React</strong> and{' '}
           <strong>Sentinel Password</strong>.
         </p>
         <ul>
           <li>Real-time password validation</li>
           <li>Show/hide password toggle</li>
-          <li>Accessible, WCAG 2.1 AAA compliant</li>
+          <li>
+            The <code>PasswordInput</code> component is designed to meet WCAG 2.1 AAA — page-level
+            conformance (contrast, surrounding markup) is on the consumer. The surrounding example
+            app is a demo shell.
+          </li>
           <li>Zero dependencies in core</li>
         </ul>
         <a

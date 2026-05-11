@@ -7,8 +7,6 @@ export default defineConfig({
   srcDir: 'docs',
   base: '/sentinel-password/',
 
-  ignoreDeadLinks: true,
-
   themeConfig: {
     logo: '/logo.svg',
 
@@ -41,6 +39,7 @@ export default defineConfig({
           items: [
             { text: 'Validators', link: '/guide/validators' },
             { text: 'Configuration', link: '/guide/configuration' },
+            { text: 'Server-Side Usage', link: '/guide/server-side' },
             { text: 'Error Handling', link: '/guide/error-handling' },
           ],
         },
@@ -67,13 +66,13 @@ export default defineConfig({
         {
           text: 'Validators',
           items: [
-            { text: 'Length Validator', link: '/api/validators/length' },
-            { text: 'Character Types', link: '/api/validators/character-types' },
-            { text: 'Common Passwords', link: '/api/validators/common-password' },
-            { text: 'Keyboard Patterns', link: '/api/validators/keyboard-pattern' },
-            { text: 'Sequential Characters', link: '/api/validators/sequential' },
-            { text: 'Repetition', link: '/api/validators/repetition' },
-            { text: 'Personal Info', link: '/api/validators/personal-info' },
+            { text: 'Length', link: '/guide/validators#length' },
+            { text: 'Character Types', link: '/guide/validators#character-types' },
+            { text: 'Repetition', link: '/guide/validators#repetition' },
+            { text: 'Sequential', link: '/guide/validators#sequential' },
+            { text: 'Keyboard Pattern', link: '/guide/validators#keyboard-pattern' },
+            { text: 'Common Password', link: '/guide/validators#common-password' },
+            { text: 'Personal Info', link: '/guide/validators#personal-info' },
           ],
         },
       ],
@@ -83,11 +82,11 @@ export default defineConfig({
           text: 'Examples',
           items: [
             { text: 'Overview', link: '/examples/' },
-            { text: 'Basic Validation', link: '/examples/basic-validation' },
-            { text: 'React Form', link: '/examples/react-form' },
-            { text: 'Custom Styling', link: '/examples/custom-styling' },
-            { text: 'Real-time Feedback', link: '/examples/real-time-feedback' },
-            { text: 'Multi-step Forms', link: '/examples/multi-step-forms' },
+            { text: 'Basic Validation', link: '/examples/#basic-validation' },
+            { text: 'React Form', link: '/examples/#react-form' },
+            { text: 'Custom Styling', link: '/examples/#custom-styling' },
+            { text: 'Real-time Feedback', link: '/examples/#real-time-feedback' },
+            { text: 'Multi-step Forms', link: '/examples/#multi-step-forms' },
           ],
         },
       ],

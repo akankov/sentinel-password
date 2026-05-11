@@ -22,11 +22,11 @@ hero:
 features:
   - icon: 🎯
     title: Flexible & Configurable
-    details: Define your own validation rules with granular control over password requirements. Mix and match validators to fit your exact needs.
+    details: Tune all seven built-in checks through a single flat options object — set length, character-type, and repetition thresholds, supply `personalInfo`, or short-circuit the sequential, keyboard-pattern, and common-password checks via their `check*` flags.
   
   - icon: ♿
-    title: Accessibility First
-    details: WCAG 2.1 AAA compliant components with full ARIA support, keyboard navigation, and screen reader friendly feedback.
+    title: Designed for AAA
+    details: Built with WCAG 2.1 AAA in mind — semantic HTML, ARIA live region, keyboard navigation, and a `useId()`-linked label. Full page conformance depends on your CSS (contrast) and surrounding markup.
   
   - icon: 🎨
     title: Headless Components
@@ -34,11 +34,11 @@ features:
   
   - icon: 📦
     title: Tiny Bundle Size
-    details: Core package is <5KB gzipped with zero dependencies. Tree-shakeable validators load only what you need.
+    details: Core package is ~5.5 KB gzipped (under the 10 KB CI limit) with zero dependencies. Tree-shakeable validators load only what you need.
   
   - icon: 🌍
-    title: I18n Ready
-    details: Built with internationalization in mind. Easily customize error messages for any language or region.
+    title: Translatable
+    details: Validator messages are short, stable English strings — map them to your locale with a lookup table at the application layer. Pluggable message templates are on the roadmap.
   
   - icon: ⚡
     title: Zero Dependencies
@@ -50,7 +50,7 @@ features:
   
   - icon: 📱
     title: Framework Agnostic
-    details: Use the core package with any JavaScript framework, or leverage our React hooks and components for seamless integration.
+    details: Use the core package with any JavaScript framework, or pull in our React hook and headless components for seamless integration.
   
   - icon: ✨
     title: TypeScript First

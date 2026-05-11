@@ -46,9 +46,17 @@ const normalizePersonalInfo = (info: string): string => {
  * validatePersonalInfo('johnpassword', { personalInfo: ['john'] })
  * // { passed: false, message: "Password contains personal information" }
  *
- * // Extracts username from email
+ * // Emails are reduced to the *entire local part* (everything before `@`),
+ * // matched as a literal substring — not split into name fragments.
+ * validatePersonalInfo('john.doe123', { personalInfo: ['john.doe@example.com'] })
+ * // { passed: false } (matches the full local part "john.doe")
+ *
  * validatePersonalInfo('john123', { personalInfo: ['john.doe@example.com'] })
- * // { passed: false } (detects "john" from email)
+ * // { passed: true } (the local part is "john.doe", not "john" — no match)
+ *
+ * // To reject passwords containing just "john", pass it explicitly:
+ * validatePersonalInfo('john123', { personalInfo: ['john', 'john.doe@example.com'] })
+ * // { passed: false } (matches the literal "john")
  *
  * // Case-insensitive
  * validatePersonalInfo('JOHN123', { personalInfo: ['john'] })

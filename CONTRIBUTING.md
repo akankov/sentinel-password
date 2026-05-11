@@ -41,32 +41,57 @@ pnpm build
 
 ### Testing
 
-Run all tests:
+Run all tests across the workspace:
+
 ```bash
 pnpm test
 ```
 
-Run tests for a specific file:
+Run tests for one package (path is relative to that package, not the repo root):
+
 ```bash
-pnpm test -- path/to/file.test.ts
+pnpm --filter @sentinel-password/core test tests/validators/length.test.ts
 ```
 
-Run tests in watch mode:
+> Notes:
+>
+> - **Always scope with `--filter`.** The bare `pnpm test -- path/to/file.test.ts` form does *not* work from the repo root: the root `test` script is `turbo run test`, which forwards the path to every workspace's `vitest run`. Each workspace resolves the path relative to its own cwd, so most workspaces produce noise instead of the focused run you expected.
+> - **Pass positional args directly, without `--`.** When a package's `test` script is `vitest run`, `pnpm --filter <pkg> test <path>` correctly appends `<path>` to vitest. Adding `--` in between swallows the path silently — vitest then runs the whole test suite instead of just that file.
+
+Run tests in watch mode for one package:
+
 ```bash
-cd packages/core
-pnpm test:watch
+pnpm --filter @sentinel-password/core test:watch
+```
+
+Run the core package's coverage gate (100% statements/branches/functions/lines required — fails on regression):
+
+```bash
+pnpm --filter @sentinel-password/core test:coverage
 ```
 
 ### Linting and Formatting
 
-Check code style:
+`pnpm lint` runs ESLint only. Prettier is a separate gate.
+
+Check ESLint:
 ```bash
 pnpm lint
 ```
 
-Auto-fix lint issues:
+Auto-fix ESLint issues:
 ```bash
 pnpm lint:fix
+```
+
+Check Prettier formatting:
+```bash
+pnpm format:check
+```
+
+Auto-format with Prettier:
+```bash
+pnpm format
 ```
 
 ### Type Checking
@@ -80,7 +105,7 @@ pnpm typecheck
 
 This project follows strict code style guidelines:
 
-- **TypeScript 5+ strict mode** - no `any` types in production code
+- **TypeScript 6+ strict mode** - no `any` types in production code
 - **Imports**: Use `@sentinel-password/*` package aliases; prefer named exports
 - **Formatting**: Prettier defaults; no semicolons preferred
 - **Naming**: camelCase for functions/vars, PascalCase for types/classes/components
@@ -91,13 +116,13 @@ This project follows strict code style guidelines:
 
 - **Never log passwords** - even in debug mode
 - Use constant-time comparisons for security-sensitive code
-- Core package must remain **< 5KB gzipped** and **zero dependencies**
+- Core package must stay under the **10 KB gzipped CI ceiling** enforced by `.github/workflows/ci.yml` (currently ~5.5 KB) and remain **zero-dependency**
 - Lazy-load dictionaries - never bundle in core
 
 ### Accessibility and Internationalization
 
-- Support i18n from day one - no hardcoded English strings
-- WCAG 2.1 AAA accessibility compliance required
+- **Accessibility**: write components that *can meet* WCAG 2.1 AAA — semantic HTML, ARIA primitives, keyboard support, live regions, `useId()`-linked labels. Page-level conformance (contrast, focus-visible, reduced-motion, surrounding markup) is the consumer's responsibility. If your change adds a gap (e.g., a hardcoded user-facing string that can't be localized today), document it in the [Accessibility guide's Known Gaps section](packages/docs/docs/guide/accessibility.md#known-gaps).
+- **Internationalization**: i18n is not built into core yet — validators emit English strings today, by design. If you add a new validator message, keep it **short, stable, and English** so consumers can use it as a translation key via the [lookup-table pattern](packages/docs/docs/guide/i18n.md). Use template literals (`` `Password must be at least ${n} characters` ``) for dynamic numbers; don't introduce locale-specific phrasing. **Don't change existing English strings in patch/minor releases** — that breaks every consumer's translation table. Major releases can rephrase, with a migration note. A future release will introduce pluggable message templates.
 
 ## Commit Guidelines
 
@@ -129,12 +154,13 @@ Closes #123
 ## Pull Request Process
 
 1. Ensure all tests pass: `pnpm test`
-2. Ensure code is properly formatted: `pnpm lint`
-3. Ensure TypeScript checks pass: `pnpm typecheck`
-4. Update documentation if needed
-5. Create a pull request with a clear description of the changes
-6. Reference any related issues in the PR description
-7. Wait for review and address any feedback
+2. Ensure ESLint passes: `pnpm lint`
+3. Ensure Prettier formatting passes: `pnpm format:check`
+4. Ensure TypeScript checks pass: `pnpm typecheck`
+5. Update documentation if needed
+6. Create a pull request with a clear description of the changes
+7. Reference any related issues in the PR description
+8. Wait for review and address any feedback
 
 ### Pull Request Template
 
@@ -150,10 +176,27 @@ When creating a PR, please include:
 
 This is a pnpm workspace monorepo:
 
-- `packages/core` - Zero-dependency password validation engine
-- `packages/react` - React hook and headless input component (planned)
-- `.github/` - GitHub workflows and templates
-- `.changeset/` - Changesets for versioning
+**Published packages** (`packages/*`):
+
+- `packages/core` — Zero-dependency password validation engine (`@sentinel-password/core`)
+- `packages/react` — `usePasswordValidator` React hook (`@sentinel-password/react`)
+- `packages/react-components` — Headless `PasswordInput` component (`@sentinel-password/react-components`)
+
+**Internal packages** (not published — listed in `.changeset/config.json` `ignore`):
+
+- `packages/docs` — VitePress documentation site
+
+**Runnable examples** (`examples/*`, all `private: true`):
+
+- `examples/nextjs` — Signup form with App Router and Tailwind CSS
+- `examples/vite-react` — Signup form with custom CSS
+- `examples/express-backend` — Server-side `/signup` validation with Express 5
+- `examples/playground` — Interactive demo of the `PasswordInput` component
+
+**Repo plumbing:**
+
+- `.github/` — GitHub workflows and templates
+- `.changeset/` — Changesets for versioning
 
 ## Testing Guidelines
 
