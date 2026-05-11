@@ -84,10 +84,11 @@ function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!result?.valid) {
-      alert('Please fix password issues')
-      return
-    }
+    // Defense in depth: the submit button is disabled when the password is
+    // invalid, but keyboard-Enter inside an input bypasses `disabled`. The
+    // inline suggestions and aria-invalid below already announce the failure
+    // — no alert() needed.
+    if (!result?.valid) return
 
     await fetch('/api/signup', {
       method: 'POST',
