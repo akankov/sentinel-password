@@ -12,5 +12,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@sentinel-password/docs", "nextjs", "playground", "vite-react"]
+  "ignore": ["@sentinel-password/docs", "express-backend", "nextjs", "playground", "vite-react"]
 }

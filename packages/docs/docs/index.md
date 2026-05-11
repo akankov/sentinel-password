@@ -37,8 +37,8 @@ features:
     details: Core package is ~5.5 KB gzipped (under the 10 KB CI limit) with zero dependencies. Tree-shakeable validators load only what you need.
   
   - icon: 🌍
-    title: I18n Ready
-    details: Built with internationalization in mind. Easily customize error messages for any language or region.
+    title: Translatable
+    details: Validator messages are short, stable English strings — map them to your locale with a lookup table at the application layer. Pluggable message templates are on the roadmap.
   
   - icon: ⚡
     title: Zero Dependencies

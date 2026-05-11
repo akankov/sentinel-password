@@ -178,25 +178,20 @@ usePasswordValidator({ minLength: 8, debounceMs: 0, validateOnChange: true })
 
 ## Localized Feedback
 
-Validators return English messages today. To translate, map the suggestion strings to your locale at the application layer:
+Validators return short, stable English strings. To translate, map each one to your locale at the application layer with a lookup table:
 
 ```typescript
 const result = validatePassword(password, options)
 
-const translations: Record<string, Record<string, string>> = {
-  es: {
-    'Password must be at least 8 characters': 'La contraseña debe tener al menos 8 caracteres',
-    'Password is too common. Please choose a more unique password.':
-      'La contraseña es demasiado común. Elija una contraseña más única.',
-  },
+const translations: Record<string, string> = {
+  'Password must be at least 8 characters': 'La contraseña debe tener al menos 8 caracteres',
+  // …
 }
 
-const localized = result.feedback.suggestions.map(
-  (msg) => translations['es']?.[msg] ?? msg
-)
+const localized = result.feedback.suggestions.map((msg) => translations[msg] ?? msg)
 ```
 
-A future release will support pluggable message templates. See [Internationalization](/guide/i18n).
+The [Internationalization guide](/guide/i18n) covers the full pattern including dynamic-number messages (`minLength`, `maxRepeatedChars`) and notes the roadmap toward built-in pluggable templates.
 
 ## Best Practices
 
