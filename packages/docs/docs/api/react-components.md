@@ -268,12 +268,13 @@ When `showValidationMessages` is true **and** the validation result has any feed
 ```html
 <div role="alert" aria-live="polite">
   <ul>
-    <li data-severity="warning">{feedback.warning}</li>
-    <li data-severity="error">{feedback.suggestions[0]}</li>
+    <li data-severity="warning">{feedback.suggestions[0]}</li>
     <!-- one <li data-severity="error"> per remaining suggestion -->
   </ul>
 </div>
 ```
+
+`feedback.warning` is always equal to `feedback.suggestions[0]` (the first failure, surfaced for prominent display), so the component renders it once with `data-severity="warning"` and the remaining suggestions with `data-severity="error"` — the warning is not rendered as a separate row.
 
 A **valid** password produces an empty `feedback.suggestions` array and no `feedback.warning`, so the component renders nothing — the entire `<ul>` is skipped. In practice only `warning` and `error` severities are emitted today.
 

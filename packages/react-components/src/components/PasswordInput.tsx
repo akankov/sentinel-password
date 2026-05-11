@@ -175,27 +175,18 @@ export function PasswordInput({
   const validationMessages: ValidationMessage[] = React.useMemo(() => {
     if (!validationResult || !showValidationMessages) return []
 
-    const messages: ValidationMessage[] = []
-
-    // Add warning if present
-    if (validationResult.feedback.warning) {
-      messages.push({
-        id: 'warning',
-        message: validationResult.feedback.warning,
-        severity: 'warning',
-      })
-    }
-
-    // Add suggestions as info messages
-    validationResult.feedback.suggestions.forEach((suggestion, index) => {
-      messages.push({
-        id: `suggestion-${index}`,
-        message: suggestion,
-        severity: validationResult.valid ? 'success' : 'error',
-      })
-    })
-
-    return messages
+    // `feedback.warning` is always === `feedback.suggestions[0]` (it's the
+    // first failure message, surfaced for prominent display by the
+    // aggregator). Iterate suggestions once and render the first with
+    // `severity: 'warning'` (the prominent slot) and the rest with
+    // `severity: 'error'`. Previously we pushed `warning` as a separate
+    // entry then also iterated suggestions, which duplicated the first
+    // message in the rendered list.
+    return validationResult.feedback.suggestions.map((suggestion, index) => ({
+      id: index === 0 ? 'warning' : `suggestion-${index}`,
+      message: suggestion,
+      severity: index === 0 ? 'warning' : 'error',
+    }))
   }, [validationResult, showValidationMessages])
 
   // Determine ARIA attributes

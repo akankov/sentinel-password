@@ -44,8 +44,10 @@ if (result.valid) {
   console.log('Strength:', result.strength) // 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
   console.log('Score:', result.score) // 0-4
 } else {
+  // `feedback.warning` is always equal to `feedback.suggestions[0]` — the
+  // first failure, surfaced for prominent display. Iterate `suggestions`
+  // for the full list; the first entry is the warning.
   console.log('✗ Validation failed')
-  console.log('Warning:', result.feedback.warning)
   result.feedback.suggestions.forEach(suggestion => {
     console.log(`- ${suggestion}`)
   })

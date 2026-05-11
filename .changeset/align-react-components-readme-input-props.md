@@ -45,4 +45,14 @@ Tightened `showPassword`'s "Default: false" cell to "uncontrolled" —
 the prop has no default; when omitted the component uses internal
 state.
 
-No runtime behavior change.
+Fixed a duplicate-rendering bug in the validation messages list.
+`feedback.warning` is always equal to `feedback.suggestions[0]` (it's the
+first failure message, surfaced by the aggregator for prominent display).
+The `PasswordInput` component previously pushed `feedback.warning` into
+the rendered messages list and then *also* iterated all of
+`feedback.suggestions`, so `suggestions[0]` always appeared twice — once
+as the warning row and once as the first error row. The component now
+iterates `suggestions` exactly once and renders the first entry with
+`data-severity="warning"` and the rest with `data-severity="error"`,
+matching what the documented rendered-HTML samples (in
+`accessibility.md` and `api/react-components.md`) now describe.

@@ -78,7 +78,6 @@ The `<PasswordInput>` component renders this DOM tree. **Initial state** (no val
   >
     <ul>
       <li data-severity="warning">Password must be at least 8 characters</li>
-      <li data-severity="error">Password must be at least 8 characters</li>
     </ul>
   </div>
 </div>
