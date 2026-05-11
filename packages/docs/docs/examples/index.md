@@ -11,10 +11,13 @@ Try out the interactive playground to test password validation in real time:
 👉 **[Open Playground](https://akankov.github.io/sentinel-password/playground/)**
 
 The playground features:
-- Live password validation
-- Configurable validation options
-- Visual strength meter
-- Detailed validation results
+
+- Live password validation against the **built-in default policy** as you type
+- Toggles for `PasswordInput`'s behavior knobs (validate on mount/change, debounce delay, visibility of the toggle button and validation messages)
+- Visual strength meter (label + numeric `0–4` score)
+- Per-check pass/fail grid (length, character types, repetition, sequential, keyboard pattern, common password, personal info)
+
+> The playground does not let you customize the validation **policy** itself — `PasswordInput` runs `validatePassword(password)` with no options today. To experiment with `minLength`, `require*`, `personalInfo`, etc., drive a plain `<input>` from [`usePasswordValidator`](/api/react) directly.
 
 ### Working Examples
 
