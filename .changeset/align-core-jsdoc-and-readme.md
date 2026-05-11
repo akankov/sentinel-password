@@ -23,5 +23,12 @@ validator's real output.
   claimed `validateCharacterTypes(...).message` returns
   `'Add special characters (!@#$%^&*)'`; the real message is
   `'Password must contain at least one symbol'`.
+- The `@remarks` Security section claimed "Constant-time operations prevent
+  timing attacks". The validators use early-return `includes()` and loops
+  and are not constant-time. The claim was also misleading conceptually —
+  this is a strength validator that compares the password against public
+  patterns, not a password-comparison primitive, so timing is not a
+  relevant attack surface. Replaced with an honest note pointing readers
+  at Argon2/bcrypt for actual password verification.
 
 No runtime behavior change.

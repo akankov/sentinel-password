@@ -93,7 +93,7 @@ const localized = result.feedback.suggestions.map(
 
 Helps users create stronger passwords by checking for:
 
-- ✅ Common passwords (10k+ most common passwords)
+- ✅ Common passwords (top 1,000 most common passwords, O(1) Bloom-filter lookup)
 - ✅ Keyboard patterns (`qwerty`, `asdfgh`)
 - ✅ Sequential characters (`abc123`, `987654`)
 - ✅ Repetitive patterns (`aaaaaa`, `111111`)

@@ -124,7 +124,7 @@ interface ValidatorOptions {
 | `checkSequential` | `true` | Reject sequential characters (`abc`, `123`) |
 | `checkKeyboardPatterns` | `true` | Reject keyboard runs (`qwerty`, `asdfgh`) |
 | `checkCommonPasswords` | `true` | Reject the top 1,000 common passwords |
-| `personalInfo` | — | Array of strings (email, name) the password must not contain |
+| `personalInfo` | — | Array of strings the password must not contain (substring match, case-insensitive; entries containing `@` are reduced to the local part before matching) |
 
 ### `ValidationResult`
 
@@ -226,14 +226,18 @@ const result = validatePassword(password, {
 
 ### Personal Info
 
-Pass any user-identifying strings — email, name, username — to reject passwords that contain them. Matching is case-insensitive and substring-based.
+Pass user-identifying strings — name, username, email — to reject passwords that contain them. Matching is case-insensitive and substring-based.
 
 ```typescript
 validatePassword('john1234!', {
   personalInfo: ['john@example.com', 'John', 'Doe'],
 })
 // { valid: false, feedback: { warning: 'Password contains personal information', ... } }
+// — matches "john" from the email's local part. Identifiers under 3 characters are
+//   ignored. To match a domain, pass it separately (e.g. add 'example' to the list).
 ```
+
+**Email handling:** values containing `@` are reduced to the part before `@` before matching, so `'john.doe@example.com'` is treated as `'john.doe'`. The domain is not checked. Add it as a separate entry if you want it rejected too.
 
 ### Tree-Shaking Individual Validators
 

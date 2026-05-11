@@ -112,7 +112,7 @@ validateSequential('abc1xyz!')
 
 ### Keyboard Pattern
 
-Catches runs along common keyboard layouts (`qwerty`, `asdfgh`, `zxcvbn`, `!@#$%`).
+Catches runs along common keyboard layouts (`qwerty`, `asdfgh`, `zxcvbn`) plus the numeric row (`1234567890`) and numeric-keypad rows/columns (`789`, `456`, `123`, `741`, `852`, `963`). Supports QWERTY, AZERTY, QWERTZ, Dvorak, Colemak, and Cyrillic layouts. The shifted symbol row (`!@#$%…`) is **not** in the pattern set today — only unshifted runs are detected.
 
 **Options:**
 
@@ -148,13 +148,19 @@ validateCommonPassword('password')
 
 ### Personal Info
 
-Rejects passwords that contain a substring of any provided identifier (case-insensitive). Pass any user-identifying strings — email, name, username — that the password should not include.
+Rejects passwords that contain any of the supplied identifiers as a case-insensitive substring. Pass user-identifying strings — name, username, email — that the password should not include.
+
+::: tip Emails are reduced to the local part
+Any value containing `@` is treated as an email and **only the part before `@` is matched**. `personalInfo: ['john.doe@example.com']` is effectively `personalInfo: ['john.doe']` — the domain (`example.com`) is not checked. If you want to reject passwords containing your company domain, pass it as a separate string (e.g. `['john.doe@example.com', 'example']`).
+
+Identifiers shorter than 3 characters are also ignored to avoid false positives.
+:::
 
 **Options:**
 
 | Option | Default | Effect |
 |--------|---------|--------|
-| `personalInfo` | `undefined` | Array of strings the password must not contain (substring match, case-insensitive) |
+| `personalInfo` | `undefined` | Array of strings the password must not contain (substring match, case-insensitive; emails reduced to local part) |
 
 **Standalone:**
 ```typescript

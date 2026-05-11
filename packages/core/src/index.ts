@@ -185,7 +185,16 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * **Security:**
  * - All checks are case-insensitive where applicable
  * - No password data is logged or stored
- * - Constant-time operations prevent timing attacks
+ * - Runs purely in-process — no network calls, the password never leaves the
+ *   caller's runtime
+ * - This is a *strength* validator, not a password-comparison primitive. The
+ *   validators use early-return `includes()`/loops and are not constant-time,
+ *   but timing is not a relevant attack surface here: the patterns being
+ *   checked (length, character types, common-password list, keyboard layouts)
+ *   are all public — there's no secret to leak via timing. When you compare
+ *   a password against a stored hash, use a library like Argon2/bcrypt that
+ *   provides constant-time verification — that's a separate concern from
+ *   strength validation.
  */
 export function validatePassword(
   password: string,
