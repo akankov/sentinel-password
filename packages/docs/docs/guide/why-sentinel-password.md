@@ -77,18 +77,28 @@ React components are completely unstyled, giving you full design control:
 
 Style it with CSS, Tailwind, CSS-in-JS, or any styling solution you prefer.
 
-### 🌍 Internationalization Ready
+### 🌍 Pluggable i18n
 
-Easy to customize for any language:
+Pass `messages` (template map keyed by stable `MessageCode`) or `formatMessage` (callback) to localize validator output — no manual lookup-table needed:
 
 ```typescript
-const result = validatePassword('weak', config)
+import { validatePassword, type MessageCode } from '@sentinel-password/core'
 
-// Map English suggestion strings to your locale
-const localized = result.feedback.suggestions.map(
-  (msg) => translations[userLanguage]?.[msg] ?? msg
-)
+// Pattern 1 — template overrides
+const result = validatePassword('weak', {
+  messages: {
+    'length.tooShort': 'La contraseña debe tener al menos {minLength} caracteres',
+  } satisfies Partial<Record<MessageCode, string>>,
+})
+
+// Pattern 2 — plug into react-intl / i18next / FormatJS
+validatePassword('weak', {
+  formatMessage: (code, params, defaultMessage) =>
+    intl.formatMessage({ id: `sentinelPassword.${code}`, defaultMessage }, params),
+})
 ```
+
+The legacy lookup-table workaround still works (default English strings are stable), but new code should prefer the explicit options above. See the [i18n guide](/guide/i18n) for full coverage.
 
 ### 🔒 Security Focused
 

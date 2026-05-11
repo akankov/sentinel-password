@@ -78,17 +78,15 @@ import {
 } from '@sentinel-password/core'
 
 const lengthCheck = validateLength('abc', { minLength: 8 })
-// { passed: false, message: 'Password must be at least 8 characters' }
+// {
+//   passed: false,
+//   code: 'length.tooShort',
+//   params: { minLength: 8 },
+//   message: 'Password must be at least 8 characters',
+// }
 ```
 
-Every validator returns a `ValidatorCheck`:
-
-```typescript
-interface ValidatorCheck {
-  passed: boolean
-  message?: string
-}
-```
+Every validator returns a [`ValidatorCheck`](#validatorcheck-and-validator) — `passed` plus `code` / `params` / `message` when the check fails.
 
 ## Types
 
