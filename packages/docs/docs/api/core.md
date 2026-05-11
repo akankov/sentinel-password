@@ -121,7 +121,7 @@ interface ValidatorOptions {
 | `requireDigit` | `false` | Require at least one digit |
 | `requireSymbol` | `false` | Require at least one symbol |
 | `maxRepeatedChars` | `3` | Max consecutive repeated characters allowed |
-| `checkSequential` | `true` | Reject any three consecutive ascending or descending Unicode code points — `abc`, `xyz`, `123`, `987`, **plus** less-obvious runs like `!"#`, `,-.`, or `9:;`. See [Sequential](/guide/validators#sequential). |
+| `checkSequential` | `true` | Reject any three characters whose `charCodeAt` values are consecutive ascending or descending — `abc`, `xyz`, `123`, `987`, **plus** less-obvious runs like `!"#`, `,-.`, or `9:;`. See [Sequential](/guide/validators#sequential). |
 | `checkKeyboardPatterns` | `true` | Reject keyboard runs (`qwerty`, `asdfgh`) |
 | `checkCommonPasswords` | `true` | Reject the top 1,000 common passwords. The check uses a Bloom filter with no false negatives but a ~0.84% false-positive rate — see [Common Password](/guide/validators#common-password). |
 | `personalInfo` | — | Array of strings the password must not contain (substring match, case-insensitive; entries containing `@` are reduced to the local part before matching) |

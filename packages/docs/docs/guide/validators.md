@@ -94,14 +94,16 @@ validateRepetition('Paaaaass1!', { maxRepeatedChars: 3 })
 
 ### Sequential
 
-Detects **three or more consecutive Unicode code points, ascending or descending** — not just within a single character class. Source uses `charCodeAt` deltas (`sequential.ts`) so the check matches more than the obvious cases:
+Detects **three or more characters whose `charCodeAt` values are consecutive (ascending or descending)** — not just within a single character class. Source uses `String.prototype.charCodeAt` deltas (`sequential.ts`), which return UTF-16 code units. For the Basic Multilingual Plane (U+0000–U+FFFF) — every character you'd see in a typical password, including ASCII, Latin extensions, Cyrillic, Greek, and CJK — code units and Unicode code points are identical, so the practical effect is "three consecutive code points." Supplementary-plane characters (emoji, etc.) are encoded as surrogate pairs, so a code-point-level run like `😀😁😂` does *not* trigger the check.
+
+The detector matches more than the obvious cases:
 
 - Within letters: `abc`, `xyz`, `ABC` (and reverse: `cba`, `zyx`)
 - Within digits: `123`, `987`
 - Within symbols: `!"#` (`!` is 33, `"` is 34, `#` is 35), `,-.` (44-46), `/01` (47-49)
 - **Across character classes**: `9:;` (digit → punctuation, codes 57-59), `Z[\` (letter → symbol, codes 90-92)
 
-If a password is rejected for "sequential characters" and you don't see an obvious `abc`/`123`, scan for any three adjacent code points that increment or decrement by 1 — they're often inside punctuation runs (`-.`, `./`, `!"#`).
+If a password is rejected for "sequential characters" and you don't see an obvious `abc`/`123`, scan for any three adjacent characters whose `charCodeAt` values increment or decrement by 1 — they're often inside punctuation runs (`-.`, `./`, `!"#`).
 
 **Options:**
 

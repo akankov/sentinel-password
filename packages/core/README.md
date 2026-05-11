@@ -76,7 +76,7 @@ interface ValidationResult {
     length: boolean             // Meets length requirements
     characterTypes: boolean     // Meets character type requirements
     repetition: boolean         // No excessive repeated characters
-    sequential: boolean         // No three-consecutive code-point runs (abc, 123, xyz, plus runs like '!"#' or '9:;')
+    sequential: boolean         // No three characters with consecutive charCodeAt values (abc, 123, xyz, plus runs like '!"#' or '9:;')
     keyboardPattern: boolean    // No keyboard patterns (qwerty, asdf)
     commonPassword: boolean     // Not in top 1K common passwords (Bloom filter, ~0.84% false-positive rate)
     personalInfo: boolean       // Doesn't contain personal information
@@ -324,7 +324,7 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 
 ### 4. Sequential Pattern Detection
 
-- Blocks any three consecutive ascending or descending Unicode code points — `abc`, `123`, `xyz` plus less-obvious runs like `!"#`, `,-.`, `9:;`
+- Blocks any three characters whose `charCodeAt` values are consecutive ascending or descending — `abc`, `123`, `xyz` plus less-obvious runs like `!"#`, `,-.`, `9:;` (equivalent to consecutive Unicode code points for the BMP, which covers every character a typical password uses)
 - Works forward and backward
 - Configurable via `checkSequential`
 

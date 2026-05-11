@@ -44,12 +44,19 @@ validator's real output.
   very rarely flagged as "common"). The source has documented this in
   `common-password.ts` since the validator landed; the README/API docs
   just hadn't carried the detail.
-- Sequential-pattern detection is now described accurately. The
-  implementation in `sequential.ts` matches *any* three consecutive
-  ascending/descending Unicode code points, not just alphabet or digit
-  runs — including less-obvious cases like `!"#`, `,-.`, or `9:;`
-  (digit → punctuation). README and types comment updated so consumers
-  can interpret rejection messages without surprise.
+- Sequential-pattern detection is now described accurately on two
+  axes:
+  - It matches *any* three consecutive ascending/descending runs,
+    not just alphabet or digit — including less-obvious cases like
+    `!"#`, `,-.`, or `9:;` (digit → punctuation).
+  - The mechanism is `charCodeAt` deltas (UTF-16 code units), not
+    Unicode code points. For the BMP (U+0000–U+FFFF) — every
+    character a typical password uses — the two are identical, so
+    the practical effect is "three consecutive code points."
+    Supplementary-plane characters (emoji etc.) are split into
+    surrogate pairs and don't trigger sequential detection.
+  README and types comment updated so consumers can interpret
+  rejection messages and the boundary case without surprise.
 - The "100% test coverage" claim is now *enforced* rather than merely
   observed. `vitest.config.ts` adds 100% thresholds for statements,
   branches, functions, and lines; a `test:coverage` script runs in CI
