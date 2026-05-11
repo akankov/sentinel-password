@@ -103,7 +103,7 @@ This project follows strict code style guidelines:
 
 - **Never log passwords** - even in debug mode
 - Use constant-time comparisons for security-sensitive code
-- Core package must remain **< 5KB gzipped** and **zero dependencies**
+- Core package must stay under the **10 KB gzipped CI ceiling** enforced by `.github/workflows/ci.yml` (currently ~5.5 KB) and remain **zero-dependency**
 - Lazy-load dictionaries - never bundle in core
 
 ### Accessibility and Internationalization

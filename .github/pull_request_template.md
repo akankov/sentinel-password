@@ -55,7 +55,7 @@ Describe how you tested these changes:
 ## Core Package Constraints (for `@sentinel-password/core` changes)
 
 - [ ] No new runtime dependencies were added
-- [ ] Core bundle remains under 5KB gzipped (if applicable)
+- [ ] Core bundle remains under the 10 KB gzipped CI ceiling (currently ~5.5 KB; CI will fail the PR if you exceed 10 KB)
 
 ## Checklist
 
