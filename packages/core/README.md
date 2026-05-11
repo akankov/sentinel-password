@@ -147,14 +147,16 @@ const result = validatePassword('password', {
 console.log(result.valid) // false
 console.log(result.checks.length) // false
 console.log(result.checks.characterTypes) // false
+console.log(result.checks.commonPassword) // false — 'password' is in the common-password list
 console.log(result.feedback.suggestions)
 // [
 //   'Password must be at least 12 characters',
-//   'Add uppercase letters',
-//   'Add numbers',
-//   'Add special characters (!@#$%^&*)'
+//   'Password must contain at least one uppercase letter, digit, symbol',
+//   'Password is too common. Please choose a more unique password.'
 // ]
 ```
+
+The character-type validator returns a single combined message listing every missing type — not one suggestion per missing type. Note that `'password'` also trips the common-password check, so a third suggestion always appears regardless of length and character-type settings.
 
 ### Blocking Personal Information
 
