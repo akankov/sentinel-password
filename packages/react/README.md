@@ -17,13 +17,17 @@ React hook for password validation using `@sentinel-password/core`. Provides deb
 
 ## Installation
 
+`@sentinel-password/core` is a regular `dependency` of this package (not a peer), so installing `@sentinel-password/react` automatically pulls in core. You only need to add it explicitly if you're importing from core directly elsewhere in your app.
+
 ```bash
-npm install @sentinel-password/react @sentinel-password/core
+npm install @sentinel-password/react
 # or
-pnpm add @sentinel-password/react @sentinel-password/core
+pnpm add @sentinel-password/react
 # or
-yarn add @sentinel-password/react @sentinel-password/core
+yarn add @sentinel-password/react
 ```
+
+**Peer dependencies:** React 18 or 19 — bring your own.
 
 ## Quick Start
 

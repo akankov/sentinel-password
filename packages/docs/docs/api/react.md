@@ -5,8 +5,10 @@ The `@sentinel-password/react` package provides a React hook with built-in state
 ## Installation
 
 ```bash
-npm install @sentinel-password/react @sentinel-password/core
+npm install @sentinel-password/react
 ```
+
+`@sentinel-password/core` is pulled in transitively as a regular `dependency` of `@sentinel-password/react` — you don't need to install it directly.
 
 **Peer Dependencies:** React 18+ or React 19+
 

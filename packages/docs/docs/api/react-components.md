@@ -5,10 +5,13 @@ The `@sentinel-password/react-components` package provides an accessible, headle
 ## Installation
 
 ```bash
-npm install @sentinel-password/react-components @sentinel-password/core
+npm install @sentinel-password/react-components
 ```
 
+`@sentinel-password/core` is pulled in transitively as a regular `dependency` of `@sentinel-password/react-components` — you don't need to install it directly.
+
 **Peer Dependencies:**
+
 - React 18+ or React 19+
 - React DOM 18+ or React 19+
 
