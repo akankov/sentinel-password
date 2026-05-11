@@ -32,4 +32,17 @@ single-line install pulls it in transitively. Matches the parallel note added
 to `@sentinel-password/react`'s README and inoculates against future "fix"
 PRs that would add core back to the install command.
 
+Filled in the README's Props table — it previously omitted nine public
+props that the API reference documents: `validateOnChange`,
+`showValidationMessages`, `showToggleButton`, and all six `*ClassName`
+props (`containerClassName`, `labelClassName`, `descriptionClassName`,
+`inputWrapperClassName`, `toggleButtonClassName`, `validationClassName`).
+A reader landing on the npm page would have missed the entire
+headless-styling surface area. Also added `value`/`defaultValue` rows
+with a pointer to the controlled/uncontrolled rules.
+
+Tightened `showPassword`'s "Default: false" cell to "uncontrolled" —
+the prop has no default; when omitted the component uses internal
+state.
+
 No runtime behavior change.

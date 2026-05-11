@@ -75,14 +75,26 @@ A headless password input component with built-in validation.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `label` | `string` | **required** | Accessible label for the input |
-| `description` | `string` | - | Optional description text |
-| `onValidationChange` | `(result: ValidationResult) => void` | - | Callback when validation state changes |
-| `onChange` | `(value: string) => void` | - | Callback when input value changes |
-| `showPassword` | `boolean` | `false` | Whether to show/hide the password |
-| `onShowPasswordChange` | `(show: boolean) => void` | - | Callback when show/hide toggle changes |
-| `validateOnMount` | `boolean` | `false` | Run validation once on mount **only if an initial value is present** (`value` or `defaultValue` non-empty — an empty initial input silently skips). The mount validation goes through the same debounced path as normal change validation, so the result lands ~`debounceMs` after mount (set `debounceMs: 0` for synchronous mount validation). |
-| `debounceMs` | `number` | `300` | Debounce delay in ms |
+| `label` | `string` | **required** | Accessible label rendered as `<label>` |
+| `description` | `string` | — | Helper text linked via `aria-describedby` |
+| `value` | `string` | — | Controlled value. Any *defined* value flips the component to controlled mode — see the [Controlled vs Uncontrolled rules](https://akankov.github.io/sentinel-password/api/react-components#controlled-vs-uncontrolled). |
+| `defaultValue` | `string` | — | Uncontrolled initial value. Silently ignored if `value` is defined. |
+| `onChange` | `(value: string) => void` | — | Fired with the new string value (not the event) |
+| `onValidationChange` | `(result: ValidationResult) => void` | — | Fired whenever validation completes |
+| `onShowPasswordChange` | `(show: boolean) => void` | — | Fired when the show/hide toggle changes state |
+| `showPassword` | `boolean` | uncontrolled | Controlled show/hide state — omit for uncontrolled toggle |
+| `validateOnMount` | `boolean` | `false` | Validate the initial value once on mount — **only if `value`/`defaultValue` is non-empty**. Uses the debounced path; set `debounceMs: 0` for synchronous mount validation. |
+| `validateOnChange` | `boolean` | `true` | Validate on every change (debounced). Set to `false` to disable change-driven validation. |
+| `debounceMs` | `number` | `300` | Debounce delay in milliseconds. `0` validates synchronously. |
+| `showValidationMessages` | `boolean` | `true` | Render the validation messages `<div role="alert">`. Set to `false` to suppress the messages and render your own. |
+| `showToggleButton` | `boolean` | `true` | Render the show/hide password button. Set to `false` to suppress (e.g., for a localized custom toggle). |
+| `containerClassName` | `string` | `''` | Class on the outer `<div>` wrapper |
+| `labelClassName` | `string` | `''` | Class on `<label>` |
+| `descriptionClassName` | `string` | `''` | Class on the description `<div>` |
+| `inputWrapperClassName` | `string` | `''` | Class on the `<input>` + toggle wrapper |
+| `toggleButtonClassName` | `string` | `''` | Class on the show/hide `<button>` |
+| `validationClassName` | `string` | `''` | Class on the validation messages `<div>` |
+| `className` (and other standard input attrs) | — | — | Forwarded to the underlying `<input>` (`className`, `name`, `placeholder`, `autoFocus`, etc.). See the "reserved" list below for the exceptions. |
 
 Most standard HTML input attributes are forwarded to the underlying `<input>` — for example `name`, `placeholder`, `className`, `style`, `autoFocus`, `required`, `minLength`, `maxLength`, `pattern`, `inputMode`, `onFocus`, `onBlur`, and `data-*`.
 
