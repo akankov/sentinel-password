@@ -21,7 +21,7 @@ The playground features:
 Complete, runnable examples in different stacks:
 
 - **[Next.js 16+ Example](https://github.com/akankov/sentinel-password/tree/main/examples/nextjs)** — Signup form with App Router and Tailwind CSS
-- **[Vite + React Example](https://github.com/akankov/sentinel-password/tree/main/examples/vite-react)** — Login form with custom styling
+- **[Vite + React Example](https://github.com/akankov/sentinel-password/tree/main/examples/vite-react)** — Signup form with custom CSS styling
 - **[Express Backend Example](https://github.com/akankov/sentinel-password/tree/main/examples/express-backend)** — Server-side `/signup` validation with Express 5. See the [Server-Side Usage guide](/guide/server-side) for Fastify, NestJS, and edge-runtime variants.
 - **[Playground](https://akankov.github.io/sentinel-password/playground/)** — Interactive component configurator
 
