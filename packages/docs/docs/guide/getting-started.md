@@ -145,7 +145,7 @@ All seven built-in checks run on **every** call to `validatePassword`. The optio
 
 | Validator | Description | How to relax / disable |
 |-----------|-------------|------------------------|
-| `length` | Minimum and maximum password length | Set `minLength: 1`, `maxLength: 9999` |
+| `length` | Minimum and maximum password length | Set `minLength: 0` (not `1` — the check is strict `length < minLength`, so `1` still rejects empty strings) and `maxLength: 9999` |
 | `characterTypes` | Required character types | Leave the `require*` flags off (default) |
 | `commonPassword` | Checks against the top common-passwords list | `checkCommonPasswords: false` |
 | `keyboardPattern` | Detects keyboard runs like "qwerty" | `checkKeyboardPatterns: false` |

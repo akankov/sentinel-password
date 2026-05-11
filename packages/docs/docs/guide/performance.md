@@ -95,7 +95,7 @@ Two notes on what this actually does:
 
 - The disabled validators are **still called** and **still appear in `result.checks`** — they just always report `passed: true` when their flag is off. Don't treat `result.checks.sequential === true` as proof the password was checked for sequences if you've disabled the flag.
 - The other four validators have no disable flag. To make them effectively no-ops:
-  - `length` — set `minLength: 1, maxLength: 9999`.
+  - `length` — set `minLength: 0, maxLength: 9999`. (Use `0`, not `1` — `validateLength` rejects with strict `length < minLength`, so `minLength: 1` still fails empty strings.)
   - `repetition` — set `maxRepeatedChars: 9999`.
   - `characterTypes` — leave the `require*` flags off (the default).
   - `personalInfo` — omit the `personalInfo` array (the default; the validator early-returns on empty arrays).

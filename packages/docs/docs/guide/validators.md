@@ -8,7 +8,7 @@ Each validator is also exported standalone if you want to call it directly (hand
 
 `validatePassword` runs all seven checks unconditionally and reports the result in `result.checks`. To make a check effectively a no-op:
 
-- `length`, `repetition`: relax the threshold (`minLength: 1`, `maxRepeatedChars: 9999`)
+- `length`, `repetition`: relax the threshold (`minLength: 0` — note `0`, not `1`, because the check is strict `length < minLength`; `maxRepeatedChars: 9999`)
 - `characterTypes`: leave the four `require*` options off (the default)
 - `sequential`, `keyboardPattern`, `commonPassword`: set `checkSequential`, `checkKeyboardPatterns`, or `checkCommonPasswords` to `false`
 - `personalInfo`: omit the `personalInfo` array (default), or pass an empty array
