@@ -78,7 +78,7 @@ interface ValidationResult {
     repetition: boolean         // No excessive repeated characters
     sequential: boolean         // No sequential patterns (abc, 123)
     keyboardPattern: boolean    // No keyboard patterns (qwerty, asdf)
-    commonPassword: boolean     // Not in top 1K common passwords
+    commonPassword: boolean     // Not in top 1K common passwords (Bloom filter, ~0.84% false-positive rate)
     personalInfo: boolean       // Doesn't contain personal information
   }
 }
@@ -336,8 +336,9 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 
 ### 6. Common Password Detection
 
-- Blocks top 1,000 most common passwords
-- Uses bloom filter for efficient memory usage
+- Blocks the top 1,000 most common passwords
+- Uses a Bloom filter for efficient memory usage (~1.5 KB vs ~8 KB for the raw list)
+- No false negatives (every password in the list is rejected) and a ~0.84% false-positive rate — uncommon passwords are very rarely flagged as "common"
 - Configurable via `checkCommonPasswords`
 
 ### 7. Personal Information Detection

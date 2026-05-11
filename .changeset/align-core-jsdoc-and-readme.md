@@ -39,5 +39,10 @@ validator's real output.
   Node 18+ is the *runtime* minimum for the published package; building
   the monorepo requires Node 20+ per the repo-level `engines.node`.
   Added edge-runtime targets and a pointer to the Server-Side Usage guide.
+- Common-password detection now documents the Bloom filter tradeoff:
+  no false negatives, ~0.84% false-positive rate (uncommon passwords are
+  very rarely flagged as "common"). The source has documented this in
+  `common-password.ts` since the validator landed; the README/API docs
+  just hadn't carried the detail.
 
 No runtime behavior change.

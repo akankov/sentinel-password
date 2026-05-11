@@ -123,7 +123,7 @@ interface ValidatorOptions {
 | `maxRepeatedChars` | `3` | Max consecutive repeated characters allowed |
 | `checkSequential` | `true` | Reject sequential characters (`abc`, `123`) |
 | `checkKeyboardPatterns` | `true` | Reject keyboard runs (`qwerty`, `asdfgh`) |
-| `checkCommonPasswords` | `true` | Reject the top 1,000 common passwords |
+| `checkCommonPasswords` | `true` | Reject the top 1,000 common passwords. The check uses a Bloom filter with no false negatives but a ~0.84% false-positive rate — see [Common Password](/guide/validators#common-password). |
 | `personalInfo` | — | Array of strings the password must not contain (substring match, case-insensitive; entries containing `@` are reduced to the local part before matching) |
 
 ### `ValidationResult`
