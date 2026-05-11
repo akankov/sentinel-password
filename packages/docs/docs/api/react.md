@@ -266,29 +266,36 @@ const options: UsePasswordValidatorOptions = {
 - **`300`ms** (default): a reasonable balance for typing latency.
 - **`500–1000`ms**: useful only if you chain expensive *external* checks (e.g. server-side breach lookup) on top of validation.
 
-### Memoize the Options Object
+### Callback Identity Is Not Stable (Known Limitation)
 
-Re-creating the options object on every render forces `useCallback` deps to change. Memoize for stable references:
+`setPassword`, `validate`, and `reset` from `usePasswordValidator` are **not reference-stable across renders today**. Internally the hook destructures its options with `{ ...validatorOptions } = options` on every render, producing a fresh object identity that then lands in the `useCallback` dependency arrays for `setPassword` and `validate`. So even if you wrap your options in `useMemo`, the derived `validatorOptions` still changes identity and the callbacks get re-created.
+
+Practical implications:
+
+- **Don't bother memoizing the options object** with `useMemo` expecting it to stabilize the returned callbacks. It won't — user-side memoization buys nothing here.
+- **Don't rely on `setPassword`/`validate` identity** as `useEffect` or `useMemo` dependencies if you're trying to "only run once." They'll change on every render.
+
+If you do need a stable handler to pass to a deep child:
 
 ```tsx
-import { useMemo } from 'react'
+import { useCallback, useRef } from 'react'
 import { usePasswordValidator } from '@sentinel-password/react'
 
 function MyForm() {
-  const policy = useMemo(
-    () => ({
-      minLength: 12,
-      requireUppercase: true,
-      requireDigit: true,
-      requireSymbol: true,
-    }),
-    []
-  )
+  const { password, setPassword, result } = usePasswordValidator({ minLength: 12 })
 
-  const { password, setPassword, result } = usePasswordValidator(policy)
+  // Capture the latest setPassword in a ref, then wrap with a stable
+  // useCallback that reads through the ref.
+  const setPasswordRef = useRef(setPassword)
+  setPasswordRef.current = setPassword
+  const stableSetPassword = useCallback((value: string) => setPasswordRef.current(value), [])
+
+  // Pass `stableSetPassword` to memoized children; it never changes identity.
   // ...
 }
 ```
+
+This is a hook-internal limitation, not a contract — a future release may make the returned callbacks reference-stable. For now, write your code as if `setPassword`/`validate` change every render.
 
 ## See Also
 
