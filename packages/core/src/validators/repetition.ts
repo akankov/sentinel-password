@@ -1,4 +1,5 @@
-import type { Validator } from '../types'
+import type { MessageParams, Validator } from '../types'
+import { resolveMessage } from '../messages'
 
 /**
  * Validates that password doesn't contain excessive repeated characters
@@ -44,9 +45,12 @@ export const validateRepetition: Validator = (password, options = {}) => {
     if (char === currentChar) {
       count++
       if (count > maxRepeatedChars) {
+        const params: MessageParams = { maxRepeatedChars }
         return {
           passed: false,
-          message: `Password contains too many repeated characters (max ${maxRepeatedChars})`,
+          code: 'repetition.tooMany',
+          params,
+          message: resolveMessage('repetition.tooMany', params, options),
         }
       }
     } else {

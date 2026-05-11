@@ -11,21 +11,26 @@ export type {
   ValidatorCheck,
   Validator,
   CheckId,
-} from './types.js'
+  MessageCode,
+  MessageParams,
+  MessageFormatter,
+} from './types'
 
-export { validateLength } from './validators/length.js'
+export { DEFAULT_TEMPLATES } from './messages'
+
+export { validateLength } from './validators/length'
 export {
   hasUppercase,
   hasLowercase,
   hasDigit,
   hasSymbol,
   validateCharacterTypes,
-} from './validators/character-types.js'
-export { validateRepetition } from './validators/repetition.js'
-export { validateSequential } from './validators/sequential.js'
-export { validateKeyboardPattern } from './validators/keyboard-pattern.js'
-export { validateCommonPassword } from './validators/common-password.js'
-export { validatePersonalInfo } from './validators/personal-info.js'
+} from './validators/character-types'
+export { validateRepetition } from './validators/repetition'
+export { validateSequential } from './validators/sequential'
+export { validateKeyboardPattern } from './validators/keyboard-pattern'
+export { validateCommonPassword } from './validators/common-password'
+export { validatePersonalInfo } from './validators/personal-info'
 
 import type {
   ValidationResult,
@@ -34,14 +39,14 @@ import type {
   StrengthLabel,
   ValidatorCheck,
   CheckId,
-} from './types.js'
-import { validateLength } from './validators/length.js'
-import { validateCharacterTypes } from './validators/character-types.js'
-import { validateRepetition } from './validators/repetition.js'
-import { validateSequential } from './validators/sequential.js'
-import { validateKeyboardPattern } from './validators/keyboard-pattern.js'
-import { validateCommonPassword } from './validators/common-password.js'
-import { validatePersonalInfo } from './validators/personal-info.js'
+} from './types'
+import { validateLength } from './validators/length'
+import { validateCharacterTypes } from './validators/character-types'
+import { validateRepetition } from './validators/repetition'
+import { validateSequential } from './validators/sequential'
+import { validateKeyboardPattern } from './validators/keyboard-pattern'
+import { validateCommonPassword } from './validators/common-password'
+import { validatePersonalInfo } from './validators/personal-info'
 
 const STRENGTH_LABELS: readonly StrengthLabel[] = [
   'very-weak',

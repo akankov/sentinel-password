@@ -9,13 +9,52 @@ export type StrengthScore = 0 | 1 | 2 | 3 | 4
 export type StrengthLabel = 'very-weak' | 'weak' | 'medium' | 'strong' | 'very-strong'
 
 /**
+ * Stable identifiers for validator messages.
+ *
+ * These codes are part of the public API contract and will never change
+ * within a major version. Use them as translation keys with the `messages`
+ * or `formatMessage` options instead of relying on the English string in
+ * `ValidatorCheck.message`, which is a default rendering — not a key.
+ */
+export type MessageCode =
+  | 'length.tooShort'
+  | 'length.tooLong'
+  | 'characterTypes.missing'
+  | 'repetition.tooMany'
+  | 'sequential.found'
+  | 'keyboardPattern.found'
+  | 'commonPassword.found'
+  | 'personalInfo.found'
+
+/**
+ * Interpolation values supplied by validators alongside a `MessageCode`.
+ */
+export type MessageParams = Readonly<Record<string, string | number>>
+
+/**
+ * Custom message formatter. Receives the stable `code`, validator-supplied
+ * `params`, and the default English rendering. Return value replaces
+ * `ValidatorCheck.message`. Use this to integrate i18n libraries like
+ * react-intl, i18next, lingui, or FormatJS.
+ */
+export type MessageFormatter = (
+  code: MessageCode,
+  params: MessageParams,
+  defaultMessage: string
+) => string
+
+/**
  * Individual validator check result
  */
 export interface ValidatorCheck {
   /** Whether this check passed */
   passed: boolean
-  /** Optional message explaining the result */
+  /** Default rendering of the message (English unless overridden via options) */
   message?: string
+  /** Stable, locale-independent identifier for the failure (`undefined` when `passed: true`) */
+  code?: MessageCode
+  /** Interpolation values for the message template (`undefined` when `passed: true`) */
+  params?: MessageParams
 }
 
 /**
@@ -77,6 +116,17 @@ export interface ValidatorOptions {
   checkCommonPasswords?: boolean
   /** Personal information to exclude (username, email, name) */
   personalInfo?: string[]
+  /**
+   * Partial map of stable `MessageCode`s to template strings. Templates may
+   * contain `{placeholder}` tokens that are substituted with `params` values.
+   * Missing codes fall back to the built-in English defaults.
+   */
+  messages?: Partial<Record<MessageCode, string>>
+  /**
+   * Custom formatter invoked for every failed check. Takes precedence over
+   * `messages` when both are provided. Use for ICU, react-intl, i18next, etc.
+   */
+  formatMessage?: MessageFormatter
 }
 
 /**

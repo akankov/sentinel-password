@@ -439,4 +439,40 @@ describe('usePasswordValidator', () => {
       expect(result.current.password).toBe('P@ssw0rd123こんにちは')
     })
   })
+
+  describe('i18n options thread through to core', () => {
+    it('applies the messages override on synchronous validation', () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          minLength: 8,
+          messages: { 'length.tooShort': 'Mínimo {minLength} caracteres' },
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('abc')
+      })
+
+      expect(result.current.result?.feedback.warning).toBe('Mínimo 8 caracteres')
+    })
+
+    it('applies formatMessage callback on synchronous validation', () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          minLength: 8,
+          formatMessage: (code) => `[${code}]`,
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('abc')
+      })
+
+      expect(result.current.result?.feedback.suggestions).toContain('[length.tooShort]')
+    })
+  })
 })

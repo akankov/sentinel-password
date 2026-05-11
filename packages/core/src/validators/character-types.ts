@@ -1,4 +1,5 @@
-import type { Validator } from '../types'
+import type { MessageParams, Validator } from '../types'
+import { resolveMessage } from '../messages'
 
 /**
  * Check if password contains at least one uppercase letter (A-Z)
@@ -116,27 +117,38 @@ export const validateCharacterTypes: Validator = (password, options = {}) => {
   }> = options
 
   const missing: string[] = []
+  const missingTypes: string[] = []
 
   if (requireUppercase && !hasUppercase(password)) {
     missing.push('uppercase letter')
+    missingTypes.push('uppercase')
   }
 
   if (requireLowercase && !hasLowercase(password)) {
     missing.push('lowercase letter')
+    missingTypes.push('lowercase')
   }
 
   if (requireDigit && !hasDigit(password)) {
     missing.push('digit')
+    missingTypes.push('digit')
   }
 
   if (requireSymbol && !hasSymbol(password)) {
     missing.push('symbol')
+    missingTypes.push('symbol')
   }
 
   if (missing.length > 0) {
+    const params: MessageParams = {
+      missing: missing.join(', '),
+      missingTypes: missingTypes.join(','),
+    }
     return {
       passed: false,
-      message: `Password must contain at least one ${missing.join(', ')}`,
+      code: 'characterTypes.missing',
+      params,
+      message: resolveMessage('characterTypes.missing', params, options),
     }
   }
 

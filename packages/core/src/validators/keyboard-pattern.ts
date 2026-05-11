@@ -1,4 +1,5 @@
-import type { ValidatorCheck, ValidatorOptions } from '../types.js'
+import type { MessageParams, ValidatorCheck, ValidatorOptions } from '../types'
+import { resolveMessage } from '../messages'
 
 /**
  * Common keyboard patterns to detect across multiple layouts
@@ -167,6 +168,7 @@ export function validateKeyboardPattern(
   }
 
   const lowercase: string = password.toLowerCase()
+  const emptyParams: MessageParams = {}
 
   // Check for keyboard patterns (forward and reverse)
   for (const pattern of KEYBOARD_PATTERNS) {
@@ -174,7 +176,9 @@ export function validateKeyboardPattern(
     if (lowercase.includes(pattern)) {
       return {
         passed: false,
-        message: 'Password contains common keyboard patterns',
+        code: 'keyboardPattern.found',
+        params: emptyParams,
+        message: resolveMessage('keyboardPattern.found', emptyParams, options),
       }
     }
 
@@ -183,7 +187,9 @@ export function validateKeyboardPattern(
     if (lowercase.includes(reversed)) {
       return {
         passed: false,
-        message: 'Password contains common keyboard patterns',
+        code: 'keyboardPattern.found',
+        params: emptyParams,
+        message: resolveMessage('keyboardPattern.found', emptyParams, options),
       }
     }
   }

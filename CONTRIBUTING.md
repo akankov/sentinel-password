@@ -122,7 +122,10 @@ This project follows strict code style guidelines:
 ### Accessibility and Internationalization
 
 - **Accessibility**: write components that *can meet* WCAG 2.1 AAA — semantic HTML, ARIA primitives, keyboard support, live regions, `useId()`-linked labels. Page-level conformance (contrast, focus-visible, reduced-motion, surrounding markup) is the consumer's responsibility. If your change adds a gap (e.g., a hardcoded user-facing string that can't be localized today), document it in the [Accessibility guide's Known Gaps section](packages/docs/docs/guide/accessibility.md#known-gaps).
-- **Internationalization**: i18n is not built into core yet — validators emit English strings today, by design. If you add a new validator message, keep it **short, stable, and English** so consumers can use it as a translation key via the [lookup-table pattern](packages/docs/docs/guide/i18n.md). Use template literals (`` `Password must be at least ${n} characters` ``) for dynamic numbers; don't introduce locale-specific phrasing. **Don't change existing English strings in patch/minor releases** — that breaks every consumer's translation table. Major releases can rephrase, with a migration note. A future release will introduce pluggable message templates.
+- **Internationalization**: validators emit a stable `MessageCode` plus a `params` object alongside an English-default `message`. Consumers localize via `ValidatorOptions.messages` (template map) or `ValidatorOptions.formatMessage` (callback for react-intl / i18next / FormatJS); see the [i18n guide](packages/docs/docs/guide/i18n.md). When you add a new validator message:
+  - Add a new `MessageCode` to `packages/core/src/types.ts` and a default English template to `DEFAULT_TEMPLATES` in `packages/core/src/messages.ts`. Use `{placeholder}` tokens for dynamic values and pass them via `params` from the validator.
+  - Keep the default English **short and stable** — the legacy lookup-table workaround still works because defaults don't change in patch/minor releases. Renaming or rephrasing an existing default English string is a **major** version change.
+  - The `MessageCode` itself is part of the public API contract — never rename a code; only add new ones.
 
 ## Commit Guidelines
 

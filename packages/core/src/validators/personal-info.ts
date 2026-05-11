@@ -1,4 +1,5 @@
-import type { Validator } from '../types'
+import type { MessageParams, Validator } from '../types'
+import { resolveMessage } from '../messages'
 
 /**
  * Extracts username from email address
@@ -94,9 +95,12 @@ export const validatePersonalInfo: Validator = (password, options = {}) => {
 
     // Check if password contains this personal information
     if (lowerPassword.includes(normalized)) {
+      const params: MessageParams = {}
       return {
         passed: false,
-        message: 'Password contains personal information',
+        code: 'personalInfo.found',
+        params,
+        message: resolveMessage('personalInfo.found', params, options),
       }
     }
   }

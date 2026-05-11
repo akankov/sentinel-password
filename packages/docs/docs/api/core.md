@@ -78,17 +78,15 @@ import {
 } from '@sentinel-password/core'
 
 const lengthCheck = validateLength('abc', { minLength: 8 })
-// { passed: false, message: 'Password must be at least 8 characters' }
+// {
+//   passed: false,
+//   code: 'length.tooShort',
+//   params: { minLength: 8 },
+//   message: 'Password must be at least 8 characters',
+// }
 ```
 
-Every validator returns a `ValidatorCheck`:
-
-```typescript
-interface ValidatorCheck {
-  passed: boolean
-  message?: string
-}
-```
+Every validator returns a [`ValidatorCheck`](#validatorcheck-and-validator) — `passed` plus `code` / `params` / `message` when the check fails.
 
 ## Types
 
@@ -109,6 +107,8 @@ interface ValidatorOptions {
   checkKeyboardPatterns?: boolean // Default: true
   checkCommonPasswords?: boolean  // Default: true
   personalInfo?: string[]         // Default: undefined (disabled)
+  messages?: Partial<Record<MessageCode, string>>  // Default: undefined — English
+  formatMessage?: MessageFormatter                  // Default: undefined
 }
 ```
 
@@ -125,6 +125,8 @@ interface ValidatorOptions {
 | `checkKeyboardPatterns` | `true` | Reject keyboard runs (`qwerty`, `asdfgh`) |
 | `checkCommonPasswords` | `true` | Reject the top 1,000 common passwords. The check uses a Bloom filter with no false negatives but a ~0.84% false-positive rate — see [Common Password](/guide/validators#common-password). |
 | `personalInfo` | — | Array of strings the password must not contain (substring match, case-insensitive; entries containing `@` are reduced to the local part before matching) |
+| `messages` | — | Partial map of `MessageCode → template string` for localization. `{placeholder}` tokens are substituted with `params` values. Missing codes fall back to the built-in English. See [i18n guide](/guide/i18n). |
+| `formatMessage` | — | Callback `(code, params, defaultMessage) => string`. Takes precedence over `messages`. Use to plug in `react-intl`, `i18next`, FormatJS/ICU, etc. See [i18n guide](/guide/i18n). |
 
 ### `ValidationResult`
 
@@ -187,10 +189,60 @@ type CheckId =
 ```typescript
 interface ValidatorCheck {
   passed: boolean
-  message?: string
+  message?: string       // default English rendering (or override result)
+  code?: MessageCode     // stable identifier; undefined when passed
+  params?: MessageParams // interpolation values; undefined when passed
 }
 
 type Validator = (password: string, options?: ValidatorOptions) => ValidatorCheck
+```
+
+### `MessageCode`, `MessageParams`, `MessageFormatter`
+
+Stable identifiers for validator messages plus the templating contract.
+
+```typescript
+type MessageCode =
+  | 'length.tooShort'
+  | 'length.tooLong'
+  | 'characterTypes.missing'
+  | 'repetition.tooMany'
+  | 'sequential.found'
+  | 'keyboardPattern.found'
+  | 'commonPassword.found'
+  | 'personalInfo.found'
+
+type MessageParams = Readonly<Record<string, string | number>>
+
+type MessageFormatter = (
+  code: MessageCode,
+  params: MessageParams,
+  defaultMessage: string
+) => string
+```
+
+| Code | Params | Default template |
+|------|--------|------------------|
+| `length.tooShort` | `{ minLength }` | `Password must be at least {minLength} characters` |
+| `length.tooLong` | `{ maxLength }` | `Password must be at most {maxLength} characters` |
+| `characterTypes.missing` | `{ missing, missingTypes }` | `Password must contain at least one {missing}` |
+| `repetition.tooMany` | `{ maxRepeatedChars }` | `Password contains too many repeated characters (max {maxRepeatedChars})` |
+| `sequential.found` | `{}` | `Password contains sequential characters (e.g., abc, 123)` |
+| `keyboardPattern.found` | `{}` | `Password contains common keyboard patterns` |
+| `commonPassword.found` | `{}` | `Password is too common. Please choose a more unique password.` |
+| `personalInfo.found` | `{}` | `Password contains personal information` |
+
+For `characterTypes.missing`, `params.missing` is the joined English (`uppercase letter, digit`) and `params.missingTypes` is the raw comma-separated token list (`uppercase,digit`) — use the latter to translate type names individually. See [i18n guide](/guide/i18n).
+
+### `DEFAULT_TEMPLATES`
+
+Runtime constant exposing the built-in English templates keyed by `MessageCode`. Useful for tooling that needs to display defaults or build locale catalogs on top.
+
+```typescript
+import { DEFAULT_TEMPLATES, type MessageCode } from '@sentinel-password/core'
+
+DEFAULT_TEMPLATES['length.tooShort']
+// → 'Password must be at least {minLength} characters'
 ```
 
 ## Advanced Usage

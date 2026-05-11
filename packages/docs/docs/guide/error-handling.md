@@ -1,6 +1,6 @@
 # Error Handling
 
-`validatePassword` doesn't *throw* — it returns a structured result with a boolean verdict, a strength score, and human-readable feedback. This guide documents the actual shape of that result and the patterns for handling it in practice. (None of the [topics on the roadmap](#whats-not-here-yet) below — error codes, custom messages, severity levels — exist in the current API; this page covers what *is* there.)
+`validatePassword` doesn't *throw* — it returns a structured result with a boolean verdict, a strength score, and human-readable feedback. This guide documents the actual shape of that result and the patterns for handling it in practice. Per-message severity is still on the [roadmap](#whats-not-here-yet); stable error codes and custom message overrides shipped in v1.2.0 — see the [i18n guide](/guide/i18n) and [Core API](/api/core#messagecode-messageparams-messageformatter).
 
 ## What you get back
 
@@ -22,8 +22,8 @@ interface ValidationResult {
 | `valid` | The single source of truth for "is this password acceptable?" Use it to gate submit. |
 | `score` / `strength` | UX cues — strength meter, color coding. **Not** acceptance decisions: `strength` can be `'very-strong'` while `valid` is `false`. See [Scoring caveat](#scoring-caveat) below. |
 | `feedback.warning` | The first suggestion in aggregator order, surfaced for prominent display. |
-| `feedback.suggestions` | All failure messages, in [aggregator order](#aggregator-ordering). Each one is a plain English string — there is no error code or per-message severity. |
-| `checks` | Per-validator pass/fail map. Inspect this when you want to know *which* check rejected the input. |
+| `feedback.suggestions` | All failure messages, in [aggregator order](#aggregator-ordering). Each entry is a rendered string (default English unless you supplied `messages` / `formatMessage`). `validatePassword` does not expose per-failure `MessageCode`s in its return shape — use `result.checks` for coarse per-validator pass/fail booleans, or call the individual validators yourself to read `ValidatorCheck.code` and `ValidatorCheck.params`. Per-message severity is not yet exposed. |
+| `checks` | `Record<CheckId, boolean>` — keyed by **`CheckId`** (`'length'`, `'characterTypes'`, etc.), not by `MessageCode`. Inspect this when you want to know *which* validator rejected the input. `length: false` tells you the length check failed; it does **not** tell you whether it was `length.tooShort` or `length.tooLong`. Read `ValidatorCheck.code` from the individual validator if you need that distinction. |
 
 ## Acceptance gating
 
@@ -102,13 +102,16 @@ if (!result.valid) {
 // Do NOT: logger.info({ result }) — captures the failure shape in logs.
 ```
 
-## What's not here yet
+## What's shipped, what's not
 
-The current API exposes only string messages. The following are roadmap items that may land in a future release; until then, they don't exist:
+Shipped in v1.2.0:
 
-- **Error codes.** No stable identifier per failure type — match against the English strings if you need to branch on a specific message. See the [i18n guide](/guide/i18n) for the parse-and-translate pattern.
+- **Stable error codes** on each `ValidatorCheck.code` (`'length.tooShort'`, `'characterTypes.missing'`, etc.) plus `params` for interpolation values. See [`MessageCode`](/api/core#messagecode-messageparams-messageformatter).
+- **Custom message overrides** via `ValidatorOptions.messages` (template map) and `ValidatorOptions.formatMessage` (callback for react-intl / i18next / ICU). See the [i18n guide](/guide/i18n).
+
+Still on the roadmap (does not exist yet):
+
 - **Per-message severity.** All `suggestions` are at the same level. The `ValidationMessageSeverity` type in `@sentinel-password/react-components` includes `'warning' | 'error' | 'success'`, but the `PasswordInput` component only ever emits `'warning'` and `'error'` today (see [react-components API: Validation Messages](/api/react-components#validation-messages)).
-- **Custom message overrides.** `ValidatorOptions` has no `messages` / `errorMessages` field. Translate at the application layer using the [i18n guide](/guide/i18n) lookup-table pattern.
 
 ## See Also
 

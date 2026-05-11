@@ -1,4 +1,5 @@
-import type { Validator, ValidatorOptions } from '../types'
+import type { MessageParams, Validator, ValidatorOptions } from '../types'
+import { resolveMessage } from '../messages'
 
 /**
  * Bloom filter for common passwords
@@ -172,9 +173,12 @@ export const validateCommonPassword: Validator = (
 
   // Case-insensitive check using bloom filter
   if (mightBeCommon(password)) {
+    const params: MessageParams = {}
     return {
       passed: false,
-      message: 'Password is too common. Please choose a more unique password.',
+      code: 'commonPassword.found',
+      params,
+      message: resolveMessage('commonPassword.found', params, options),
     }
   }
 
