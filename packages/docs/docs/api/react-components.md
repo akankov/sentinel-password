@@ -100,7 +100,6 @@ The component owns these and overrides any consumer value. Passing them is harml
 | Prop | Why it's reserved |
 |------|-------------------|
 | `id` | Generated via `useId()` so the `<label>` can be associated with the input |
-| `value` | Controlled internally unless you pass `value` *and* `onChange` together (controlled mode) |
 | `onChange` | Replaced with a `(value: string) => void` signature — see the `onChange` row above |
 | `aria-describedby` | Built dynamically from `description` and validation message IDs |
 | `aria-invalid` | Set automatically when validation fails |
@@ -109,6 +108,19 @@ The component owns these and overrides any consumer value. Passing them is harml
 | `type` | Toggled internally between `"password"` and `"text"`; `Omit`-ed from the props type so you can't pass it |
 
 `onKeyDown` is **wrapped, not overridden**: the component handles `Escape` (clears the input) and then calls your handler for all keys, so user `onKeyDown` continues to receive events.
+
+### Controlled vs Uncontrolled
+
+`PasswordInput` decides controlled mode by checking `value !== undefined` — *not* by checking whether `onChange` is also supplied. The rule:
+
+| What you pass | Mode | Notes |
+|---------------|------|-------|
+| Neither `value` nor `defaultValue` | Uncontrolled | Internal state starts as `""`. |
+| `defaultValue="…"` only | Uncontrolled | Internal state seeded from `defaultValue`. |
+| `value="…"` + `onChange` | Controlled | Standard React pattern. You own the state. |
+| `value="…"` **without** `onChange` | Controlled — but **broken** | React owns the value but you never update it, so the input is effectively read-only. `defaultValue` is silently ignored in this case too. Almost always a bug. |
+
+If you find yourself wanting `defaultValue` *and* `value` together, you actually want either fully controlled (drop `defaultValue`, lift state to your component) or fully uncontrolled (drop `value`, keep `defaultValue`).
 
 ## Basic Usage
 
