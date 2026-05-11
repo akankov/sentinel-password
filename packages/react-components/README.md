@@ -77,7 +77,7 @@ A headless password input component with built-in validation.
 | `onChange` | `(value: string) => void` | - | Callback when input value changes |
 | `showPassword` | `boolean` | `false` | Whether to show/hide the password |
 | `onShowPasswordChange` | `(show: boolean) => void` | - | Callback when show/hide toggle changes |
-| `validateOnMount` | `boolean` | `false` | Validate immediately on mount |
+| `validateOnMount` | `boolean` | `false` | Run validation once on mount **only if an initial value is present** (`value` or `defaultValue` non-empty — an empty initial input silently skips). The mount validation goes through the same debounced path as normal change validation, so the result lands ~`debounceMs` after mount (set `debounceMs: 0` for synchronous mount validation). |
 | `debounceMs` | `number` | `300` | Debounce delay in ms |
 
 Most standard HTML input attributes are forwarded to the underlying `<input>` — for example `name`, `placeholder`, `className`, `style`, `autoFocus`, `required`, `minLength`, `maxLength`, `pattern`, `inputMode`, `onFocus`, `onBlur`, and `data-*`.

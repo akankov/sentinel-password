@@ -79,7 +79,7 @@ interface PasswordInputProps
 | `onValidationChange` | `(result: ValidationResult) => void` | — | Fired whenever validation completes |
 | `showPassword` | `boolean` | uncontrolled | Controlled show/hide state |
 | `onShowPasswordChange` | `(show: boolean) => void` | — | Fired when the toggle button changes state |
-| `validateOnMount` | `boolean` | `false` | Validate the initial value once on mount |
+| `validateOnMount` | `boolean` | `false` | Validate the initial value once on mount — but **only if `value`/`defaultValue` is non-empty** (an empty initial input silently skips). Mount validation goes through the same debounce path as normal validation, so the result lands ~`debounceMs` after mount; set `debounceMs: 0` for synchronous mount validation. |
 | `validateOnChange` | `boolean` | `true` | Validate on every change (debounced) |
 | `debounceMs` | `number` | `300` | Debounce delay for validation. `0` validates synchronously. |
 | `showValidationMessages` | `boolean` | `true` | Render the validation `<ul>` |
