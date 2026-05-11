@@ -13,7 +13,7 @@ Modern TypeScript password validation library with zero dependencies, React inte
 ## Features
 
 - **Zero Dependencies** - No external dependencies, tree-shakeable, ~5.5KB gzipped (< 10KB limit)
-- **TypeScript-First** - Full type safety with 100% test coverage
+- **TypeScript-First** - Full type safety with 100% test coverage on core, enforced via vitest coverage thresholds in CI
 - **React Integration** - Hook and headless accessible components (WCAG 2.1 AAA)
 - **Rich Feedback** - Actionable suggestions for password improvement
 - **Comprehensive Validation** - 7 built-in validators covering OWASP best practices

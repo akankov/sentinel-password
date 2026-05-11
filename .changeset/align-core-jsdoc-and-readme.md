@@ -50,5 +50,11 @@ validator's real output.
   runs — including less-obvious cases like `!"#`, `,-.`, or `9:;`
   (digit → punctuation). README and types comment updated so consumers
   can interpret rejection messages without surprise.
+- The "100% test coverage" claim is now *enforced* rather than merely
+  observed. `vitest.config.ts` adds 100% thresholds for statements,
+  branches, functions, and lines; a `test:coverage` script runs in CI
+  alongside the regular test step. The description field on npm now
+  reads "(enforced)" so consumers know coverage is a contract, not a
+  snapshot.
 
 No runtime behavior change.
