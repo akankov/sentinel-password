@@ -28,7 +28,7 @@ pnpm --filter playground dev
 
 Open [http://localhost:5173](http://localhost:5173) to view the playground.
 
-> A bare `pnpm dev` from the repo root runs `turbo run dev` across **every** workspace (docs site, all examples, both Storybooks) — almost never what you want.
+> A bare `pnpm dev` from the repo root is `turbo run dev`, which fans out to every workspace with a `dev` script — the docs site plus all four example apps. (Storybooks are separate root scripts — `pnpm storybook` / `pnpm storybook:components` — not `dev` tasks, so they aren't included.) Almost never what you want.
 
 ## What You Can Test
 
