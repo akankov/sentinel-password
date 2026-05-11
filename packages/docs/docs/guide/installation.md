@@ -2,13 +2,19 @@
 
 ## Package Overview
 
-Sentinel Password provides three packages to fit different use cases:
+Sentinel Password ships three packages — pick the one that matches what you're building:
 
-| Package | Description | Size | Dependencies |
-|---------|-------------|------|--------------|
-| `@sentinel-password/core` | Core validation library for any JavaScript framework | ~5.5 KB | Zero |
-| `@sentinel-password/react` | `usePasswordValidator` hook for password validation | ~2.5KB | React 18 or 19 |
-| `@sentinel-password/react-components` | Pre-built accessible React components | ~6KB | React 18 or 19, React DOM 18 or 19 |
+| Package | Gzipped (ESM) | Raw (ESM) | Runtime deps | Peer deps |
+|---------|---------------|-----------|--------------|-----------|
+| `@sentinel-password/core` | ~5.4 KB | ~15.8 KB | none | none |
+| `@sentinel-password/react` | ~0.7 KB | ~2.5 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19 |
+| `@sentinel-password/react-components` | ~1.7 KB | ~6.0 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19, React DOM 18 or 19 |
+
+- **`@sentinel-password/core`** — zero-dependency validation engine. Use directly with vanilla JS, Node, Deno, Bun, or any framework.
+- **`@sentinel-password/react`** — `usePasswordValidator` hook with debouncing and state management.
+- **`@sentinel-password/react-components`** — headless, accessible `PasswordInput` component.
+
+> Sizes are the ESM build measured at the time of this release; CJS is slightly larger. Runtime deps install automatically with your package-manager command — you only ever need to `npm install` the package you're using. Peer deps are bring-your-own.
 
 ## Installation Methods
 
