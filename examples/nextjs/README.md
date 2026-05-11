@@ -1,6 +1,6 @@
 # Next.js Example
 
-This example demonstrates how to integrate **Sentinel Password** into a Next.js 16+ application using the App Router.
+This example demonstrates how to integrate **Sentinel Password** into a Next.js 16 application using the App Router. (The `next` dep is pinned to a specific 16.2.x version in `package.json` — Dependabot bumps it on patch releases; future Next majors aren't guaranteed to work without testing.)
 
 ## Features
 
