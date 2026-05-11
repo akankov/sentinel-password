@@ -203,9 +203,15 @@ function App() {
                         value={option.value as number}
                         min={option.min}
                         max={option.max}
-                        onChange={(e) =>
-                          handleConfigChange(option.id, parseInt(e.target.value, 10))
-                        }
+                        onChange={(e) => {
+                          // parseInt('') is NaN; setTimeout(fn, NaN) has
+                          // undefined behavior (some engines treat it as 0,
+                          // others as 1). Clamp to 0 — that's what the
+                          // matrix in api/react.md documents as the
+                          // synchronous-validation case.
+                          const parsed = parseInt(e.target.value, 10)
+                          handleConfigChange(option.id, Number.isFinite(parsed) ? parsed : 0)
+                        }}
                         className="number-input"
                       />
                     )}

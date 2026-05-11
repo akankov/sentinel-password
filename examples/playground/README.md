@@ -42,7 +42,7 @@ The playground wraps `PasswordInput` from `@sentinel-password/react-components`.
   - Debounce delay
   - Show/hide built-in validation messages
   - Show/hide password toggle button
-- **Live region** — the playground's result panel is a `role="status" aria-live="polite"` region, so screen-reader users are notified when validation results change
+- **Live region** — the playground's result panel is a `role="status" aria-live="polite"` region, so screen-reader users are notified when validation results change. Note: when "Show/hide built-in validation messages" is enabled, the nested `PasswordInput` also renders its own `role="alert" aria-live="polite"` list of messages — screen readers may announce both regions. If you want a single announcement source in your own UI, disable the built-in messages and render your own from `onValidationChange`.
 
 To experiment with custom policies (`minLength`, `require*`, `personalInfo`, etc.), drive a plain `<input>` from `usePasswordValidator` directly — see the [`usePasswordValidator` API reference](https://akankov.github.io/sentinel-password/api/react.html) and [Configuration guide](https://akankov.github.io/sentinel-password/guide/configuration.html).
 
