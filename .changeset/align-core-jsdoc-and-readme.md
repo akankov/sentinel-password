@@ -34,5 +34,10 @@ validator's real output.
   coverage on core is 100% (statements/branches/functions/lines) and the
   gzipped bundle is ~5.5 KB under a 10 KB CI ceiling. Description updated
   to match measured reality.
+- "Browser Support" section was ambiguous about who the Node 18+ minimum
+  applies to. Renamed to "Runtime Support" and made the scope explicit:
+  Node 18+ is the *runtime* minimum for the published package; building
+  the monorepo requires Node 20+ per the repo-level `engines.node`.
+  Added edge-runtime targets and a pointer to the Server-Side Usage guide.
 
 No runtime behavior change.

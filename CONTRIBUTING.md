@@ -59,14 +59,26 @@ pnpm test:watch
 
 ### Linting and Formatting
 
-Check code style:
+`pnpm lint` runs ESLint only. Prettier is a separate gate.
+
+Check ESLint:
 ```bash
 pnpm lint
 ```
 
-Auto-fix lint issues:
+Auto-fix ESLint issues:
 ```bash
 pnpm lint:fix
+```
+
+Check Prettier formatting:
+```bash
+pnpm format:check
+```
+
+Auto-format with Prettier:
+```bash
+pnpm format
 ```
 
 ### Type Checking
@@ -80,7 +92,7 @@ pnpm typecheck
 
 This project follows strict code style guidelines:
 
-- **TypeScript 5+ strict mode** - no `any` types in production code
+- **TypeScript 6+ strict mode** - no `any` types in production code
 - **Imports**: Use `@sentinel-password/*` package aliases; prefer named exports
 - **Formatting**: Prettier defaults; no semicolons preferred
 - **Naming**: camelCase for functions/vars, PascalCase for types/classes/components
@@ -129,12 +141,13 @@ Closes #123
 ## Pull Request Process
 
 1. Ensure all tests pass: `pnpm test`
-2. Ensure code is properly formatted: `pnpm lint`
-3. Ensure TypeScript checks pass: `pnpm typecheck`
-4. Update documentation if needed
-5. Create a pull request with a clear description of the changes
-6. Reference any related issues in the PR description
-7. Wait for review and address any feedback
+2. Ensure ESLint passes: `pnpm lint`
+3. Ensure Prettier formatting passes: `pnpm format:check`
+4. Ensure TypeScript checks pass: `pnpm typecheck`
+5. Update documentation if needed
+6. Create a pull request with a clear description of the changes
+7. Reference any related issues in the PR description
+8. Wait for review and address any feedback
 
 ### Pull Request Template
 

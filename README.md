@@ -3,7 +3,7 @@
 [![CI](https://github.com/akankov/sentinel-password/actions/workflows/ci.yml/badge.svg)](https://github.com/akankov/sentinel-password/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@sentinel-password/core.svg)](https://www.npmjs.com/package/@sentinel-password/core)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/@sentinel-password/core)](https://bundlephobia.com/package/@sentinel-password/core)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue.svg)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Modern TypeScript password validation library with zero dependencies, React integration, and comprehensive validation rules.
@@ -111,11 +111,12 @@ Requirements: Node.js >= 20, pnpm (see `packageManager` in `package.json`)
 
 ```bash
 pnpm install
-pnpm build      # Build all packages
-pnpm test       # Run all tests
-pnpm lint       # ESLint + Prettier check
-pnpm typecheck  # TypeScript strict mode check
-pnpm docs:dev   # Dev docs site
+pnpm build         # Build all packages
+pnpm test          # Run all tests
+pnpm lint          # Run ESLint (does NOT run Prettier — see format:check)
+pnpm format:check  # Run Prettier --check
+pnpm typecheck     # TypeScript strict mode check
+pnpm docs:dev      # Dev docs site
 ```
 
 ## License

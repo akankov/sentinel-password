@@ -353,14 +353,16 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 - **Zero dependencies** - no additional packages needed
 - **Tree-shakeable** - only import what you use
 
-## Browser Support
+## Runtime Support
 
-Works in all modern browsers and Node.js environments:
+The published package is plain ES2022 with no Node or browser-specific APIs, so it runs anywhere those features are available:
 
 - Chrome/Edge 88+
 - Firefox 78+
 - Safari 14+
-- Node.js 18+
+- Node.js 18+ (and Deno, Bun, Cloudflare Workers, Vercel Edge — see the [Server-Side Usage guide](https://akankov.github.io/sentinel-password/guide/server-side))
+
+> **Building this monorepo** requires Node.js 20+ (`engines.node` at the repo root). The 18+ minimum above applies to *running* the published `@sentinel-password/core` package, not to developing it.
 
 ## Contributing
 
