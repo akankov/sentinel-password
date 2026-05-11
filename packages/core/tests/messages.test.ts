@@ -82,6 +82,26 @@ describe('resolveMessage', () => {
     resolveMessage(code, params, options)
     expect(captured).toBe('Password must be at least 8 characters')
   })
+
+  it('falls back to default English when formatMessage throws', () => {
+    const options: ValidatorOptions = {
+      formatMessage: () => {
+        throw new Error('boom')
+      },
+    }
+    expect(resolveMessage(code, params, options)).toBe('Password must be at least 8 characters')
+  })
+
+  it('still falls back to default English when formatMessage throws even with a messages override', () => {
+    const options: ValidatorOptions = {
+      messages: { 'length.tooShort': 'Mínimo {minLength}' },
+      formatMessage: () => {
+        throw new Error('boom')
+      },
+    }
+    // formatMessage failure does not promote messages override; default English wins
+    expect(resolveMessage(code, params, options)).toBe('Password must be at least 8 characters')
+  })
 })
 
 describe('DEFAULT_TEMPLATES', () => {

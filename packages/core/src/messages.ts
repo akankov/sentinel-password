@@ -49,6 +49,11 @@ export function formatTemplate(template: string, params: MessageParams): string 
  *
  * Used by every validator's failure branch. Validators stay declarative —
  * they describe *what* failed (`code` + `params`) and delegate rendering.
+ *
+ * If `options.formatMessage` throws, this function swallows the error and
+ * returns the default English rendering instead. Validators in this library
+ * promise never to throw (see `Validator` in `./types`), and that promise
+ * holds even when consumer-provided formatters misbehave.
  */
 export function resolveMessage(
   code: MessageCode,
@@ -58,7 +63,11 @@ export function resolveMessage(
   const defaultMessage: string = formatTemplate(DEFAULT_TEMPLATES[code], params)
 
   if (options.formatMessage) {
-    return options.formatMessage(code, params, defaultMessage)
+    try {
+      return options.formatMessage(code, params, defaultMessage)
+    } catch {
+      return defaultMessage
+    }
   }
 
   const override: string | undefined = options.messages?.[code]
