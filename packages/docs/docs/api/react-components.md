@@ -260,24 +260,42 @@ If you need custom validation rules, use [`usePasswordValidator`](/api/react) an
 
 ### Validation Messages
 
-When `showValidationMessages` is true, the component renders:
+When `showValidationMessages` is true **and** the validation result has any feedback to show, the component renders:
 
 ```html
 <div role="alert" aria-live="polite">
   <ul>
     <li data-severity="warning">{feedback.warning}</li>
-    <li data-severity="error|success">{...feedback.suggestions}</li>
+    <li data-severity="error">{feedback.suggestions[0]}</li>
+    <!-- one <li data-severity="error"> per remaining suggestion -->
   </ul>
 </div>
 ```
+
+A **valid** password produces an empty `feedback.suggestions` array and no `feedback.warning`, so the component renders nothing — the entire `<ul>` is skipped. In practice only `warning` and `error` severities are emitted today.
 
 The `data-severity` attribute lets you style each message kind:
 
 ```css
 li[data-severity='warning'] { color: orange; }
 li[data-severity='error']   { color: red; }
-li[data-severity='success'] { color: green; }
 ```
+
+::: tip Want a "Password OK" message?
+The component doesn't render a success row today (`feedback.suggestions` is empty on valid passwords). If you want a green confirmation, render it yourself from `onValidationChange`:
+
+```tsx
+const [valid, setValid] = useState(false)
+
+<PasswordInput
+  label="Password"
+  onValidationChange={(result) => setValid(result.valid)}
+/>
+{valid && <p style={{ color: 'green' }}>Password meets all requirements</p>}
+```
+
+`ValidationMessageSeverity` includes a `'success'` variant for forward compatibility, but no built-in rendering path produces it today.
+:::
 
 ### Keyboard Shortcuts
 
