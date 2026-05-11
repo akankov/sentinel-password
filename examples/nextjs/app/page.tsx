@@ -131,7 +131,7 @@ export default function SignupForm() {
             {/* Password Field with Sentinel Password */}
             <PasswordInput
               label="Password"
-              description="Must be at least 8 characters long"
+              description="At least 8 characters; avoids common passwords and obvious patterns"
               value={formData.password}
               onChange={(value) => {
                 setFormData((prev) => ({ ...prev, password: value }))
