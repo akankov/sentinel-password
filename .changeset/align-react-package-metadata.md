@@ -27,3 +27,9 @@ Align package metadata and runtime deps with what's actually exported.
   from core directly. `validateOnChange` carries the full behavior matrix
   matching the README/docs-site fix from claim #6. These JSDoc strings ship
   in the bundled `.d.ts` and surface in IDE IntelliSense for hook users.
+- README's `setPassword` row no longer says it "triggers validation" outright.
+  In manual mode (`debounceMs: 0` + `validateOnChange: false`) `setPassword`
+  only updates state — the validate-on-change branches in
+  `usePasswordValidator.ts:155-173` don't run. Row now points at the
+  `debounceMs` / `validateOnChange` rows for the matrix and notes the
+  `validate()` workaround for manual mode.

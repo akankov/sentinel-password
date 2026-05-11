@@ -72,7 +72,7 @@ Returns an object with:
 | Property | Type | Description |
 |----------|------|-------------|
 | `password` | `string` | Current password value |
-| `setPassword` | `(password: string) => void` | Update password and trigger validation |
+| `setPassword` | `(password: string) => void` | Update the password. Whether validation also fires depends on `debounceMs` / `validateOnChange` — see those rows below. In manual mode (`debounceMs: 0` + `validateOnChange: false`) this only updates state; call `validate()` to evaluate. |
 | `result` | `ValidationResult \| undefined` | Validation result (undefined until first validation) |
 | `isValidating` | `boolean` | Whether validation is in progress (during debounce) |
 | `validate` | `() => void` | Manually trigger validation |

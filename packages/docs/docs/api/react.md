@@ -68,7 +68,7 @@ interface UsePasswordValidatorReturn {
 | Property | Type | Description |
 |----------|------|-------------|
 | `password` | `string` | Current password value held by the hook |
-| `setPassword` | `(password: string) => void` | Update the password and trigger (debounced) validation. **Note:** takes a `string`, not an event. |
+| `setPassword` | `(password: string) => void` | Update the password. **Whether validation also fires** depends on `debounceMs` / `validateOnChange` — see the [behavior matrix](#when-validation-runs). In manual mode (`debounceMs: 0` + `validateOnChange: false`), `setPassword` only updates state; call `validate()` to evaluate. **Note:** takes a `string`, not an event. |
 | `result` | `ValidationResult \| undefined` | Latest validation result, or `undefined` until first validation |
 | `isValidating` | `boolean` | `true` while a debounced validation is pending |
 | `validate` | `() => void` | Manually trigger validation against the current password |
