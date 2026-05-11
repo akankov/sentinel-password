@@ -137,6 +137,35 @@ describe('usePasswordValidator', () => {
 
       expect(result.current.result).toBeUndefined()
     })
+
+    it('should be a no-op when initialPassword is empty', () => {
+      const { result } = renderHook(() => usePasswordValidator({ validateOnMount: true }))
+
+      expect(result.current.password).toBe('')
+      expect(result.current.result).toBeUndefined()
+    })
+
+    it('should validate initialPassword on mount when validateOnMount is true', () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          initialPassword: 'SecureP4ssw0rd!',
+          validateOnMount: true,
+        })
+      )
+
+      expect(result.current.password).toBe('SecureP4ssw0rd!')
+      expect(result.current.result).toBeDefined()
+      expect(result.current.result?.valid).toBe(true)
+    })
+
+    it('should seed password from initialPassword without validating when validateOnMount is false', () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({ initialPassword: 'SecureP4ssw0rd!' })
+      )
+
+      expect(result.current.password).toBe('SecureP4ssw0rd!')
+      expect(result.current.result).toBeUndefined()
+    })
   })
 
   describe('manual validation', () => {

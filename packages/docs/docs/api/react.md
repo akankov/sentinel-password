@@ -30,7 +30,8 @@ function usePasswordValidator(
 ```typescript
 interface UsePasswordValidatorOptions extends ValidatorOptions {
   debounceMs?: number        // Default: 300. Set to 0 to disable.
-  validateOnMount?: boolean  // Default: false. No-op today — see table below.
+  initialPassword?: string   // Default: ''. Seed value for the hook's password state.
+  validateOnMount?: boolean  // Default: false. Validates `initialPassword` once on mount.
   validateOnChange?: boolean // Default: false
 }
 ```
@@ -38,7 +39,8 @@ interface UsePasswordValidatorOptions extends ValidatorOptions {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Delay in ms after `setPassword` before validating. `0` disables debouncing (paired with `validateOnChange: true` for instant validation). |
-| `validateOnMount` | `boolean` | `false` | **No-op in the current release.** The hook initializes `password` to `''` and the mount effect only validates when `password.length > 0`, but there is no `initialPassword` option to seed a non-empty value. If you need validation before user input, call `validatePassword(value, options)` directly from `@sentinel-password/core` (see [stale-state caveat](#stale-state-caveat-for-validate) for why the hook's `validate()` can't help here). |
+| `initialPassword` | `string` | `''` | Seed value for the hook's `password` state. Pair with `validateOnMount: true` to validate a pre-filled value (e.g. edit-profile flows) on first render. The input stays fully controlled by `setPassword` afterwards. |
+| `validateOnMount` | `boolean` | `false` | Validate `initialPassword` once on mount. Skips empty values, so it's a no-op when `initialPassword` is empty or omitted. |
 | `validateOnChange` | `boolean` | `false` | Only takes effect when `debounceMs === 0`. See the behavior matrix below. |
 | ...all `ValidatorOptions` | — | — | All flat options from [`@sentinel-password/core`](/api/core#validatoroptions) (`minLength`, `requireUppercase`, `personalInfo`, etc.). |
 

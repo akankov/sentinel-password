@@ -51,24 +51,27 @@ import type { UsePasswordValidatorOptions, UsePasswordValidatorReturn } from '..
  * ```
  *
  * @example
- * **`validateOnMount` is a no-op today**
- * The hook initializes `password` to `''` and the mount effect only fires
- * when `password.length > 0`, but there is no `initialPassword` option to
- * seed a non-empty value, so setting `validateOnMount: true` has no effect.
- * To validate a known value before any user input, call `validatePassword`
- * from `@sentinel-password/core` directly:
+ * **Seed the hook and validate the seeded value on mount**
+ * Use `initialPassword` together with `validateOnMount` to validate a
+ * pre-filled value (e.g. an edit-profile flow that echoes a value back
+ * to the user) without waiting for keystrokes:
  *
  * ```tsx
- * import { validatePassword } from '@sentinel-password/core'
  * import { usePasswordValidator } from '@sentinel-password/react'
  *
- * function MyForm({ knownPassword }: { knownPassword: string }) {
- *   const initialResult = validatePassword(knownPassword, { minLength: 8 })
- *   const { password, setPassword, result } = usePasswordValidator({ minLength: 8 })
- *   const liveResult = result ?? initialResult
- *   // ...
+ * function EditProfile({ existingPassword }: { existingPassword: string }) {
+ *   const { password, setPassword, result } = usePasswordValidator({
+ *     initialPassword: existingPassword,
+ *     validateOnMount: true,
+ *     minLength: 8,
+ *   })
+ *   // `result` is populated on first render with the validation of
+ *   // `existingPassword`; subsequent edits go through `setPassword`.
  * }
  * ```
+ *
+ * `validateOnMount` skips empty values, so it's a no-op when
+ * `initialPassword` is empty or omitted.
  *
  * @example
  * **With custom validation rules**
@@ -113,11 +116,12 @@ export function usePasswordValidator(
     debounceMs = 300,
     validateOnMount = false,
     validateOnChange = false,
+    initialPassword = '',
     ...validatorOptions
   }: UsePasswordValidatorOptions = options
 
   const [password, setPasswordState]: [string, React.Dispatch<React.SetStateAction<string>>] =
-    useState<string>('')
+    useState<string>(initialPassword)
   const [result, setResult]: [
     ValidationResult | undefined,
     React.Dispatch<React.SetStateAction<ValidationResult | undefined>>,

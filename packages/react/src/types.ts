@@ -16,11 +16,24 @@ export interface UsePasswordValidatorOptions extends ValidatorOptions {
   debounceMs?: number
 
   /**
-   * **No-op in the current release.** The hook initializes `password` to
-   * `''` and the mount effect only validates when `password.length > 0`,
-   * but there is no `initialPassword` option to seed a non-empty value.
-   * If you need validation before user input, call `validatePassword`
-   * from `@sentinel-password/core` directly.
+   * Seed value for the hook's internal `password` state. Useful for forms
+   * that pre-fill the password field (e.g. password-reset flows that echo
+   * a value back, or "edit profile" screens). The mount effect uses this
+   * value when `validateOnMount` is true, and the input remains fully
+   * controlled afterwards via `setPassword`.
+   *
+   * If omitted, `password` starts as `''` and `validateOnMount` has no
+   * effect (the mount validator skips empty values).
+   *
+   * @default ''
+   */
+  initialPassword?: string
+
+  /**
+   * Validate the seed value (see `initialPassword`) once on mount.
+   * Has no effect when `initialPassword` is empty or omitted, because
+   * the hook skips validating empty strings on mount.
+   *
    * @default false
    */
   validateOnMount?: boolean

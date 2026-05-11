@@ -85,7 +85,8 @@ Extends all [`@sentinel-password/core` options](https://www.npmjs.com/package/@s
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Debounce delay in ms (0 to disable) |
-| `validateOnMount` | `boolean` | `false` | No-op today — the hook starts with an empty password and there's no `initialPassword` option to seed a value. If you need validation before user input, call `validatePassword(value, options)` from `@sentinel-password/core` directly. (The hook's `validate()` can't help here: it closes over the hook's `password` state, which is asynchronously updated by `setPassword`, so a back-to-back `setPassword(x); validate()` would still see the previous value.) |
+| `initialPassword` | `string` | `''` | Seed value for the hook's `password` state. Use this together with `validateOnMount` to validate a pre-filled value (e.g. edit-profile flows) on first render. The input stays fully controlled by `setPassword` afterwards. |
+| `validateOnMount` | `boolean` | `false` | Validate the seed value (see `initialPassword`) once on mount. Skips empty values, so it's a no-op when `initialPassword` is empty or omitted. |
 | `validateOnChange` | `boolean` | `false` | Only matters when `debounceMs === 0`: `true` validates synchronously on every change, `false` disables automatic validation (call `validate()` manually). With the default `debounceMs > 0`, debounced validation runs on every change regardless of this flag. |
 
 ## Related Packages
