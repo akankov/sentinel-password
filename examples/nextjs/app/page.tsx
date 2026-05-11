@@ -62,6 +62,12 @@ export default function SignupForm() {
             onClick={() => {
               setSubmitted(false)
               setFormData({ email: '', password: '', name: '' })
+              // Also reset the validation boolean — PasswordInput doesn't
+              // re-validate when its `value` prop is cleared programmatically,
+              // so without this the next signup could submit with an empty
+              // password (the button gate would stay open from the prior valid
+              // password).
+              setPasswordValid(false)
             }}
             className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
