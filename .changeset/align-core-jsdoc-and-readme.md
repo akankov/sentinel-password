@@ -51,6 +51,15 @@ validator's real output.
   previous list ("QWERTY, AZERTY, and QWERTZ") undersold the
   detector for Dvorak/Colemak users and entirely omitted the
   Russian-keyboard catch, which is in `keyboard-pattern.ts`.
+- `validatePersonalInfo` JSDoc no longer mis-describes email handling.
+  The old example claimed `'john123'` is rejected when `personalInfo`
+  contains `'john.doe@example.com'`, "detects 'john' from email."
+  Reality: `extractUsername` keeps the *entire local part*
+  (`'john.doe'`) and matches as a literal substring, so `'john123'`
+  doesn't match. Replaced with two corrected examples — one showing
+  `'john.doe123'` matching the full local part, the other showing
+  the explicit-`'john'` workaround for the name-fragment use case.
+  Ships in the bundled `.d.ts`, surfaces at IDE hover.
 - Sequential-pattern detection is now described accurately on two
   axes:
   - It matches *any* three consecutive ascending/descending runs,
