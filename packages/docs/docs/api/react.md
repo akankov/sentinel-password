@@ -299,12 +299,15 @@ const options: UsePasswordValidatorOptions = {
 
 ### Callback Identity Is Not Stable (Known Limitation)
 
-`setPassword`, `validate`, and `reset` from `usePasswordValidator` are **not reference-stable across renders today**. Internally the hook destructures its options with `{ ...validatorOptions } = options` on every render, producing a fresh object identity that then lands in the `useCallback` dependency arrays for `setPassword` and `validate`. So even if you wrap your options in `useMemo`, the derived `validatorOptions` still changes identity and the callbacks get re-created.
+`setPassword` and `validate` from `usePasswordValidator` are **not reference-stable across renders today**. Internally the hook destructures its options with `{ ...validatorOptions } = options` on every render, producing a fresh object identity that lands in the `useCallback` dependency arrays for `setPassword` (`[debounceMs, validateOnChange, validatorOptions]`) and `validate` (`[password, validatorOptions]`). So even if you wrap your options in `useMemo`, the derived `validatorOptions` still changes identity and the callbacks get re-created.
+
+`reset` *is* stable — its `useCallback` dependency array is empty (it touches only refs and state setters, both exempt from React's deps), so its identity is fixed for the component's lifetime.
 
 Practical implications:
 
 - **Don't bother memoizing the options object** with `useMemo` expecting it to stabilize the returned callbacks. It won't — user-side memoization buys nothing here.
 - **Don't rely on `setPassword`/`validate` identity** as `useEffect` or `useMemo` dependencies if you're trying to "only run once." They'll change on every render.
+- **`reset` is safe to use directly** as a dep, pass to a memoized child, or store in a ref-less manner.
 
 If you do need a stable handler to pass to a deep child:
 
@@ -326,7 +329,7 @@ function MyForm() {
 }
 ```
 
-This is a hook-internal limitation, not a contract — a future release may make the returned callbacks reference-stable. For now, write your code as if `setPassword`/`validate` change every render.
+This is a hook-internal limitation, not a contract — a future release may make `setPassword` and `validate` reference-stable too. For now, write your code as if those two change every render; `reset` is already stable today.
 
 ## See Also
 
