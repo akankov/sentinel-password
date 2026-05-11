@@ -55,9 +55,9 @@ Core package is **~5.5 KB gzipped** with **zero dependencies** (CI fails if it e
 
 | Package | Size (gzipped) | Dependencies |
 |---------|----------------|--------------|
-| `@sentinel-password/core` | ~5.5 KB | 0 |
-| `@sentinel-password/react` | ~0.7 KB | React only |
-| `@sentinel-password/react-components` | ~1.7 KB | React only |
+| `@sentinel-password/core` | ~5.5 KB | Zero |
+| `@sentinel-password/react` | ~0.7 KB | `@sentinel-password/core` (runtime, installed transitively); React 18/19 (peer) |
+| `@sentinel-password/react-components` | ~1.7 KB | `@sentinel-password/core` (runtime, installed transitively); React 18/19 and React DOM 18/19 (peers) |
 
 Compare this to popular alternatives that can be 50KB+ with dozens of dependencies.
 
