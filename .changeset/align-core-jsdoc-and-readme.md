@@ -30,5 +30,9 @@ validator's real output.
   patterns, not a password-comparison primitive, so timing is not a
   relevant attack surface. Replaced with an honest note pointing readers
   at Argon2/bcrypt for actual password verification.
+- npm `description` field said "90%+ test coverage, <5KB gzipped". Real
+  coverage on core is 100% (statements/branches/functions/lines) and the
+  gzipped bundle is ~5.5 KB under a 10 KB CI ceiling. Description updated
+  to match measured reality.
 
 No runtime behavior change.

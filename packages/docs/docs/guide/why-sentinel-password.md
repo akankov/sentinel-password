@@ -50,13 +50,13 @@ Built from the ground up with WCAG 2.1 AAA compliance:
 
 ### 📦 Tiny Bundle Size
 
-Core package is **<5KB gzipped** with **zero dependencies**:
+Core package is **~5.5 KB gzipped** with **zero dependencies** (CI fails if it exceeds 10 KB):
 
 | Package | Size (gzipped) | Dependencies |
 |---------|----------------|--------------|
-| `@sentinel-password/core` | ~4.8KB | 0 |
-| `@sentinel-password/react` | ~2.5KB | React only |
-| `@sentinel-password/react-components` | ~6KB | React only |
+| `@sentinel-password/core` | ~5.5 KB | 0 |
+| `@sentinel-password/react` | ~0.7 KB | React only |
+| `@sentinel-password/react-components` | ~1.7 KB | React only |
 
 Compare this to popular alternatives that can be 50KB+ with dozens of dependencies.
 
@@ -147,7 +147,7 @@ const options: ValidatorOptions = {
 
 | Feature | Sentinel Password | Traditional Regex | Other Libraries |
 |---------|-------------------|-------------------|-----------------|
-| Bundle Size | <5KB | N/A | 20-100KB+ |
+| Bundle Size | ~5.5 KB | N/A | 20-100KB+ |
 | Dependencies | 0 | 0 | 5-50+ |
 | Accessibility | WCAG 2.1 AAA | ❌ | Varies |
 | Customizable | ✅ Full control | ⚠️ Limited | ⚠️ Partial |
