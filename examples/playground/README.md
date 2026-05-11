@@ -12,6 +12,8 @@ An interactive playground to explore and test the Sentinel Password component wi
 
 ## Getting Started
 
+Run these commands from the **repo root** (not from inside this directory). The workspace is set up so `pnpm --filter playground <script>` runs only the playground.
+
 Install dependencies:
 
 ```bash
@@ -21,10 +23,12 @@ pnpm install
 Run the development server:
 
 ```bash
-pnpm dev
+pnpm --filter playground dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) to view the playground.
+
+> A bare `pnpm dev` from the repo root runs `turbo run dev` across **every** workspace (docs site, all examples, both Storybooks) — almost never what you want.
 
 ## What You Can Test
 
@@ -44,16 +48,16 @@ To experiment with custom policies (`minLength`, `require*`, `personalInfo`, etc
 
 ## Building for Production
 
-Build the playground:
+Build the playground (from the repo root):
 
 ```bash
-pnpm build
+pnpm --filter playground build
 ```
 
 Preview the production build:
 
 ```bash
-pnpm preview
+pnpm --filter playground preview
 ```
 
 ## Embedding in Documentation

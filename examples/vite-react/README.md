@@ -17,6 +17,8 @@ This example demonstrates how to integrate **Sentinel Password** into a Vite + R
 
 ## Getting Started
 
+Run these commands from the **repo root** (not from inside this directory). The workspace is set up so `pnpm --filter vite-react <script>` runs only this example.
+
 Install dependencies:
 
 ```bash
@@ -26,10 +28,12 @@ pnpm install
 Run the development server:
 
 ```bash
-pnpm dev
+pnpm --filter vite-react dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) to view the app.
+
+> A bare `pnpm dev` from the repo root runs `turbo run dev` across **every** workspace (docs site, all examples, both Storybooks) — almost never what you want.
 
 ## Usage
 
