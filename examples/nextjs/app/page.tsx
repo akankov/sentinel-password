@@ -136,11 +136,11 @@ export default function SignupForm() {
               onChange={(value) => {
                 setFormData((prev) => ({ ...prev, password: value }))
                 // Optimistically invalidate so the submit gate can't outrun
-                // the debounced validation. PasswordInput debounces by 300 ms
-                // and Escape doesn't fire onValidationChange at all — without
-                // this line, passwordValid can stay `true` while the actual
-                // password becomes invalid or empty. onValidationChange will
-                // restore `true` once the new value is confirmed valid.
+                // the debounced validation. PasswordInput debounces by
+                // 300 ms — without this line, `passwordValid` can stay
+                // `true` while the user is mid-type into something invalid.
+                // `onValidationChange` will restore `true` once the new
+                // value is confirmed valid.
                 setPasswordValid(false)
               }}
               onValidationChange={(result) => setPasswordValid(result.valid)}

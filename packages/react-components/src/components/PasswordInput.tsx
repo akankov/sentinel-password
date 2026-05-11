@@ -141,14 +141,36 @@ export function PasswordInput({
           setInternalValue('')
         }
         onChange?.('')
-        setValidationResult(undefined)
+
+        // Cancel any pending debounce so a stale validation doesn't land
+        // after the clear and overwrite the result we're about to set.
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current)
+          debounceTimerRef.current = null
+        }
+
+        if (validateOnChange) {
+          // Synchronously validate the cleared (empty) state so the
+          // result-propagation effect fires `onValidationChange` with a
+          // real `validatePassword('')` result (`valid: false`). The
+          // previous behavior set the result to `undefined`, which the
+          // propagation effect skips — leaving consumers' submit gates
+          // open after Escape and forcing them to "optimistically
+          // invalidate" from `onChange` as a workaround.
+          setValidationResult(validatePassword(''))
+        } else {
+          // Manual-validation mode: clear without firing
+          // `onValidationChange` (consumer drives validation themselves).
+          setValidationResult(undefined)
+        }
+
         inputRef.current?.focus()
       }
 
       // Pass through to user's onKeyDown handler
       inputProps.onKeyDown?.(event)
     },
-    [isControlled, onChange, inputProps]
+    [isControlled, onChange, validateOnChange, inputProps]
   )
 
   // Validate on mount if requested

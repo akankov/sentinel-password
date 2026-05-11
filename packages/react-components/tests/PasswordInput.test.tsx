@@ -273,6 +273,44 @@ describe('PasswordInput', () => {
       expect(input).toHaveFocus()
     })
 
+    it('should fire onValidationChange with an invalid result after Escape clears the input', async () => {
+      const user = userEvent.setup()
+      const handleValidationChange = vi.fn()
+
+      render(
+        <PasswordInput
+          label="Password"
+          onValidationChange={handleValidationChange}
+          debounceMs={0}
+        />
+      )
+
+      const input = screen.getByLabelText('Password')
+      // Type a valid password so a "valid" result is the last thing
+      // the consumer saw before Escape.
+      await user.type(input, 'SecureP4ssw0rd!')
+
+      await waitFor(() => {
+        const lastCall =
+          handleValidationChange.mock.calls[handleValidationChange.mock.calls.length - 1]
+        expect(lastCall[0].valid).toBe(true)
+      })
+
+      handleValidationChange.mockClear()
+
+      await user.keyboard('{Escape}')
+
+      // Escape must fire onValidationChange with the cleared-state result
+      // (valid: false), so consumer submit gates don't stay open after the
+      // field is emptied via Escape.
+      await waitFor(() => {
+        expect(handleValidationChange).toHaveBeenCalled()
+        const lastCall =
+          handleValidationChange.mock.calls[handleValidationChange.mock.calls.length - 1]
+        expect(lastCall[0]).toHaveProperty('valid', false)
+      })
+    })
+
     it('should support Tab navigation', async () => {
       const user = userEvent.setup()
       render(

@@ -56,3 +56,27 @@ iterates `suggestions` exactly once and renders the first entry with
 `data-severity="warning"` and the rest with `data-severity="error"`,
 matching what the documented rendered-HTML samples (in
 `accessibility.md` and `api/react-components.md`) now describe.
+
+Fixed an Escape-key desync where `onValidationChange` was never fired
+after the user cleared the input with Escape. The handler called
+`setValidationResult(undefined)` internally, and the
+result-propagation effect was guarded with `if (validationResult)` so
+it skipped the `undefined` transition entirely. The visible symptom:
+consumers' submit gates stayed `true` (the last "valid" result they
+heard about) after the user dismissed the field via Escape, and they
+had to "optimistically invalidate" their parent state from the
+`onChange` handler to work around it (the Next.js example in
+`examples/nextjs/app/page.tsx` had an explicit workaround comment
+calling this out).
+
+The Escape handler now synchronously runs `validatePassword('')` and
+sets that as the new `validationResult` when `validateOnChange` is
+true (the default), so the existing propagation effect fires
+`onValidationChange` with a real, *invalid* `ValidationResult` —
+mirroring what happens when the user backspaces to empty. When
+`validateOnChange` is false (manual-validation mode), Escape still
+clears without firing the callback. The public type
+`(result: ValidationResult) => void` stays accurate because the
+component never fires with `undefined`. The Next.js example's
+optimistic-invalidate workaround for the *debounce race* (mid-type)
+stays, since that race is inherent to debounced validation.
