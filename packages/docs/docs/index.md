@@ -37,8 +37,8 @@ features:
     details: Core package is ~5.5 KB gzipped (under the 10 KB CI limit) with zero dependencies. Tree-shakeable validators load only what you need.
   
   - icon: 🌍
-    title: Translatable
-    details: Validator messages are short, stable English strings — map them to your locale with a lookup table at the application layer. Pluggable message templates are on the roadmap.
+    title: Pluggable i18n
+    details: Pass a `messages` template map or a `formatMessage` callback to localize validator output. Eight stable `MessageCode`s plug into react-intl, i18next, lingui, or FormatJS/ICU.
   
   - icon: ⚡
     title: Zero Dependencies

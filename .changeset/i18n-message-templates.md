@@ -1,7 +1,6 @@
 ---
 '@sentinel-password/core': minor
 '@sentinel-password/react': minor
-'@sentinel-password/react-components': patch
 ---
 
 Pluggable i18n message templates. Validators now emit a stable `code` and
@@ -39,8 +38,17 @@ const result2 = validatePassword(password, {
 ```
 
 `@sentinel-password/react`'s `usePasswordValidator` accepts the same
-options (transparent pass-through). `@sentinel-password/react-components`
-forwards them to the underlying hook.
+options (transparent pass-through) and re-exports `MessageCode`,
+`MessageParams`, and `MessageFormatter` for ergonomic imports.
+
+Note: `@sentinel-password/react-components`' `PasswordInput` does
+**not** yet thread `ValidatorOptions` through to the underlying
+validator — it still calls `validatePassword(password)` with no
+options. Threading the new (and existing) `ValidatorOptions` through
+`PasswordInput` is planned for the next minor release alongside the
+toggle-button text props. Until then, drive validation with
+`usePasswordValidator` or `validatePassword` directly if you need
+custom messages.
 
 Fully backwards-compatible: the default English strings emitted on
 `ValidatorCheck.message` are unchanged, so existing apps using the

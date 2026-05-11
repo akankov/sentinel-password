@@ -22,8 +22,8 @@ interface ValidationResult {
 | `valid` | The single source of truth for "is this password acceptable?" Use it to gate submit. |
 | `score` / `strength` | UX cues — strength meter, color coding. **Not** acceptance decisions: `strength` can be `'very-strong'` while `valid` is `false`. See [Scoring caveat](#scoring-caveat) below. |
 | `feedback.warning` | The first suggestion in aggregator order, surfaced for prominent display. |
-| `feedback.suggestions` | All failure messages, in [aggregator order](#aggregator-ordering). Each entry is a rendered string (default English unless you supplied `messages` / `formatMessage`). Stable per-failure codes are available on `result.checks` keys and on each underlying `ValidatorCheck.code`; per-message severity is not yet exposed. |
-| `checks` | Per-validator pass/fail map. Inspect this when you want to know *which* check rejected the input. |
+| `feedback.suggestions` | All failure messages, in [aggregator order](#aggregator-ordering). Each entry is a rendered string (default English unless you supplied `messages` / `formatMessage`). `validatePassword` does not expose per-failure `MessageCode`s in its return shape — use `result.checks` for coarse per-validator pass/fail booleans, or call the individual validators yourself to read `ValidatorCheck.code` and `ValidatorCheck.params`. Per-message severity is not yet exposed. |
+| `checks` | `Record<CheckId, boolean>` — keyed by **`CheckId`** (`'length'`, `'characterTypes'`, etc.), not by `MessageCode`. Inspect this when you want to know *which* validator rejected the input. `length: false` tells you the length check failed; it does **not** tell you whether it was `length.tooShort` or `length.tooLong`. Read `ValidatorCheck.code` from the individual validator if you need that distinction. |
 
 ## Acceptance gating
 

@@ -178,20 +178,27 @@ usePasswordValidator({ minLength: 8, debounceMs: 0, validateOnChange: true })
 
 ## Localized Feedback
 
-Validators return short, stable English strings. To translate, map each one to your locale at the application layer with a lookup table:
+Pass a `messages` template map keyed by stable `MessageCode`, or a `formatMessage` callback for full i18n-library integration. Both are options on `ValidatorOptions`:
 
 ```typescript
-const result = validatePassword(password, options)
+import { validatePassword, type MessageCode } from '@sentinel-password/core'
 
-const translations: Record<string, string> = {
-  'Password must be at least 8 characters': 'La contraseña debe tener al menos 8 caracteres',
-  // …
-}
+// Pattern 1 — partial template overrides
+const result = validatePassword(password, {
+  minLength: 12,
+  messages: {
+    'length.tooShort': 'La contraseña debe tener al menos {minLength} caracteres',
+  } satisfies Partial<Record<MessageCode, string>>,
+})
 
-const localized = result.feedback.suggestions.map((msg) => translations[msg] ?? msg)
+// Pattern 2 — plug into react-intl / i18next / FormatJS
+validatePassword(password, {
+  formatMessage: (code, params, defaultMessage) =>
+    intl.formatMessage({ id: `sentinelPassword.${code}`, defaultMessage }, params),
+})
 ```
 
-The [Internationalization guide](/guide/i18n) covers the full pattern including dynamic-number messages (`minLength`, `maxRepeatedChars`) and notes the roadmap toward built-in pluggable templates.
+The [Internationalization guide](/guide/i18n) covers eight stable codes, `{placeholder}` interpolation, re-localizing `characterTypes` via `params.missingTypes`, and ICU pluralization through `formatMessage`. The legacy lookup-table workaround (mapping English strings to translations) keeps working because the default English templates are stable across patch and minor releases.
 
 ## Best Practices
 
