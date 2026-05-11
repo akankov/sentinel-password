@@ -7,7 +7,7 @@ This example demonstrates how to integrate **Sentinel Password** into a Next.js 
 - Signup form with name, email, and password
 - Real-time password validation with visual feedback
 - Show/hide password toggle
-- WCAG 2.1 AAA accessible
+- The `PasswordInput` component (from `@sentinel-password/react-components`) is WCAG 2.1 AAA compliant. The surrounding example app is a demo shell — placeholder navigation has been replaced with documentation links to keep the demo honest.
 - Modern, responsive design with Tailwind CSS
 
 ## Getting Started

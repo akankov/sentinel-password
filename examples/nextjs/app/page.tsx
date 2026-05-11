@@ -140,12 +140,18 @@ export default function SignupForm() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-700">
-              Sign In
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Sign-in flow is out of scope for this demo — see the{' '}
+            <a
+              href="https://akankov.github.io/sentinel-password/guide/server-side"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-indigo-600 hover:text-indigo-700"
+            >
+              Server-Side Usage guide
             </a>
-          </div>
+            .
+          </p>
         </div>
 
         <div className="mt-8 text-center text-sm text-gray-600">

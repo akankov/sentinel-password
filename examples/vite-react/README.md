@@ -7,7 +7,7 @@ This example demonstrates how to integrate **Sentinel Password** into a Vite + R
 - Simple login form with email and password
 - Real-time password validation
 - Show/hide password toggle
-- WCAG 2.1 AAA accessible
+- The `PasswordInput` component (from `@sentinel-password/react-components`) is WCAG 2.1 AAA compliant. The surrounding example app is a demo shell — success feedback uses an in-page status region (not `alert()`) and placeholder navigation links have been replaced with documentation links to keep the demo honest.
 - Beautiful, responsive design
 
 ## Getting Started
@@ -32,17 +32,26 @@ The example uses the `@sentinel-password/react-components` package:
 
 ```tsx
 import { PasswordInput } from '@sentinel-password/react-components'
+import { useState } from 'react'
+
+const [password, setPassword] = useState('')
+const [passwordValid, setPasswordValid] = useState(false)
 
 <PasswordInput
   label="Password"
-  description="Must be at least 8 characters long"
+  description="At least 8 characters; avoids common passwords and obvious patterns"
   value={password}
   onChange={setPassword}
-  onValidationChange={(result) => {
-    console.log('Valid:', result.valid)
-  }}
+  onValidationChange={(result) => setPasswordValid(result.valid)}
 />
+
+<button type="submit" disabled={!passwordValid}>Login</button>
 ```
+
+> **Don't log validation results in production.** This example deliberately stores
+> only `result.valid` rather than the full `result`. The full result includes
+> password-derived inferences (`checks`, `feedback.suggestions`) — leaking the
+> failure shape from logs can help an attacker.
 
 ## Learn More
 
