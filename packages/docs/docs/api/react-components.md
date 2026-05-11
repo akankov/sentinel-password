@@ -10,10 +10,10 @@ npm install @sentinel-password/react-components
 
 `@sentinel-password/core` is pulled in transitively as a regular `dependency` of `@sentinel-password/react-components` — you don't need to install it directly.
 
-**Peer Dependencies:**
+**Peer Dependencies** (`^18.0.0 || ^19.0.0` each):
 
-- React 18+ or React 19+
-- React DOM 18+ or React 19+
+- React 18 or 19
+- React DOM 18 or 19
 
 ## Components
 

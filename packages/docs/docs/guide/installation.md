@@ -7,8 +7,8 @@ Sentinel Password provides three packages to fit different use cases:
 | Package | Description | Size | Dependencies |
 |---------|-------------|------|--------------|
 | `@sentinel-password/core` | Core validation library for any JavaScript framework | ~5.5 KB | Zero |
-| `@sentinel-password/react` | `usePasswordValidator` hook for password validation | ~2.5KB | React 18+ |
-| `@sentinel-password/react-components` | Pre-built accessible React components | ~6KB | React 18+ |
+| `@sentinel-password/react` | `usePasswordValidator` hook for password validation | ~2.5KB | React 18 or 19 |
+| `@sentinel-password/react-components` | Pre-built accessible React components | ~6KB | React 18 or 19, React DOM 18 or 19 |
 
 ## Installation Methods
 
@@ -84,8 +84,8 @@ bun add @sentinel-password/react-components
 - TypeScript 6+ for development (root devDep is `typescript: ^6.0.3`)
 
 ### React Packages
-- React 18.0.0 or higher (or React 19+)
-- React DOM 18.0.0 or higher (for components package)
+- React 18 or 19 (peer range: `^18.0.0 || ^19.0.0`)
+- React DOM 18 or 19 (same range, required only for `@sentinel-password/react-components`)
 
 ## TypeScript Support
 
