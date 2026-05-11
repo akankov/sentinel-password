@@ -103,9 +103,6 @@ importers:
       '@sentinel-password/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@sentinel-password/react':
-        specifier: workspace:*
-        version: link:../../packages/react
       '@sentinel-password/react-components':
         specifier: workspace:*
         version: link:../../packages/react-components

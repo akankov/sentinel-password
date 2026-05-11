@@ -28,15 +28,19 @@ Open [http://localhost:5173](http://localhost:5173) to view the playground.
 
 ## What You Can Test
 
-- **Password strength scoring** (0-4 scale)
-- **Validation checks**: Length, character types, repetition, sequential patterns, keyboard patterns, common passwords, and personal info
-- **Configuration options**:
+The playground wraps `PasswordInput` from `@sentinel-password/react-components`. The component currently runs `validatePassword(password)` with **no options**, so the policy itself can't be reconfigured from the UI — what you can tune is the *component's behavior* and observe how the built-in default policy reacts to your input.
+
+- **Live strength feedback** — strength label plus the numeric 0–4 score (`{score}/4` next to the label) update as you type
+- **Per-check pass/fail grid** — all seven built-in checks (length, character types, repetition, sequential patterns, keyboard patterns, common passwords, personal info) run with the default policy and are shown in the result panel. The `personalInfo` check has nothing to compare against (no `personalInfo` array is supplied), so it always passes.
+- **Component behavior toggles**:
   - Validate on mount
   - Validate on change
   - Debounce delay
-  - Show/hide validation messages
+  - Show/hide built-in validation messages
   - Show/hide password toggle button
-- **Real-time feedback** with accessible ARIA live regions
+- **Live region** — the playground's result panel is a `role="status" aria-live="polite"` region, so screen-reader users are notified when validation results change
+
+To experiment with custom policies (`minLength`, `require*`, `personalInfo`, etc.), drive a plain `<input>` from `usePasswordValidator` directly — see the [`usePasswordValidator` API reference](https://akankov.github.io/sentinel-password/api/react.html) and [Configuration guide](https://akankov.github.io/sentinel-password/guide/configuration.html).
 
 ## Building for Production
 

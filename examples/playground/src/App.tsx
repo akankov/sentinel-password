@@ -125,7 +125,12 @@ function App() {
             />
 
             {validationResult && (
-              <div className="validation-result">
+              <div
+                className="validation-result"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
                 <div className="result-header">
                   <h3>Validation Result</h3>
                   <span className={`status-badge ${validationResult.valid ? 'valid' : 'invalid'}`}>
@@ -140,7 +145,7 @@ function App() {
                       className="strength-value"
                       style={{ color: getStrengthColor(validationResult.score) }}
                     >
-                      {getStrengthLabel(validationResult.strength)}
+                      {getStrengthLabel(validationResult.strength)} ({validationResult.score}/4)
                     </span>
                   </div>
                   <div className="strength-bar">
