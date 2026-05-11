@@ -1,4 +1,5 @@
-import type { Validator } from '../types'
+import type { MessageParams, Validator } from '../types'
+import { resolveMessage } from '../messages'
 
 /**
  * Detects sequential character patterns (ascending or descending)
@@ -76,9 +77,12 @@ export const validateSequential: Validator = (password, options = {}) => {
   }
 
   if (hasSequentialPattern(password)) {
+    const params: MessageParams = {}
     return {
       passed: false,
-      message: 'Password contains sequential characters (e.g., abc, 123)',
+      code: 'sequential.found',
+      params,
+      message: resolveMessage('sequential.found', params, options),
     }
   }
 

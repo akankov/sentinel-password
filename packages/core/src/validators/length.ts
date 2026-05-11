@@ -1,4 +1,5 @@
-import type { Validator } from '../types'
+import type { MessageParams, Validator } from '../types'
+import { resolveMessage } from '../messages'
 
 /**
  * Validates password length against minimum and maximum requirements
@@ -31,16 +32,22 @@ export const validateLength: Validator = (password, options = {}) => {
   const length: number = password.length
 
   if (length < minLength) {
+    const params: MessageParams = { minLength }
     return {
       passed: false,
-      message: `Password must be at least ${minLength} characters`,
+      code: 'length.tooShort',
+      params,
+      message: resolveMessage('length.tooShort', params, options),
     }
   }
 
   if (length > maxLength) {
+    const params: MessageParams = { maxLength }
     return {
       passed: false,
-      message: `Password must be at most ${maxLength} characters`,
+      code: 'length.tooLong',
+      params,
+      message: resolveMessage('length.tooLong', params, options),
     }
   }
 
