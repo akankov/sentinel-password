@@ -44,6 +44,11 @@ export function PasswordInput({
   showValidationMessages = true,
   showToggleButton = true,
   disabled = false,
+  validatorOptions,
+  toggleShowText = 'Show',
+  toggleHideText = 'Hide',
+  toggleShowLabel = 'Show password',
+  toggleHideLabel = 'Hide password',
   ...inputProps
 }: PasswordInputProps) {
   // Generate unique IDs for accessibility
@@ -87,19 +92,19 @@ export function PasswordInput({
 
       // Validate immediately if no debounce
       if (debounceMs === 0) {
-        const result: ValidationResult = validatePassword(password)
+        const result: ValidationResult = validatePassword(password, validatorOptions)
         setValidationResult(result)
         return
       }
 
       // Set up debounced validation
       debounceTimerRef.current = setTimeout(() => {
-        const result: ValidationResult = validatePassword(password)
+        const result: ValidationResult = validatePassword(password, validatorOptions)
         setValidationResult(result)
         debounceTimerRef.current = null
       }, debounceMs)
     },
-    [debounceMs]
+    [debounceMs, validatorOptions]
   )
 
   // Handle input change
@@ -157,7 +162,7 @@ export function PasswordInput({
           // propagation effect skips — leaving consumers' submit gates
           // open after Escape and forcing them to "optimistically
           // invalidate" from `onChange` as a workaround.
-          setValidationResult(validatePassword(''))
+          setValidationResult(validatePassword('', validatorOptions))
         } else {
           // Manual-validation mode: clear without firing
           // `onValidationChange` (consumer drives validation themselves).
@@ -170,7 +175,7 @@ export function PasswordInput({
       // Pass through to user's onKeyDown handler
       inputProps.onKeyDown?.(event)
     },
-    [isControlled, onChange, validateOnChange, inputProps]
+    [isControlled, onChange, validateOnChange, inputProps, validatorOptions]
   )
 
   // Validate on mount if requested
@@ -259,12 +264,12 @@ export function PasswordInput({
             type="button"
             onClick={handleToggleVisibility}
             className={toggleButtonClassName}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? toggleHideLabel : toggleShowLabel}
             aria-pressed={showPassword}
             disabled={disabled}
             tabIndex={0}
           >
-            {showPassword ? 'Hide' : 'Show'}
+            {showPassword ? toggleHideText : toggleShowText}
           </button>
         )}
       </div>

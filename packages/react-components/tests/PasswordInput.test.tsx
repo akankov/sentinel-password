@@ -208,6 +208,73 @@ describe('PasswordInput', () => {
       })
     })
 
+    it('forwards validatorOptions.minLength to validatePassword', async () => {
+      const user = userEvent.setup()
+      const handleValidationChange = vi.fn()
+
+      render(
+        <PasswordInput
+          label="Password"
+          onValidationChange={handleValidationChange}
+          debounceMs={0}
+          validatorOptions={{ minLength: 12 }}
+        />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'shorty1!')
+
+      await waitFor(() => {
+        const lastResult =
+          handleValidationChange.mock.calls[handleValidationChange.mock.calls.length - 1]?.[0]
+        expect(lastResult?.valid).toBe(false)
+        expect(lastResult?.feedback.suggestions).toContain(
+          'Password must be at least 12 characters'
+        )
+      })
+    })
+
+    it('forwards validatorOptions.messages to render localized validation strings', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <PasswordInput
+          label="Password"
+          debounceMs={0}
+          validatorOptions={{
+            minLength: 12,
+            messages: { 'length.tooShort': 'Mínimo {minLength} caracteres' },
+          }}
+        />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'short')
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+      })
+    })
+
+    it('forwards validatorOptions.formatMessage and renders its return value', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <PasswordInput
+          label="Password"
+          debounceMs={0}
+          validatorOptions={{
+            minLength: 12,
+            formatMessage: (code) => `[${code}]`,
+          }}
+        />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'short')
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('[length.tooShort]')
+      })
+    })
+
     it.skip('should show validation messages when enabled', async () => {
       vi.useFakeTimers()
       const user = userEvent.setup({ delay: null })
@@ -392,6 +459,29 @@ describe('PasswordInput', () => {
       const toggleButton = screen.getByRole('button', { name: /show password/i })
       expect(toggleButton).toHaveAttribute('aria-label', 'Show password')
       expect(toggleButton).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('uses custom toggle text and aria-labels when provided', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <PasswordInput
+          label="Contraseña"
+          toggleShowText="Mostrar"
+          toggleHideText="Ocultar"
+          toggleShowLabel="Mostrar contraseña"
+          toggleHideLabel="Ocultar contraseña"
+        />
+      )
+
+      const toggleButton = screen.getByRole('button', { name: 'Mostrar contraseña' })
+      expect(toggleButton).toHaveTextContent('Mostrar')
+      expect(toggleButton).toHaveAttribute('aria-label', 'Mostrar contraseña')
+
+      await user.click(toggleButton)
+
+      expect(toggleButton).toHaveTextContent('Ocultar')
+      expect(toggleButton).toHaveAttribute('aria-label', 'Ocultar contraseña')
     })
   })
 

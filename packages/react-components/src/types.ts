@@ -1,4 +1,4 @@
-import type { ValidationResult } from '@sentinel-password/core'
+import type { ValidationResult, ValidatorOptions } from '@sentinel-password/core'
 
 /**
  * Props for the PasswordInput component
@@ -102,6 +102,47 @@ export interface PasswordInputProps extends Omit<
    * @default true
    */
   showToggleButton?: boolean
+
+  /**
+   * Options forwarded to `validatePassword` on every validation pass — policy
+   * (`minLength`, `requireUppercase`, `personalInfo`, …) plus the i18n options
+   * (`messages`, `formatMessage`) from `@sentinel-password/core@1.2.0`.
+   *
+   * Nested rather than spread because the component's own props extend
+   * `React.InputHTMLAttributes<HTMLInputElement>`, which already defines
+   * `minLength` / `maxLength` as HTML attributes — a flat spread would clash.
+   *
+   * Memoize this object in the consumer (e.g. `useMemo`) if it contains
+   * closures like `formatMessage`; the component re-validates whenever the
+   * reference changes.
+   *
+   * @default undefined (uses core defaults — minLength 8, all check flags on)
+   */
+  validatorOptions?: ValidatorOptions
+
+  /**
+   * Visible button text when the password is hidden (i.e. clicking will show it).
+   * @default 'Show'
+   */
+  toggleShowText?: string
+
+  /**
+   * Visible button text when the password is visible (i.e. clicking will hide it).
+   * @default 'Hide'
+   */
+  toggleHideText?: string
+
+  /**
+   * `aria-label` on the toggle button when the password is hidden.
+   * @default 'Show password'
+   */
+  toggleShowLabel?: string
+
+  /**
+   * `aria-label` on the toggle button when the password is visible.
+   * @default 'Hide password'
+   */
+  toggleHideLabel?: string
 }
 
 /**

@@ -64,6 +64,15 @@ interface PasswordInputProps
   showValidationMessages?: boolean // Default: true
   showToggleButton?: boolean       // Default: true
 
+  // Validator policy + i18n (forwarded to validatePassword)
+  validatorOptions?: ValidatorOptions
+
+  // Toggle button i18n
+  toggleShowText?: string   // Default: 'Show'
+  toggleHideText?: string   // Default: 'Hide'
+  toggleShowLabel?: string  // Default: 'Show password' (aria-label)
+  toggleHideLabel?: string  // Default: 'Hide password' (aria-label)
+
   // Class names (each targets a specific subtree)
   containerClassName?: string
   labelClassName?: string
@@ -87,6 +96,11 @@ interface PasswordInputProps
 | `debounceMs` | `number` | `300` | Debounce delay for validation. `0` validates synchronously. |
 | `showValidationMessages` | `boolean` | `true` | Render the validation `<ul>` |
 | `showToggleButton` | `boolean` | `true` | Render the show/hide button |
+| `validatorOptions` | `ValidatorOptions` | `undefined` | Forwarded to every `validatePassword(...)` call inside the component. Covers `minLength`, `requireUppercase`, `personalInfo`, plus the i18n options `messages` / `formatMessage` from core@1.2.0. Nested rather than spread because `React.InputHTMLAttributes` already defines `minLength` / `maxLength` as HTML attributes. Memoize this object if it contains closures. |
+| `toggleShowText` | `string` | `'Show'` | Visible button text when the password is hidden |
+| `toggleHideText` | `string` | `'Hide'` | Visible button text when the password is visible |
+| `toggleShowLabel` | `string` | `'Show password'` | `aria-label` when hidden |
+| `toggleHideLabel` | `string` | `'Hide password'` | `aria-label` when visible |
 | `containerClassName` | `string` | `''` | Class on the outer `<div>` wrapper |
 | `labelClassName` | `string` | `''` | Class on `<label>` |
 | `descriptionClassName` | `string` | `''` | Class on the description `<div>` |
