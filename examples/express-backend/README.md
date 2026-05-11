@@ -28,11 +28,11 @@ curl -X POST http://localhost:3000/signup \
 ```json
 {
   "ok": false,
-  "strength": "very-weak",
+  "strength": "weak",
   "score": 1,
   "warning": "Password must be at least 12 characters",
   "suggestions": ["..."],
-  "checks": { "length": false, "characterTypes": false, ... }
+  "checks": { "length": false, "characterTypes": false, "...": "..." }
 }
 ```
 

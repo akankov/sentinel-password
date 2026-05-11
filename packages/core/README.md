@@ -255,10 +255,11 @@ const charTypeCheck = validateCharacterTypes(password, {
   requireUppercase: true,
   requireLowercase: true,
   requireDigit: true,
-  requireSymbol: true
+  requireSymbol: true,
 })
 console.log(charTypeCheck.passed) // false
-console.log(charTypeCheck.message) // 'Add special characters (!@#$%^&*)'
+console.log(charTypeCheck.message) // 'Password must contain at least one symbol'
+// (one combined message listing every missing type — not one message per type)
 ```
 
 ### Character Type Helpers

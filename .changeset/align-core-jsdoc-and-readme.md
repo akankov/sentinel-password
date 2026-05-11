@@ -19,5 +19,9 @@ validator's real output.
   actual three-suggestion output — the character-types validator returns
   one combined message naming every missing type, and the common-password
   check also fires for `'password'`.
+- Same kind of fix in the Individual Validators section: the README
+  claimed `validateCharacterTypes(...).message` returns
+  `'Add special characters (!@#$%^&*)'`; the real message is
+  `'Password must contain at least one symbol'`.
 
 No runtime behavior change.
