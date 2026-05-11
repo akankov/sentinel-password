@@ -237,13 +237,13 @@ function PasswordWithStrength() {
 
 ## Multi-step Forms
 
-Wire the user's email and name into `personalInfo` so the password can't include them:
+For `personalInfo` to do its job, every identifier you want to reject from the password must be **collected before** the password step. Below, email and name come first, then the validator can reject passwords containing either when the user reaches the password screen.
 
 ```tsx
 import { useState } from 'react'
 import { usePasswordValidator } from '@sentinel-password/react'
 
-type Step = 'email' | 'password' | 'profile' | 'complete'
+type Step = 'email' | 'profile' | 'password' | 'complete'
 
 function MultiStepSignup() {
   const [step, setStep] = useState<Step>('email')
@@ -258,20 +258,20 @@ function MultiStepSignup() {
   })
 
   const next = () => {
-    if (step === 'email' && email) setStep('password')
-    else if (step === 'password' && result?.valid) setStep('profile')
-    else if (step === 'profile' && name) setStep('complete')
+    if (step === 'email' && email) setStep('profile')
+    else if (step === 'profile' && name) setStep('password')
+    else if (step === 'password' && result?.valid) setStep('complete')
   }
 
   const back = () => {
-    if (step === 'password') setStep('email')
-    else if (step === 'profile') setStep('password')
+    if (step === 'profile') setStep('email')
+    else if (step === 'password') setStep('profile')
   }
 
   const stepNumber: Record<Exclude<Step, 'complete'>, number> = {
     email: 1,
-    password: 2,
-    profile: 3,
+    profile: 2,
+    password: 3,
   }
 
   return (
@@ -290,6 +290,17 @@ function MultiStepSignup() {
         </div>
       )}
 
+      {step === 'profile' && (
+        <div>
+          <label>Full Name</label>
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+          <button onClick={back}>Back</button>
+          <button onClick={next} disabled={!name}>
+            Next
+          </button>
+        </div>
+      )}
+
       {step === 'password' && (
         <div>
           <label>Password</label>
@@ -301,17 +312,6 @@ function MultiStepSignup() {
           {result?.feedback.suggestions.map((msg, i) => <p key={i}>{msg}</p>)}
           <button onClick={back}>Back</button>
           <button onClick={next} disabled={!result?.valid}>
-            Next
-          </button>
-        </div>
-      )}
-
-      {step === 'profile' && (
-        <div>
-          <label>Full Name</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
-          <button onClick={back}>Back</button>
-          <button onClick={next} disabled={!name}>
             Complete
           </button>
         </div>
