@@ -264,12 +264,17 @@ function MultiStepSignup() {
     else if (step === 'profile') setStep('password')
   }
 
+  const stepNumber: Record<Exclude<Step, 'complete'>, number> = {
+    email: 1,
+    password: 2,
+    profile: 3,
+  }
+
   return (
     <div>
-      <h2>
-        Create Account — Step{' '}
-        {step === 'email' ? 1 : step === 'password' ? 2 : step === 'profile' ? 3 : 4} of 3
-      </h2>
+      {step !== 'complete' && (
+        <h2>Create Account — Step {stepNumber[step]} of 3</h2>
+      )}
 
       {step === 'email' && (
         <div>
@@ -322,7 +327,7 @@ function MultiStepSignup() {
 
 ## More Examples
 
-Browse the [Storybook](https://github.com/akankov/sentinel-password) and the [examples/](https://github.com/akankov/sentinel-password/tree/main/examples) directory for runnable apps.
+Browse the [examples/](https://github.com/akankov/sentinel-password/tree/main/examples) directory for runnable apps. Storybook stories for the React hook and `PasswordInput` component are runnable locally — clone the repo, run `pnpm install`, then `pnpm storybook` (hook) or `pnpm storybook:components` (component).
 
 ## See Also
 
