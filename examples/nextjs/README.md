@@ -1,6 +1,6 @@
 # Next.js Example
 
-This example demonstrates how to integrate **Sentinel Password** into a Next.js 15+ application using the App Router.
+This example demonstrates how to integrate **Sentinel Password** into a Next.js 16+ application using the App Router.
 
 ## Features
 
@@ -28,23 +28,33 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 ## Usage
 
-The example uses the `@sentinel-password/react-components` package:
+The example uses the `@sentinel-password/react-components` package. The validation result is held in state and used to gate the submit button — passwords that fail any built-in check are not submittable.
 
 ```tsx
 'use client'
 
 import { PasswordInput } from '@sentinel-password/react-components'
+import { useState } from 'react'
+
+const [password, setPassword] = useState('')
+const [passwordValid, setPasswordValid] = useState(false)
 
 <PasswordInput
   label="Password"
-  description="Must be at least 8 characters long"
+  description="At least 8 characters; avoids common passwords and obvious patterns"
   value={password}
   onChange={setPassword}
-  onValidationChange={(result) => {
-    console.log('Valid:', result.valid)
-  }}
+  onValidationChange={(result) => setPasswordValid(result.valid)}
 />
+
+<button type="submit" disabled={!passwordValid}>Create Account</button>
 ```
+
+> **Don't log validation results in production.** This example deliberately stores
+> only `result.valid` rather than the full `result`. The full result includes
+> password-derived inferences (`checks`, `feedback.suggestions`) — even though the
+> password literal is never logged, leaking the failure shape can help an attacker
+> who later obtains the logs.
 
 ## Learn More
 

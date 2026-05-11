@@ -9,14 +9,26 @@ export default function SignupForm() {
     password: '',
     name: '',
   })
+  // We deliberately store only the boolean we need, not the whole
+  // ValidationResult — keeping less password-derived state around.
+  const [passwordValid, setPasswordValid] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  const formReady =
+    formData.name.length > 0 && formData.email.length > 0 && passwordValid && !isSubmitting
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Defense in depth: the submit button is disabled when the password is
+    // invalid, but never trust the disabled state alone — re-check here.
+    if (!formReady) return
     setIsSubmitting(true)
 
-    // Simulate API call
+    // Simulate API call. In a real app, send the password to your backend
+    // over HTTPS, hash it with Argon2/bcrypt server-side, and persist the
+    // hash. Never log or persist the plaintext password or its validation
+    // result.
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     setSubmitted(true)
@@ -108,10 +120,7 @@ export default function SignupForm() {
               description="Must be at least 8 characters long"
               value={formData.password}
               onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
-              onValidationChange={(result) => {
-                // Can track validation state if needed
-                console.log('Validation:', result)
-              }}
+              onValidationChange={(result) => setPasswordValid(result.valid)}
               containerClassName="mb-6"
               labelClassName="block text-sm font-semibold text-gray-900 mb-2"
               descriptionClassName="text-sm text-gray-600 mb-3"
@@ -124,7 +133,7 @@ export default function SignupForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting || !formData.email || !formData.password || !formData.name}
+              disabled={!formReady}
               className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? 'Creating Account...' : 'Create Account'}
