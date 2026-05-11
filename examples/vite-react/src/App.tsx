@@ -78,7 +78,16 @@ function App() {
             label="Password"
             description="At least 8 characters; avoids common passwords and obvious patterns"
             value={password}
-            onChange={setPassword}
+            onChange={(value) => {
+              setPassword(value)
+              // Optimistically invalidate so the submit gate can't outrun
+              // the debounced validation. PasswordInput debounces by 300 ms
+              // and Escape doesn't fire onValidationChange at all — without
+              // this line, passwordValid can stay `true` while the actual
+              // password becomes invalid or empty. onValidationChange will
+              // restore `true` once the new value is confirmed valid.
+              setPasswordValid(false)
+            }}
             onValidationChange={(result) => setPasswordValid(result.valid)}
             containerClassName="password-container"
             labelClassName="password-label"

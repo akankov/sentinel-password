@@ -133,7 +133,16 @@ export default function SignupForm() {
               label="Password"
               description="Must be at least 8 characters long"
               value={formData.password}
-              onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+              onChange={(value) => {
+                setFormData((prev) => ({ ...prev, password: value }))
+                // Optimistically invalidate so the submit gate can't outrun
+                // the debounced validation. PasswordInput debounces by 300 ms
+                // and Escape doesn't fire onValidationChange at all — without
+                // this line, passwordValid can stay `true` while the actual
+                // password becomes invalid or empty. onValidationChange will
+                // restore `true` once the new value is confirmed valid.
+                setPasswordValid(false)
+              }}
               onValidationChange={(result) => setPasswordValid(result.valid)}
               containerClassName="mb-6"
               labelClassName="block text-sm font-semibold text-gray-900 mb-2"
