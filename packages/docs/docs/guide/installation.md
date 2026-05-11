@@ -81,7 +81,7 @@ bun add @sentinel-password/react-components
 ### Core Package
 - **No runtime dependencies**
 - Works with any JavaScript environment (Node.js, browsers, Deno, Bun)
-- TypeScript 5+ for development
+- TypeScript 6+ for development (root devDep is `typescript: ^6.0.3`)
 
 ### React Packages
 - React 18.0.0 or higher (or React 19+)
