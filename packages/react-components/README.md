@@ -88,6 +88,11 @@ A headless password input component with built-in validation.
 | `debounceMs` | `number` | `300` | Debounce delay in milliseconds. `0` validates synchronously. |
 | `showValidationMessages` | `boolean` | `true` | Render the validation messages `<div role="alert">`. Set to `false` to suppress the messages and render your own. |
 | `showToggleButton` | `boolean` | `true` | Render the show/hide password button. Set to `false` to suppress (e.g., for a localized custom toggle). |
+| `validatorOptions` | `ValidatorOptions` | `undefined` | Forwarded to every internal `validatePassword(...)` call. Covers `minLength`, `requireUppercase`, `personalInfo`, plus the v1.2.0 i18n options `messages` and `formatMessage`. Nested rather than spread because the prop type already extends `React.InputHTMLAttributes<HTMLInputElement>` (which defines `minLength` / `maxLength` as HTML attrs). Memoize this object if it contains closures — see the [i18n guide](https://akankov.github.io/sentinel-password/guide/i18n). |
+| `toggleShowText` | `string` | `'Show'` | Visible button text when the password is hidden |
+| `toggleHideText` | `string` | `'Hide'` | Visible button text when the password is visible |
+| `toggleShowLabel` | `string` | `'Show password'` | `aria-label` when hidden |
+| `toggleHideLabel` | `string` | `'Hide password'` | `aria-label` when visible |
 | `containerClassName` | `string` | `''` | Class on the outer `<div>` wrapper |
 | `labelClassName` | `string` | `''` | Class on `<label>` |
 | `descriptionClassName` | `string` | `''` | Class on the description `<div>` |
