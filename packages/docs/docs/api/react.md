@@ -36,7 +36,7 @@ interface UsePasswordValidatorOptions extends ValidatorOptions {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Delay in ms after `setPassword` before validating. `0` disables debouncing (paired with `validateOnChange: true` for instant validation). |
-| `validateOnMount` | `boolean` | `false` | **No-op in the current release.** The hook initializes `password` to `''` and the mount effect only validates when `password.length > 0`, but there is no `initialPassword` option to seed a non-empty value. To validate before user input, call `validate()` manually after your first `setPassword`. |
+| `validateOnMount` | `boolean` | `false` | **No-op in the current release.** The hook initializes `password` to `''` and the mount effect only validates when `password.length > 0`, but there is no `initialPassword` option to seed a non-empty value. If you need validation before user input, call `validatePassword(value, options)` directly from `@sentinel-password/core` (see [stale-state caveat](#stale-state-caveat-for-validate) for why the hook's `validate()` can't help here). |
 | `validateOnChange` | `boolean` | `false` | Only takes effect when `debounceMs === 0`. See the behavior matrix below. |
 | ...all `ValidatorOptions` | — | — | All flat options from [`@sentinel-password/core`](/api/core#validatoroptions) (`minLength`, `requireUppercase`, `personalInfo`, etc.). |
 
@@ -202,6 +202,35 @@ return (
     <button type="submit">Validate</button>
   </form>
 )
+```
+
+#### Stale-state caveat for `validate()`
+
+`validate()` reads `password` through its `useCallback` closure. After `setPassword(value)` runs synchronously, React batches the state update — the **next** render rebuilds `validate` with the new password.
+
+✅ **Works** — any event handler that fires after React has committed a re-render:
+
+```tsx
+// Submit, blur, button click, etc. — by the time these fire, password
+// is whatever the user most recently set.
+<button onClick={validate}>Validate now</button>
+```
+
+❌ **Doesn't work** — back-to-back calls in the same synchronous tick:
+
+```tsx
+setPassword('new-value')
+validate() // ← validates the OLD password; the closure here was built
+           //   in the previous render with the previous password.
+```
+
+If you need to validate a *specific* value right now (without waiting for the hook to re-render), call `validatePassword` from core directly:
+
+```tsx
+import { validatePassword } from '@sentinel-password/core'
+
+const result = validatePassword('new-value', { minLength: 8 })
+// result is fresh — no closure, no state, no waiting for a re-render.
 ```
 
 ### Programmatic Updates
