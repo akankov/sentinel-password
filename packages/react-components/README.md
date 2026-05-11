@@ -80,7 +80,20 @@ A headless password input component with built-in validation.
 | `validateOnMount` | `boolean` | `false` | Validate immediately on mount |
 | `debounceMs` | `number` | `300` | Debounce delay in ms |
 
-All standard HTML input props are also supported (except `type` and `onChange`).
+Most standard HTML input attributes are forwarded to the underlying `<input>` — for example `name`, `placeholder`, `className`, `style`, `autoFocus`, `required`, `minLength`, `maxLength`, `pattern`, `inputMode`, `onFocus`, `onBlur`, and `data-*`.
+
+A handful are **reserved** by the component for its a11y and controlled-state internals — passing them is harmless but has no effect at runtime:
+
+- `id` — generated via `useId()` so the `<label>` can be associated correctly
+- `aria-describedby` / `aria-invalid` — managed for validation feedback
+- `autoComplete` — hardcoded to `"new-password"`
+- `ref` — not forwarded (the component is not wrapped in `React.forwardRef`)
+- `type` — toggled internally between `"password"` and `"text"`; omitted from the props type
+- `onChange` — replaced with the `(value: string) => void` signature documented above
+
+`onKeyDown` is **wrapped** (the component handles `Escape` to clear the input, then calls your handler for all keys) rather than overridden.
+
+See the [API reference](https://akankov.github.io/sentinel-password/api/react-components#reserved-props) for the full table and the controlled-vs-uncontrolled rules.
 
 ## Accessibility
 
