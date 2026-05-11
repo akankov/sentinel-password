@@ -127,8 +127,9 @@ function App() {
           <li>Real-time password validation</li>
           <li>Show/hide password toggle</li>
           <li>
-            The <code>PasswordInput</code> component is WCAG 2.1 AAA compliant; the surrounding
-            example app is a demo shell.
+            The <code>PasswordInput</code> component is designed to meet WCAG 2.1 AAA — page-level
+            conformance (contrast, surrounding markup) is on the consumer. The surrounding example
+            app is a demo shell.
           </li>
           <li>Zero dependencies in core</li>
         </ul>
