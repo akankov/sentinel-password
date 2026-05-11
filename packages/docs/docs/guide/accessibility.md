@@ -17,11 +17,8 @@ The consumer is responsible for:
 - ⚠️ **Color contrast** — the component is headless. AAA requires 7:1 for normal text, 4.5:1 for large text.
 - ⚠️ **Surrounding markup** — heading structure, landmarks, form semantics.
 - ⚠️ **Reduced motion / high contrast / `focus-visible`** — these depend on your stylesheet.
-- ⚠️ **Localization of toggle text** — see [Known Gaps](#known-gaps) below.
-
-### Known Gaps
-
-- **English-only toggle button.** The visible "Show"/"Hide" text and the `aria-label` on the visibility toggle are hardcoded in [`PasswordInput.tsx`](https://github.com/akankov/sentinel-password/blob/main/packages/react-components/src/components/PasswordInput.tsx). For non-English locales, render your own localized toggle by setting `showToggleButton={false}` and managing visibility via the `showPassword` / `onShowPasswordChange` props, or wait for a future release to expose `toggleShowText` / `toggleHideText`.
+- ⚠️ **Localization of toggle text** — set `toggleShowText` / `toggleHideText` (visible label) and `toggleShowLabel` / `toggleHideLabel` (`aria-label`) on `PasswordInput`. Defaults are `'Show'` / `'Hide'` / `'Show password'` / `'Hide password'`.
+- ⚠️ **Localization of validation messages** — pass `validatorOptions={{ messages, formatMessage }}` to `PasswordInput`; see the [i18n guide](/guide/i18n).
 
 ## Semantic HTML
 

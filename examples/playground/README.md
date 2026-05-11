@@ -32,7 +32,7 @@ Open [http://localhost:5173](http://localhost:5173) to view the playground.
 
 ## What You Can Test
 
-The playground wraps `PasswordInput` from `@sentinel-password/react-components`. The component currently runs `validatePassword(password)` with **no options**, so the policy itself can't be reconfigured from the UI — what you can tune is the *component's behavior* and observe how the built-in default policy reacts to your input.
+The playground wraps `PasswordInput` from `@sentinel-password/react-components`. The component accepts a `validatorOptions` prop that forwards to every internal `validatePassword(...)` call, but the playground UI does not yet expose policy controls — it hands the component its defaults. What you can tune from the UI is the *component's behavior* (debounce, mount/change validation, toggle visibility) and observe how the built-in default policy reacts to your input.
 
 - **Live strength feedback** — strength label plus the numeric 0–4 score (`{score}/4` next to the label) update as you type
 - **Per-check pass/fail grid** — all seven built-in checks (length, character types, repetition, sequential patterns, keyboard patterns, common passwords, personal info) run with the default policy and are shown in the result panel. The `personalInfo` check has nothing to compare against (no `personalInfo` array is supplied), so it always passes.

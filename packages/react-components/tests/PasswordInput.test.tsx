@@ -275,6 +275,34 @@ describe('PasswordInput', () => {
       })
     })
 
+    it('re-validates the current value when validatorOptions changes (locale switch)', async () => {
+      const user = userEvent.setup()
+      const en = { minLength: 12 }
+      const es = {
+        minLength: 12,
+        messages: { 'length.tooShort': 'Mínimo {minLength} caracteres' } as const,
+      }
+
+      const { rerender } = render(
+        <PasswordInput label="Password" debounceMs={0} validatorOptions={en} />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'short')
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Password must be at least 12 characters'
+        )
+      })
+
+      // Consumer flips locale without the user editing the input
+      rerender(<PasswordInput label="Password" debounceMs={0} validatorOptions={es} />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+      })
+    })
+
     it.skip('should show validation messages when enabled', async () => {
       vi.useFakeTimers()
       const user = userEvent.setup({ delay: null })

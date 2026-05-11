@@ -30,8 +30,8 @@ A headless password input that runs validation through `@sentinel-password/core`
 - Controlled and uncontrolled modes
 - Completely unstyled — bring your own CSS
 
-::: warning Validation runs with the default policy
-The component currently runs `validatePassword(password)` with no options — it always uses the built-in defaults (min length 8, all `check*` flags on, no required character types, no `personalInfo`). If you need a custom policy, use the [`usePasswordValidator` hook](/api/react) and render your own input. A future release may add a `validatorOptions` prop.
+::: tip Configure validation through `validatorOptions`
+Pass policy and i18n options via the [`validatorOptions`](#props) prop — they're forwarded to every internal `validatePassword(...)` call. Covers `minLength`, `requireUppercase`, `personalInfo`, plus the v1.2.0 i18n options `messages` and `formatMessage`. The component also re-validates the current value when the `validatorOptions` reference changes (so a locale switch refreshes feedback without the user editing the field). Memoize the object if it contains closures.
 :::
 
 ## Props
@@ -271,9 +271,11 @@ The component renders only structural HTML and ARIA — every subtree gets its o
 
 ### Validation
 
-The component calls `validatePassword(value)` from `@sentinel-password/core` with **no options** — only the default policy applies. The returned `ValidationResult` is forwarded to `onValidationChange` and rendered as a list of messages inside the `validationClassName` container.
+The component calls `validatePassword(value, validatorOptions)` from `@sentinel-password/core`. With `validatorOptions` omitted, the built-in defaults apply (`minLength: 8`, all `check*` flags on, no required character types, no `personalInfo`). Pass any subset of `ValidatorOptions` — including the v1.2.0 i18n options `messages` and `formatMessage` — to customize policy or localize the rendered messages. The returned `ValidationResult` is forwarded to `onValidationChange` and rendered as a list of messages inside the `validationClassName` container.
 
-If you need custom validation rules, use [`usePasswordValidator`](/api/react) and render your own input.
+When the `validatorOptions` reference changes (e.g. a locale switch in the consumer), the component re-validates the current value automatically so the visible feedback refreshes without the user editing the field. Memoize the object in the consumer if it contains closures to avoid spurious re-validation.
+
+If you'd rather drive validation yourself and render your own input, use [`usePasswordValidator`](/api/react) instead.
 
 ### Validation Messages
 

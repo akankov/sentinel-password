@@ -12,12 +12,12 @@ Try out the interactive playground to test password validation in real time:
 
 The playground features:
 
-- Live password validation against the **built-in default policy** as you type
+- Live password validation as you type
 - Toggles for `PasswordInput`'s behavior knobs (validate on mount/change, debounce delay, visibility of the toggle button and validation messages)
 - Visual strength meter (label + numeric `0–4` score)
 - Per-check pass/fail grid (length, character types, repetition, sequential, keyboard pattern, common password, personal info)
 
-> The playground does not let you customize the validation **policy** itself — `PasswordInput` runs `validatePassword(password)` with no options today. To experiment with `minLength`, `require*`, `personalInfo`, etc., drive a plain `<input>` from [`usePasswordValidator`](/api/react) directly.
+> The playground UI uses the built-in default policy and does not yet expose policy controls. `PasswordInput` itself accepts a `validatorOptions` prop (forwarded to every internal `validatePassword(...)`) — to experiment with `minLength`, `require*`, `personalInfo`, the i18n `messages` / `formatMessage`, etc., pass them on the component directly or drive a plain `<input>` from [`usePasswordValidator`](/api/react).
 
 ### Working Examples
 

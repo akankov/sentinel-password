@@ -191,6 +191,26 @@ export function PasswordInput({
     }
   }, [])
 
+  // Re-validate the *current* value when validatorOptions changes (locale
+  // switch, policy change, new formatMessage closure). Without this effect,
+  // changing `messages` or `formatMessage` would leave the stale rendered
+  // result on screen until the user edited the field. Skipped on the
+  // initial render — the mount effect above handles that path.
+  const didRunPolicyEffectRef: React.MutableRefObject<boolean> = useRef<boolean>(false)
+  useEffect(() => {
+    if (!didRunPolicyEffectRef.current) {
+      didRunPolicyEffectRef.current = true
+      return
+    }
+    if (value) {
+      performValidation(String(value))
+    }
+    // `value` and `performValidation` are intentionally excluded — change
+    // handlers (`handleInputChange`, Escape) already drive value-triggered
+    // validation. This effect only catches policy/locale switches that
+    // don't go through input events.
+  }, [validatorOptions])
+
   // Notify parent of validation changes
   useEffect(() => {
     if (validationResult) {
