@@ -44,5 +44,11 @@ validator's real output.
   very rarely flagged as "common"). The source has documented this in
   `common-password.ts` since the validator landed; the README/API docs
   just hadn't carried the detail.
+- Sequential-pattern detection is now described accurately. The
+  implementation in `sequential.ts` matches *any* three consecutive
+  ascending/descending Unicode code points, not just alphabet or digit
+  runs — including less-obvious cases like `!"#`, `,-.`, or `9:;`
+  (digit → punctuation). README and types comment updated so consumers
+  can interpret rejection messages without surprise.
 
 No runtime behavior change.
