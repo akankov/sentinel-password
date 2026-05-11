@@ -39,14 +39,15 @@ const balancedConfig = {
 
 ### ♿ Accessibility First
 
-Built from the ground up with WCAG 2.1 AAA compliance:
+`PasswordInput` is designed to meet WCAG 2.1 AAA. The component provides:
 
-- ✅ Semantic HTML with proper ARIA attributes
-- ✅ Screen reader friendly error messages
-- ✅ Keyboard navigation support
-- ✅ Live region announcements for validation state
-- ✅ High contrast support
-- ✅ Focus management
+- ✅ Semantic HTML with a `useId()`-linked `<label>`
+- ✅ ARIA attributes managed for you (`aria-invalid`, `aria-describedby`, `aria-pressed` on the toggle)
+- ✅ Live region (`role="alert" aria-live="polite"`) for validation announcements
+- ✅ Keyboard support (Tab, Escape to clear, Space/Enter on toggle)
+- ✅ Focus management for the component's own elements
+
+Page-level conformance is the consumer's responsibility — contrast (AAA wants 7:1), surrounding markup, reduced-motion/forced-colors/focus-visible CSS, and localization of the bundled English toggle text. See the [Accessibility guide](/guide/accessibility) for the full split and the known gaps.
 
 ### 📦 Tiny Bundle Size
 
@@ -149,7 +150,7 @@ const options: ValidatorOptions = {
 |---------|-------------------|-------------------|-----------------|
 | Bundle Size | ~5.5 KB | N/A | 20-100KB+ |
 | Dependencies | 0 | 0 | 5-50+ |
-| Accessibility | WCAG 2.1 AAA | ❌ | Varies |
+| Accessibility | Designed for AAA | ❌ | Varies |
 | Customizable | ✅ Full control | ⚠️ Limited | ⚠️ Partial |
 | React Support | ✅ Native hooks | ❌ | ⚠️ Varies |
 | TypeScript | ✅ Full types | N/A | ⚠️ Varies |

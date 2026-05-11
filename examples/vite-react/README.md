@@ -7,7 +7,7 @@ This example demonstrates how to integrate **Sentinel Password** into a Vite + R
 - Signup form with email and password
 - Real-time password validation; submit button is gated on `result.valid`
 - Show/hide password toggle
-- The `PasswordInput` component (from `@sentinel-password/react-components`) is WCAG 2.1 AAA compliant. The surrounding example app is a demo shell — success feedback uses an in-page status region (not `alert()`) and placeholder navigation links have been replaced with documentation links to keep the demo honest.
+- The `PasswordInput` component (from `@sentinel-password/react-components`) is designed to meet WCAG 2.1 AAA — semantic HTML, ARIA live region, keyboard support, `useId()`-linked label. Page-level conformance (contrast ratio, surrounding markup, reduced-motion handling) is the consumer's. The surrounding example app is a demo shell — success feedback uses an in-page status region (not `alert()`) and placeholder navigation links have been replaced with documentation links to keep the demo honest.
 - Beautiful, responsive design
 
 > **Why signup, not login?** Strength-based submit gating belongs on signup or
