@@ -51,12 +51,23 @@ import type { UsePasswordValidatorOptions, UsePasswordValidatorReturn } from '..
  * ```
  *
  * @example
- * **Validate on mount**
+ * **`validateOnMount` is a no-op today**
+ * The hook initializes `password` to `''` and the mount effect only fires
+ * when `password.length > 0`, but there is no `initialPassword` option to
+ * seed a non-empty value, so setting `validateOnMount: true` has no effect.
+ * To validate a known value before any user input, call `validatePassword`
+ * from `@sentinel-password/core` directly:
+ *
  * ```tsx
- * const { password, setPassword, result } = usePasswordValidator({
- *   validateOnMount: true,
- *   debounceMs: 0 // No debounce for immediate feedback
- * })
+ * import { validatePassword } from '@sentinel-password/core'
+ * import { usePasswordValidator } from '@sentinel-password/react'
+ *
+ * function MyForm({ knownPassword }: { knownPassword: string }) {
+ *   const initialResult = validatePassword(knownPassword, { minLength: 8 })
+ *   const { password, setPassword, result } = usePasswordValidator({ minLength: 8 })
+ *   const liveResult = result ?? initialResult
+ *   // ...
+ * }
  * ```
  *
  * @example

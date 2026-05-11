@@ -19,3 +19,11 @@ Align package metadata and runtime deps with what's actually exported.
   managers pull it in transitively — the old `npm install @sentinel-password/
   react @sentinel-password/core` form was redundant and implied a peer-dep
   relationship that doesn't exist.
+- `usePasswordValidator` JSDoc + the `validateOnMount` / `validateOnChange`
+  JSDoc in `types.ts` now honestly describe current behavior. `validateOnMount`
+  is documented as a no-op (the hook initializes `password` to `''` and there
+  is no `initialPassword` option, so the gate `password.length > 0` is never
+  true on mount); the example shows the workaround of calling `validatePassword`
+  from core directly. `validateOnChange` carries the full behavior matrix
+  matching the README/docs-site fix from claim #6. These JSDoc strings ship
+  in the bundled `.d.ts` and surface in IDE IntelliSense for hook users.
