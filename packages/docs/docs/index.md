@@ -22,7 +22,7 @@ hero:
 features:
   - icon: 🎯
     title: Flexible & Configurable
-    details: Tune all seven built-in checks through a single flat options object — relax thresholds, require character types, or disable individual checks via their flags.
+    details: Tune all seven built-in checks through a single flat options object — set length, character-type, and repetition thresholds, supply `personalInfo`, or short-circuit the sequential, keyboard-pattern, and common-password checks via their `check*` flags.
   
   - icon: ♿
     title: Designed for AAA
