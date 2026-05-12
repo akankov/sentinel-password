@@ -3,10 +3,14 @@
  *
  * Entries: 12169 (8906 dict + 5000 passwords, deduped)
  * Bloom size: 200000 bits | Hash functions: 10
- * False-positive rate: 0.22% | Fill ratio: 43.1%
+ * Fill ratio: 43.1%
  *
  * Stored as base64 of the underlying Int32Array buffer for compact source
  * representation. Decoded once at module load.
+ *
+ * The script also measures and prints an empirical false-positive rate to
+ * the console at generate time, but it depends on random sampling and is
+ * intentionally NOT embedded here to keep the generated file deterministic.
  *
  * Regenerate: pnpm --filter @sentinel-password/entropy generate:dict
  */

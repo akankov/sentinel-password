@@ -142,10 +142,16 @@ console.log(`Total unique entries: ${allEntries.length}`)
 const filter = createFilter(allEntries)
 
 // Verify: every entry must be found (no false negatives).
+// Do NOT log the actual entries — they come from the password seed file, and
+// even though those are publicly-known weak passwords, CI logs are publicly
+// visible. If this branch ever fires, debug locally.
 const notFound = allEntries.filter((e) => !testFilter(filter, e))
 if (notFound.length > 0) {
   console.error(`ERROR: ${notFound.length} entries not found in bloom filter (false negatives)`)
-  console.error('First 5:', notFound.slice(0, 5))
+  console.error(
+    'This indicates a hash mismatch between this script and ' +
+      'packages/entropy/src/dictionary.ts. Compare the two `getHashes` functions.'
+  )
   process.exit(1)
 }
 console.log(`Verified: all ${allEntries.length} entries present (no false negatives)`)
@@ -179,10 +185,14 @@ const header = `/**
  *
  * Entries: ${allEntries.length} (${dictSeeds.length} dict + ${passwordSeeds.length} passwords, deduped)
  * Bloom size: ${BLOOM_SIZE} bits | Hash functions: ${HASH_COUNT}
- * False-positive rate: ${fpRate}% | Fill ratio: ${fillRatio}%
+ * Fill ratio: ${fillRatio}%
  *
  * Stored as base64 of the underlying Int32Array buffer for compact source
  * representation. Decoded once at module load.
+ *
+ * The script also measures and prints an empirical false-positive rate to
+ * the console at generate time, but it depends on random sampling and is
+ * intentionally NOT embedded here to keep the generated file deterministic.
  *
  * Regenerate: pnpm --filter @sentinel-password/entropy generate:dict
  */`
