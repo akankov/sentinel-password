@@ -20,6 +20,7 @@ export default defineConfig({
           { text: '@sentinel-password/core', link: '/api/core' },
           { text: '@sentinel-password/react', link: '/api/react' },
           { text: '@sentinel-password/react-components', link: '/api/react-components' },
+          { text: '@sentinel-password/entropy', link: '/api/entropy' },
         ],
       },
     ],
@@ -61,6 +62,7 @@ export default defineConfig({
             { text: 'Core Package', link: '/api/core' },
             { text: 'React Hook', link: '/api/react' },
             { text: 'React Components', link: '/api/react-components' },
+            { text: 'Entropy Estimator', link: '/api/entropy' },
           ],
         },
         {
