@@ -12,12 +12,12 @@ Try out the interactive playground to test password validation in real time:
 
 The playground features:
 
-- Live password validation against the **built-in default policy** as you type
+- Live password validation as you type
 - Toggles for `PasswordInput`'s behavior knobs (validate on mount/change, debounce delay, visibility of the toggle button and validation messages)
 - Visual strength meter (label + numeric `0–4` score)
 - Per-check pass/fail grid (length, character types, repetition, sequential, keyboard pattern, common password, personal info)
 
-> The playground does not let you customize the validation **policy** itself — `PasswordInput` runs `validatePassword(password)` with no options today. To experiment with `minLength`, `require*`, `personalInfo`, etc., drive a plain `<input>` from [`usePasswordValidator`](/api/react) directly.
+> The playground UI uses the built-in default policy and does not yet expose policy controls. `PasswordInput` itself accepts a `validatorOptions` prop (forwarded to every internal `validatePassword(...)`) — to experiment with `minLength`, `require*`, `personalInfo`, the i18n `messages` / `formatMessage`, etc., pass them on the component directly or drive a plain `<input>` from [`usePasswordValidator`](/api/react).
 
 ### Working Examples
 
@@ -171,8 +171,8 @@ function StyledForm() {
 }
 ```
 
-::: tip `PasswordInput` uses default validation
-The component currently runs the built-in defaults (min length 8, all `check*` flags on) and does not accept a `validators`/`validatorOptions` prop yet. If you need a custom policy, use [`usePasswordValidator`](/api/react) and render your own input.
+::: tip Configure validation via `validatorOptions`
+The component runs the built-in defaults (`minLength: 8`, all `check*` flags on, no required character types) unless you pass `validatorOptions`. That prop forwards to every internal `validatePassword(...)` call — covering `minLength`, `requireUppercase`, `personalInfo`, plus the v1.2.0 i18n options `messages` and `formatMessage`. Memoize the object if it contains closures (e.g. `formatMessage`); the component bails out of state updates when re-validation produces a semantically identical result, so identity churn won't loop, but it still re-runs `validatePassword` on each new reference.
 :::
 
 ## Real-time Feedback

@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import React from 'react'
+import type { ValidationResult } from '@sentinel-password/core'
 import { PasswordInput } from '../src'
 
 describe('PasswordInput', () => {
@@ -208,6 +210,170 @@ describe('PasswordInput', () => {
       })
     })
 
+    it('forwards validatorOptions.minLength to validatePassword', async () => {
+      const user = userEvent.setup()
+      const handleValidationChange = vi.fn()
+
+      render(
+        <PasswordInput
+          label="Password"
+          onValidationChange={handleValidationChange}
+          debounceMs={0}
+          validatorOptions={{ minLength: 12 }}
+        />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'shorty1!')
+
+      await waitFor(() => {
+        const lastResult =
+          handleValidationChange.mock.calls[handleValidationChange.mock.calls.length - 1]?.[0]
+        expect(lastResult?.valid).toBe(false)
+        expect(lastResult?.feedback.suggestions).toContain(
+          'Password must be at least 12 characters'
+        )
+      })
+    })
+
+    it('forwards validatorOptions.messages to render localized validation strings', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <PasswordInput
+          label="Password"
+          debounceMs={0}
+          validatorOptions={{
+            minLength: 12,
+            messages: { 'length.tooShort': 'Mínimo {minLength} caracteres' },
+          }}
+        />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'short')
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+      })
+    })
+
+    it('forwards validatorOptions.formatMessage and renders its return value', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <PasswordInput
+          label="Password"
+          debounceMs={0}
+          validatorOptions={{
+            minLength: 12,
+            formatMessage: (code) => `[${code}]`,
+          }}
+        />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'short')
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('[length.tooShort]')
+      })
+    })
+
+    it('re-validates the current value when validatorOptions changes (locale switch)', async () => {
+      const user = userEvent.setup()
+      const en = { minLength: 12 }
+      const es = {
+        minLength: 12,
+        messages: { 'length.tooShort': 'Mínimo {minLength} caracteres' } as const,
+      }
+
+      const { rerender } = render(
+        <PasswordInput label="Password" debounceMs={0} validatorOptions={en} />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'short')
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Password must be at least 12 characters'
+        )
+      })
+
+      // Consumer flips locale without the user editing the input
+      rerender(<PasswordInput label="Password" debounceMs={0} validatorOptions={es} />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+      })
+    })
+
+    it('does not loop when validatorOptions is an inline object and onValidationChange calls setState', async () => {
+      const user = userEvent.setup()
+
+      // Reproduces the dangerous pattern: inline options re-created on every
+      // parent render, plus `onValidationChange` that drives parent state.
+      // Without bail-on-semantic-equality in setValidationResult, the
+      // policy-effect's identity-based trigger would loop indefinitely.
+      function Parent(): React.ReactElement {
+        const [, setResult] = React.useState<ValidationResult | undefined>(undefined)
+        return (
+          <PasswordInput
+            label="Password"
+            debounceMs={0}
+            validatorOptions={{ minLength: 12 }}
+            onValidationChange={setResult}
+          />
+        )
+      }
+
+      render(<Parent />)
+      await user.type(screen.getByLabelText('Password'), 'short')
+
+      // If a loop existed, React would throw "Maximum update depth exceeded"
+      // before this assertion. Reaching a stable rendered output proves the
+      // bail kept things finite.
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Password must be at least 12 characters'
+        )
+      })
+    })
+
+    it('refreshes the rendered message on locale switch even after the value is cleared via Escape', async () => {
+      const user = userEvent.setup()
+      const en = { minLength: 12 }
+      const es = {
+        minLength: 12,
+        messages: { 'length.tooShort': 'Mínimo {minLength} caracteres' } as const,
+      }
+
+      const { rerender } = render(
+        <PasswordInput label="Password" debounceMs={0} validatorOptions={en} />
+      )
+
+      const input = screen.getByLabelText('Password')
+      await user.type(input, 'short')
+      await waitFor(() =>
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Password must be at least 12 characters'
+        )
+      )
+
+      // Clear with Escape — empty-value validation still produces a result
+      input.focus()
+      await user.keyboard('{Escape}')
+      await waitFor(() =>
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'Password must be at least 12 characters'
+        )
+      )
+
+      // Flip locale; the empty-value rendering must refresh too
+      rerender(<PasswordInput label="Password" debounceMs={0} validatorOptions={es} />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+      })
+    })
+
     it.skip('should show validation messages when enabled', async () => {
       vi.useFakeTimers()
       const user = userEvent.setup({ delay: null })
@@ -392,6 +558,29 @@ describe('PasswordInput', () => {
       const toggleButton = screen.getByRole('button', { name: /show password/i })
       expect(toggleButton).toHaveAttribute('aria-label', 'Show password')
       expect(toggleButton).toHaveAttribute('aria-pressed', 'false')
+    })
+
+    it('uses custom toggle text and aria-labels when provided', async () => {
+      const user = userEvent.setup()
+
+      render(
+        <PasswordInput
+          label="Contraseña"
+          toggleShowText="Mostrar"
+          toggleHideText="Ocultar"
+          toggleShowLabel="Mostrar contraseña"
+          toggleHideLabel="Ocultar contraseña"
+        />
+      )
+
+      const toggleButton = screen.getByRole('button', { name: 'Mostrar contraseña' })
+      expect(toggleButton).toHaveTextContent('Mostrar')
+      expect(toggleButton).toHaveAttribute('aria-label', 'Mostrar contraseña')
+
+      await user.click(toggleButton)
+
+      expect(toggleButton).toHaveTextContent('Ocultar')
+      expect(toggleButton).toHaveAttribute('aria-label', 'Ocultar contraseña')
     })
   })
 

@@ -88,6 +88,11 @@ A headless password input component with built-in validation.
 | `debounceMs` | `number` | `300` | Debounce delay in milliseconds. `0` validates synchronously. |
 | `showValidationMessages` | `boolean` | `true` | Render the validation messages `<div role="alert">`. Set to `false` to suppress the messages and render your own. |
 | `showToggleButton` | `boolean` | `true` | Render the show/hide password button. Set to `false` to suppress (e.g., for a localized custom toggle). |
+| `validatorOptions` | `ValidatorOptions` | `undefined` | Forwarded to every internal `validatePassword(...)` call. Covers `minLength`, `requireUppercase`, `personalInfo`, plus the v1.2.0 i18n options `messages` and `formatMessage`. Nested rather than spread because the prop type already extends `React.InputHTMLAttributes<HTMLInputElement>` (which defines `minLength` / `maxLength` as HTML attrs). Memoize this object if it contains closures — see the [i18n guide](https://akankov.github.io/sentinel-password/guide/i18n). |
+| `toggleShowText` | `string` | `'Show'` | Visible button text when the password is hidden |
+| `toggleHideText` | `string` | `'Hide'` | Visible button text when the password is visible |
+| `toggleShowLabel` | `string` | `'Show password'` | `aria-label` when hidden |
+| `toggleHideLabel` | `string` | `'Hide password'` | `aria-label` when visible |
 | `containerClassName` | `string` | `''` | Class on the outer `<div>` wrapper |
 | `labelClassName` | `string` | `''` | Class on `<label>` |
 | `descriptionClassName` | `string` | `''` | Class on the description `<div>` |
@@ -126,11 +131,12 @@ The consumer is responsible for:
 - **Color contrast** — the component is headless, so CSS is yours. WCAG AAA requires 7:1 for normal text and 4.5:1 for large text.
 - **Surrounding markup** — heading structure, landmarks, form semantics, and overall page conformance.
 - **Reduced-motion / forced-colors / focus-visible** — these depend on your stylesheet.
-- **Localization of toggle text** — see "Known gaps" below.
+- **Localization of toggle text** — covered by `toggleShowText` / `toggleHideText` / `toggleShowLabel` / `toggleHideLabel` props (see below).
 
-### Known gaps
+### Internationalization
 
-- **Toggle button text is hardcoded English.** The visible label ("Show"/"Hide") and `aria-label` ("Show password"/"Hide password") on the visibility toggle are not configurable today. For non-English locales, swap `showToggleButton={false}` and render your own localized toggle, or stay tuned for `toggleShowText`/`toggleHideText` props in a future release.
+- **Validator messages** — pass `validatorOptions` to forward `messages` / `formatMessage` (or any other `ValidatorOptions` field) into the component's underlying `validatePassword` calls. See the [i18n guide](https://akankov.github.io/sentinel-password/guide/i18n) for full examples.
+- **Toggle button text** — `toggleShowText` / `toggleHideText` set the visible button label; `toggleShowLabel` / `toggleHideLabel` set the `aria-label`. Defaults are `'Show'` / `'Hide'` / `'Show password'` / `'Hide password'`.
 
 ## Related Packages
 

@@ -30,8 +30,8 @@ A headless password input that runs validation through `@sentinel-password/core`
 - Controlled and uncontrolled modes
 - Completely unstyled — bring your own CSS
 
-::: warning Validation runs with the default policy
-The component currently runs `validatePassword(password)` with no options — it always uses the built-in defaults (min length 8, all `check*` flags on, no required character types, no `personalInfo`). If you need a custom policy, use the [`usePasswordValidator` hook](/api/react) and render your own input. A future release may add a `validatorOptions` prop.
+::: tip Configure validation through `validatorOptions`
+Pass policy and i18n options via the [`validatorOptions`](#props) prop — they're forwarded to every internal `validatePassword(...)` call. Covers `minLength`, `requireUppercase`, `personalInfo`, plus the v1.2.0 i18n options `messages` and `formatMessage`. The component also re-validates the current value when the `validatorOptions` reference changes (so a locale switch refreshes feedback without the user editing the field). Memoize the object if it contains closures.
 :::
 
 ## Props
@@ -64,6 +64,15 @@ interface PasswordInputProps
   showValidationMessages?: boolean // Default: true
   showToggleButton?: boolean       // Default: true
 
+  // Validator policy + i18n (forwarded to validatePassword)
+  validatorOptions?: ValidatorOptions
+
+  // Toggle button i18n
+  toggleShowText?: string   // Default: 'Show'
+  toggleHideText?: string   // Default: 'Hide'
+  toggleShowLabel?: string  // Default: 'Show password' (aria-label)
+  toggleHideLabel?: string  // Default: 'Hide password' (aria-label)
+
   // Class names (each targets a specific subtree)
   containerClassName?: string
   labelClassName?: string
@@ -87,6 +96,11 @@ interface PasswordInputProps
 | `debounceMs` | `number` | `300` | Debounce delay for validation. `0` validates synchronously. |
 | `showValidationMessages` | `boolean` | `true` | Render the validation `<ul>` |
 | `showToggleButton` | `boolean` | `true` | Render the show/hide button |
+| `validatorOptions` | `ValidatorOptions` | `undefined` | Forwarded to every `validatePassword(...)` call inside the component. Covers `minLength`, `requireUppercase`, `personalInfo`, plus the i18n options `messages` / `formatMessage` from core@1.2.0. Nested rather than spread because `React.InputHTMLAttributes` already defines `minLength` / `maxLength` as HTML attributes. Memoize this object if it contains closures. |
+| `toggleShowText` | `string` | `'Show'` | Visible button text when the password is hidden |
+| `toggleHideText` | `string` | `'Hide'` | Visible button text when the password is visible |
+| `toggleShowLabel` | `string` | `'Show password'` | `aria-label` when hidden |
+| `toggleHideLabel` | `string` | `'Hide password'` | `aria-label` when visible |
 | `containerClassName` | `string` | `''` | Class on the outer `<div>` wrapper |
 | `labelClassName` | `string` | `''` | Class on `<label>` |
 | `descriptionClassName` | `string` | `''` | Class on the description `<div>` |
@@ -257,9 +271,11 @@ The component renders only structural HTML and ARIA — every subtree gets its o
 
 ### Validation
 
-The component calls `validatePassword(value)` from `@sentinel-password/core` with **no options** — only the default policy applies. The returned `ValidationResult` is forwarded to `onValidationChange` and rendered as a list of messages inside the `validationClassName` container.
+The component calls `validatePassword(value, validatorOptions)` from `@sentinel-password/core`. With `validatorOptions` omitted, the built-in defaults apply (`minLength: 8`, all `check*` flags on, no required character types, no `personalInfo`). Pass any subset of `ValidatorOptions` — including the v1.2.0 i18n options `messages` and `formatMessage` — to customize policy or localize the rendered messages. The returned `ValidationResult` is forwarded to `onValidationChange` and rendered as a list of messages inside the `validationClassName` container.
 
-If you need custom validation rules, use [`usePasswordValidator`](/api/react) and render your own input.
+When the `validatorOptions` reference changes (e.g. a locale switch in the consumer), the component re-validates the current value automatically so the visible feedback refreshes without the user editing the field. Memoize the object in the consumer if it contains closures to avoid spurious re-validation.
+
+If you'd rather drive validation yourself and render your own input, use [`usePasswordValidator`](/api/react) instead.
 
 ### Validation Messages
 

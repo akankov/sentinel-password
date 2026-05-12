@@ -4,6 +4,31 @@ import type { ValidationResult } from '@sentinel-password/core'
 import type { PasswordInputProps, ValidationMessage } from '../types'
 
 /**
+ * Semantic equality for `ValidationResult` — compares the user-visible fields
+ * (verdict, score, rendered suggestions). Used to bail out of state updates
+ * when re-validating with a fresh `validatorOptions` reference produces an
+ * identical result, which is the common case when consumers pass an inline
+ * options object that's re-created on every render. Without this, a parent
+ * that calls `setState` from `onValidationChange` while passing an inline
+ * `validatorOptions` would re-render → produce a new options identity →
+ * trigger our re-validation effect → emit a new (but equivalent) result →
+ * fire `onValidationChange` again → loop.
+ */
+function isSameValidationResult(a: ValidationResult, b: ValidationResult): boolean {
+  if (a === b) return true
+  if (a.valid !== b.valid) return false
+  if (a.score !== b.score) return false
+  if (a.feedback.warning !== b.feedback.warning) return false
+  const aSuggestions: readonly string[] = a.feedback.suggestions
+  const bSuggestions: readonly string[] = b.feedback.suggestions
+  if (aSuggestions.length !== bSuggestions.length) return false
+  for (let i: number = 0; i < aSuggestions.length; i++) {
+    if (aSuggestions[i] !== bSuggestions[i]) return false
+  }
+  return true
+}
+
+/**
  * Headless, accessible password input component
  *
  * Features:
@@ -44,6 +69,11 @@ export function PasswordInput({
   showValidationMessages = true,
   showToggleButton = true,
   disabled = false,
+  validatorOptions,
+  toggleShowText = 'Show',
+  toggleHideText = 'Hide',
+  toggleShowLabel = 'Show password',
+  toggleHideLabel = 'Hide password',
   ...inputProps
 }: PasswordInputProps) {
   // Generate unique IDs for accessibility
@@ -87,19 +117,23 @@ export function PasswordInput({
 
       // Validate immediately if no debounce
       if (debounceMs === 0) {
-        const result: ValidationResult = validatePassword(password)
-        setValidationResult(result)
+        const result: ValidationResult = validatePassword(password, validatorOptions)
+        setValidationResult((prev) =>
+          prev && isSameValidationResult(prev, result) ? prev : result
+        )
         return
       }
 
       // Set up debounced validation
       debounceTimerRef.current = setTimeout(() => {
-        const result: ValidationResult = validatePassword(password)
-        setValidationResult(result)
+        const result: ValidationResult = validatePassword(password, validatorOptions)
+        setValidationResult((prev) =>
+          prev && isSameValidationResult(prev, result) ? prev : result
+        )
         debounceTimerRef.current = null
       }, debounceMs)
     },
-    [debounceMs]
+    [debounceMs, validatorOptions]
   )
 
   // Handle input change
@@ -157,7 +191,10 @@ export function PasswordInput({
           // propagation effect skips — leaving consumers' submit gates
           // open after Escape and forcing them to "optimistically
           // invalidate" from `onChange` as a workaround.
-          setValidationResult(validatePassword(''))
+          const escapeResult: ValidationResult = validatePassword('', validatorOptions)
+          setValidationResult((prev) =>
+            prev && isSameValidationResult(prev, escapeResult) ? prev : escapeResult
+          )
         } else {
           // Manual-validation mode: clear without firing
           // `onValidationChange` (consumer drives validation themselves).
@@ -170,7 +207,7 @@ export function PasswordInput({
       // Pass through to user's onKeyDown handler
       inputProps.onKeyDown?.(event)
     },
-    [isControlled, onChange, validateOnChange, inputProps]
+    [isControlled, onChange, validateOnChange, inputProps, validatorOptions]
   )
 
   // Validate on mount if requested
@@ -185,6 +222,36 @@ export function PasswordInput({
       }
     }
   }, [])
+
+  // Re-validate the *current* value when validatorOptions changes (locale
+  // switch, policy change, new formatMessage closure). Without this effect,
+  // changing `messages` or `formatMessage` would leave the stale rendered
+  // result on screen until the user edited the field. Skipped on the
+  // initial render — the mount effect above handles that path.
+  //
+  // The condition runs only if validation has already produced a result —
+  // either for a non-empty value, or for `''` (typed-then-cleared or Escape).
+  // We don't surface a fresh validation against an untouched empty input.
+  //
+  // Identity-based triggering means consumers passing an inline
+  // `validatorOptions` object re-run validation on every parent render.
+  // `setValidationResult` is wrapped in `isSameValidationResult` to bail out
+  // when nothing changed, so identity churn doesn't create render loops.
+  // For best performance, consumers should still memoize this prop.
+  const didRunPolicyEffectRef: React.MutableRefObject<boolean> = useRef<boolean>(false)
+  useEffect(() => {
+    if (!didRunPolicyEffectRef.current) {
+      didRunPolicyEffectRef.current = true
+      return
+    }
+    if (validationResult !== undefined) {
+      performValidation(String(value))
+    }
+    // `value`, `validationResult`, and `performValidation` are intentionally
+    // excluded from deps — change handlers (`handleInputChange`, Escape)
+    // already drive value-triggered validation. This effect only catches
+    // policy/locale switches that don't go through input events.
+  }, [validatorOptions])
 
   // Notify parent of validation changes
   useEffect(() => {
@@ -259,12 +326,12 @@ export function PasswordInput({
             type="button"
             onClick={handleToggleVisibility}
             className={toggleButtonClassName}
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPassword ? toggleHideLabel : toggleShowLabel}
             aria-pressed={showPassword}
             disabled={disabled}
             tabIndex={0}
           >
-            {showPassword ? 'Hide' : 'Show'}
+            {showPassword ? toggleHideText : toggleShowText}
           </button>
         )}
       </div>
