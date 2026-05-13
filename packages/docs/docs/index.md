@@ -44,6 +44,10 @@ features:
     title: Zero Dependencies
     details: The core package has no external dependencies, ensuring minimal bundle impact and maximum compatibility.
   
+  - icon: 📊
+    title: Optional Entropy Estimator
+    details: Add `@sentinel-password/entropy` (≤ 30 KB gzipped, also zero-dep) for Shannon entropy + crack-time estimates under four standard attacker models — dictionary, l33t, sequence, and repetition detection included.
+  
   - icon: 🔒
     title: Security Conscious
     details: Checks against common passwords, keyboard patterns, and personal information to help users create stronger passwords.
@@ -121,6 +125,23 @@ function App() {
   )
 }
 ```
+
+## Optional: Entropy & Crack-Time Estimation
+
+```typescript
+import { validatePassword } from '@sentinel-password/core'
+import { estimateEntropy } from '@sentinel-password/entropy'
+
+const rule = validatePassword(pwd)
+const ent = estimateEntropy(pwd)
+
+console.log(ent.bits)                          // ~28
+console.log(ent.score)                         // 0–4 (aligns with core's StrengthScore)
+console.log(ent.crackTime.offlineSlowHash.display)  // "5 hours"
+console.log(ent.patterns)                      // ['l33t', 'capitalization']
+```
+
+The entropy package is intentionally decoupled from core. Install it only when you want a "how long would this survive a brute-force attack?" signal in addition to rule-based validity. See the [Entropy API reference](/api/entropy) for details.
 
 <style>
 :root {

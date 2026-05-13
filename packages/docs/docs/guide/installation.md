@@ -2,17 +2,19 @@
 
 ## Package Overview
 
-Sentinel Password ships three packages — pick the one that matches what you're building:
+Sentinel Password ships four packages — pick the one(s) that match what you're building:
 
 | Package | Gzipped (ESM) | Raw (ESM) | Runtime deps | Peer deps |
 |---------|---------------|-----------|--------------|-----------|
 | `@sentinel-password/core` | ~5.4 KB | ~15.8 KB | none | none |
 | `@sentinel-password/react` | ~0.7 KB | ~2.5 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19 |
 | `@sentinel-password/react-components` | ~1.7 KB | ~6.0 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19, React DOM 18 or 19 |
+| `@sentinel-password/entropy` | ~28 KB | ~53 KB | none | none |
 
 - **`@sentinel-password/core`** — zero-dependency validation engine. Use directly with vanilla JS, Node, Deno, Bun, or any framework.
 - **`@sentinel-password/react`** — `usePasswordValidator` hook with debouncing and state management.
 - **`@sentinel-password/react-components`** — headless, accessible `PasswordInput` component.
+- **`@sentinel-password/entropy`** — optional Shannon entropy + crack-time estimator. Standalone, not bundled with core. Use alongside core when you need a "how long would it survive an offline attack?" signal in addition to rule-based validity.
 
 > Sizes are the ESM build measured at the time of this release; CJS is slightly larger. Runtime deps install automatically with your package-manager command — you only ever need to `npm install` the package you're using. Peer deps are bring-your-own.
 
@@ -32,6 +34,10 @@ npm install @sentinel-password/react
 ```bash [React Components]
 npm install @sentinel-password/react-components
 ```
+
+```bash [Entropy]
+npm install @sentinel-password/entropy
+```
 :::
 
 ### pnpm
@@ -47,6 +53,10 @@ pnpm add @sentinel-password/react
 
 ```bash [React Components]
 pnpm add @sentinel-password/react-components
+```
+
+```bash [Entropy]
+pnpm add @sentinel-password/entropy
 ```
 :::
 
@@ -64,6 +74,10 @@ yarn add @sentinel-password/react
 ```bash [React Components]
 yarn add @sentinel-password/react-components
 ```
+
+```bash [Entropy]
+yarn add @sentinel-password/entropy
+```
 :::
 
 ### bun
@@ -79,6 +93,10 @@ bun add @sentinel-password/react
 
 ```bash [React Components]
 bun add @sentinel-password/react-components
+```
+
+```bash [Entropy]
+bun add @sentinel-password/entropy
 ```
 :::
 
@@ -114,6 +132,13 @@ import type {
   PasswordInputProps,
   ValidationMessage,
 } from '@sentinel-password/react-components'
+
+import type {
+  EntropyOptions,
+  EntropyResult,
+  EntropyPattern,
+  CrackTimePresets,
+} from '@sentinel-password/entropy'
 ```
 
 ## Module Formats

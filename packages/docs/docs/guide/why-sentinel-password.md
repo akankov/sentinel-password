@@ -58,8 +58,9 @@ Core package is **~5.5 KB gzipped** with **zero dependencies** (CI fails if it e
 | `@sentinel-password/core` | ~5.5 KB | Zero |
 | `@sentinel-password/react` | ~0.7 KB | `@sentinel-password/core` (runtime, installed transitively); React 18/19 (peer) |
 | `@sentinel-password/react-components` | ~1.7 KB | `@sentinel-password/core` (runtime, installed transitively); React 18/19 and React DOM 18/19 (peers) |
+| `@sentinel-password/entropy` (optional) | ~28 KB | Zero |
 
-Compare this to popular alternatives that can be 50KB+ with dozens of dependencies.
+Compare this to popular alternatives that can be 50KB+ with dozens of dependencies. The optional `entropy` package is intentionally separate so consumers only pay for it when they want crack-time estimation — zxcvbn ships ~400 KB unconditionally.
 
 ### 🎨 Headless Architecture
 
