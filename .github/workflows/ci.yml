@@ -84,7 +84,7 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Check bundle size
+      - name: Check core bundle size
         run: |
           CORE_SIZE=$(gzip -c packages/core/dist/index.js | wc -c)
           CORE_SIZE_KB=$(echo "scale=2; $CORE_SIZE / 1024" | bc)
@@ -92,8 +92,22 @@ jobs:
 
           # Fail if over 10KB (10240 bytes)
           if [ "$CORE_SIZE" -gt 10240 ]; then
-            echo "::error::Bundle size ${CORE_SIZE_KB}KB exceeds 10KB limit"
+            echo "::error::Core bundle size ${CORE_SIZE_KB}KB exceeds 10KB limit"
             exit 1
           fi
 
-          echo "::notice::Bundle size ${CORE_SIZE_KB}KB is within 10KB limit"
+          echo "::notice::Core bundle size ${CORE_SIZE_KB}KB is within 10KB limit"
+
+      - name: Check entropy bundle size
+        run: |
+          ENTROPY_SIZE=$(gzip -c packages/entropy/dist/index.js | wc -c)
+          ENTROPY_SIZE_KB=$(echo "scale=2; $ENTROPY_SIZE / 1024" | bc)
+          echo "Entropy bundle size: ${ENTROPY_SIZE_KB}KB gzipped"
+
+          # Fail if over 30KB (30720 bytes)
+          if [ "$ENTROPY_SIZE" -gt 30720 ]; then
+            echo "::error::Entropy bundle size ${ENTROPY_SIZE_KB}KB exceeds 30KB limit"
+            exit 1
+          fi
+
+          echo "::notice::Entropy bundle size ${ENTROPY_SIZE_KB}KB is within 30KB limit"

@@ -1,0 +1,70 @@
+{
+  "name": "@sentinel-password/entropy",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Shannon entropy estimator with dictionary, l33t, and pattern detection for sentinel-password. Zero runtime dependencies; ≤ 30 KB gzipped (CI enforced).",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "generate:dict": "node ../../scripts/generate-entropy-bloom.cjs",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist coverage"
+  },
+  "keywords": [
+    "password",
+    "entropy",
+    "shannon",
+    "strength",
+    "zxcvbn",
+    "typescript",
+    "password-strength",
+    "crack-time",
+    "dictionary-attack",
+    "l33t",
+    "zero-dependency",
+    "bloom-filter"
+  ],
+  "author": "Aleksei Kankov <akankov@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akankov/sentinel-password",
+    "directory": "packages/entropy"
+  },
+  "homepage": "https://akankov.github.io/sentinel-password/",
+  "bugs": {
+    "url": "https://github.com/akankov/sentinel-password/issues"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  }
+}
