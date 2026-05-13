@@ -155,6 +155,26 @@ describe('estimateEntropy — options', () => {
     expect(result.patterns).toContain('l33t')
   })
 
+  it('matches customDictionary entries longer than the built-in 18-char cap', () => {
+    // Reviewer-reported gap — `MAX_DICTIONARY_LEN = 18` used to cap ALL scans,
+    // so company/product names exceeding 18 chars never matched.
+    const long: string = 'verylongcompanyname2026'
+    expect(long.length).toBeGreaterThan(18)
+    const result = estimateEntropy(long, { customDictionary: [long] })
+    expect(result.patterns).toContain('dictionary')
+  })
+
+  it('matches customDictionary entries longer than 18 chars in the l33t path', () => {
+    // 'mylongcompanyname2026' unleets to 'mylongcompanyname2o26' etc;
+    // when the *exact* customDictionary entry matches an unleeted form, it
+    // should still win regardless of length.
+    const longLeet: string = 'mylongcompanyname0000'
+    const long: string = 'mylongcompanynameoooo'
+    expect(long.length).toBeGreaterThan(18)
+    const result = estimateEntropy(longLeet, { customDictionary: [long] })
+    expect(result.patterns).toContain('l33t')
+  })
+
   it('returns a non-zero bits result for normal mixed input', () => {
     const result = estimateEntropy('hellothere')
     expect(result.bits).toBeGreaterThan(0)

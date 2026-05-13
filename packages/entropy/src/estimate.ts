@@ -237,20 +237,28 @@ function findDictionaryMatch(
   customDictionary?: readonly string[]
 ): number {
   const remaining: number = password.length - start
-  const maxLen: number = remaining < MAX_DICTIONARY_LEN ? remaining : MAX_DICTIONARY_LEN
+  const hasCustom: boolean = customDictionary !== undefined && customDictionary.length > 0
+  // Custom dict has no length cap — caller-supplied entries are exact matches
+  // with no FP risk, and the "company/product names" use case routinely
+  // exceeds 18 chars. Built-in cap stays at MAX_DICTIONARY_LEN to bound
+  // bloom-probe FP exposure on adversarial input.
+  const maxLen: number = hasCustom
+    ? remaining
+    : remaining < MAX_DICTIONARY_LEN
+      ? remaining
+      : MAX_DICTIONARY_LEN
   for (let len: number = maxLen; len >= MIN_DICTIONARY_LEN; len--) {
     const sub: string = password.substring(start, start + len)
-    // Custom dictionary: exact match, no FP, no candidate-shape filter.
-    if (
-      customDictionary !== undefined &&
-      customDictionary.length > 0 &&
-      isInCustomDictionary(sub, customDictionary)
-    ) {
+    // Custom dictionary: exact match, no FP, no candidate-shape filter, no length cap.
+    if (hasCustom && isInCustomDictionary(sub, customDictionary as readonly string[])) {
       return len
     }
+    // Beyond the built-in cap, only the custom path is allowed (handled above).
+    if (len > MAX_DICTIONARY_LEN) continue
     // Built-in dictionary: gate bloom probes on alphanumeric candidates only.
-    // Seed entries are letters and digits; symbols / punctuation in the
-    // substring are a signal it's adversarial input, not a real weak password.
+    // Seed entries are letters and digits (enforced at generation time);
+    // symbols / punctuation in the substring are a signal it's adversarial
+    // input, not a real weak password.
     if (!isAlphanumeric(sub)) continue
     if (isInBuiltInDictionary(sub)) return len
   }
@@ -263,22 +271,26 @@ function findL33tDictionaryMatch(
   customDictionary?: readonly string[]
 ): { readonly length: number; readonly subs: number } | null {
   const remaining: number = password.length - start
-  const maxLen: number = remaining < MAX_DICTIONARY_LEN ? remaining : MAX_DICTIONARY_LEN
+  const hasCustom: boolean = customDictionary !== undefined && customDictionary.length > 0
+  const maxLen: number = hasCustom
+    ? remaining
+    : remaining < MAX_DICTIONARY_LEN
+      ? remaining
+      : MAX_DICTIONARY_LEN
   for (let len: number = maxLen; len >= MIN_DICTIONARY_LEN; len--) {
     const sub: string = password.substring(start, start + len)
     const subs: number = leetCount(sub)
     if (subs === 0) continue
+    const beyondBuiltinCap: boolean = len > MAX_DICTIONARY_LEN
     const candidates: readonly string[] = unleetCandidates(sub)
     for (const cand of candidates) {
       if (cand === sub) continue
-      // Custom dictionary: exact match — no FP, no candidate-shape filter.
-      if (
-        customDictionary !== undefined &&
-        customDictionary.length > 0 &&
-        isInCustomDictionary(cand, customDictionary)
-      ) {
+      // Custom dictionary: exact match — no FP, no shape filter, no length cap.
+      if (hasCustom && isInCustomDictionary(cand, customDictionary as readonly string[])) {
         return { length: len, subs }
       }
+      // Beyond the built-in cap, only the custom path is allowed.
+      if (beyondBuiltinCap) continue
       // Built-in: l33t is meant to undo non-alpha substitutions back into a
       // *word*. A candidate with leftover non-alpha chars isn't a successful
       // un-leet — it's a bloom FP risk. Keep the strict pure-alpha filter here.

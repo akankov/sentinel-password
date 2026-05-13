@@ -119,17 +119,37 @@ function countBits(n) {
 }
 
 // --- Load + dedup seeds ---
+/**
+ * The runtime's `findDictionaryMatch` only probes the bloom for alphanumeric
+ * substrings (a defense against FP storms from adversarial input). Seed
+ * entries that fail the same filter would be permanently stranded in the
+ * bloom — visible as "matches in the data" but unreachable at runtime.
+ * Drop them at generation time so `bloom contents === findable contents`.
+ */
+function isAlphanumericSeed(s) {
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i)
+    if (!((c >= 97 && c <= 122) || (c >= 48 && c <= 57))) return false
+  }
+  return true
+}
+
 function loadSeeds(filePath, label) {
   if (!fs.existsSync(filePath)) {
     console.error(`ERROR: Seed file not found: ${filePath}`)
     process.exit(1)
   }
   const raw = fs.readFileSync(filePath, 'utf-8')
-  const seeds = raw
+  const longEnough = raw
     .split('\n')
     .map((s) => s.trim().toLowerCase())
     .filter((s) => s.length >= MIN_SEED_LEN)
-  console.log(`Loaded ${seeds.length} entries (≥ ${MIN_SEED_LEN} chars) from ${label}`)
+  const seeds = longEnough.filter(isAlphanumericSeed)
+  const dropped = longEnough.length - seeds.length
+  console.log(
+    `Loaded ${seeds.length} entries (≥ ${MIN_SEED_LEN} chars, alphanumeric) from ${label}` +
+      (dropped > 0 ? ` (dropped ${dropped} non-alphanumeric — unreachable at runtime)` : '')
+  )
   return seeds
 }
 
