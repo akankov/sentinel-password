@@ -7,7 +7,7 @@ import type {
 } from './types'
 import { baseEntropyBits, bitsPerCharacter } from './shannon'
 import { hasInitialCapitalization, repetitionRunLength, sequenceRunLength } from './patterns'
-import { isInDictionary } from './dictionary'
+import { isInBuiltInDictionary, isInCustomDictionary } from './dictionary'
 import { leetCount, unleetCandidates } from './l33t'
 import { bitsToCrackTime } from './crack-time'
 
@@ -167,10 +167,14 @@ function bestCandidateAt(
     customDictionary
   )
   if (l33t !== null) {
+    const matched: string = password.substring(start, start + l33t.length)
+    const cap: boolean = hasInitialCapitalization(matched)
     candidates.push({
       length: l33t.length,
-      bits: Math.log2(DICTIONARY_SIZE) + l33t.subs * L33T_BIT_PER_SUB,
+      bits:
+        Math.log2(DICTIONARY_SIZE) + l33t.subs * L33T_BIT_PER_SUB + (cap ? CAPITALIZATION_BITS : 0),
       pattern: 'l33t',
+      ...(cap ? { extra: ['capitalization'] as const } : {}),
     })
   }
 
@@ -192,15 +196,37 @@ function pickBest(candidates: readonly Candidate[]): Candidate | null {
 }
 
 /**
- * Real dictionary words contain only ASCII letters. Anything else in a
- * candidate is a giveaway it's a bloom false positive, not a real word match.
- * This filter eliminates the bulk of the FP attack surface produced by
- * substring scanning over the bloom filter.
+ * Real English dictionary words contain only ASCII letters. Used to gate
+ * bloom probes on l33t-unsubstituted candidates: a leftover digit or symbol
+ * means the candidate isn't a real word, just a bloom false positive.
  */
 function isPureAlpha(s: string): boolean {
   for (let i: number = 0; i < s.length; i++) {
     const c: number = s.charCodeAt(i)
     if (!((c >= 65 && c <= 90) || (c >= 97 && c <= 122))) return false
+  }
+  return true
+}
+
+/**
+ * Plain-dict candidates may legitimately mix letters and digits — the seed
+ * file contains ~570 alphanumeric weak passwords (`abc123`, `password1`,
+ * `qwerty123`, …). This filter is more permissive than {@link isPureAlpha}
+ * but still rejects symbols / punctuation, which slashes the FP attack
+ * surface for substrings of random adversarial input.
+ */
+function isAlphanumeric(s: string): boolean {
+  for (let i: number = 0; i < s.length; i++) {
+    const c: number = s.charCodeAt(i)
+    if (
+      !(
+        (c >= 65 && c <= 90) || // A-Z
+        (c >= 97 && c <= 122) || // a-z
+        (c >= 48 && c <= 57) // 0-9
+      )
+    ) {
+      return false
+    }
   }
   return true
 }
@@ -214,8 +240,19 @@ function findDictionaryMatch(
   const maxLen: number = remaining < MAX_DICTIONARY_LEN ? remaining : MAX_DICTIONARY_LEN
   for (let len: number = maxLen; len >= MIN_DICTIONARY_LEN; len--) {
     const sub: string = password.substring(start, start + len)
-    if (!isPureAlpha(sub)) continue
-    if (isInDictionary(sub, customDictionary)) return len
+    // Custom dictionary: exact match, no FP, no candidate-shape filter.
+    if (
+      customDictionary !== undefined &&
+      customDictionary.length > 0 &&
+      isInCustomDictionary(sub, customDictionary)
+    ) {
+      return len
+    }
+    // Built-in dictionary: gate bloom probes on alphanumeric candidates only.
+    // Seed entries are letters and digits; symbols / punctuation in the
+    // substring are a signal it's adversarial input, not a real weak password.
+    if (!isAlphanumeric(sub)) continue
+    if (isInBuiltInDictionary(sub)) return len
   }
   return 0
 }
@@ -234,8 +271,19 @@ function findL33tDictionaryMatch(
     const candidates: readonly string[] = unleetCandidates(sub)
     for (const cand of candidates) {
       if (cand === sub) continue
+      // Custom dictionary: exact match — no FP, no candidate-shape filter.
+      if (
+        customDictionary !== undefined &&
+        customDictionary.length > 0 &&
+        isInCustomDictionary(cand, customDictionary)
+      ) {
+        return { length: len, subs }
+      }
+      // Built-in: l33t is meant to undo non-alpha substitutions back into a
+      // *word*. A candidate with leftover non-alpha chars isn't a successful
+      // un-leet — it's a bloom FP risk. Keep the strict pure-alpha filter here.
       if (!isPureAlpha(cand)) continue
-      if (isInDictionary(cand, customDictionary)) return { length: len, subs }
+      if (isInBuiltInDictionary(cand)) return { length: len, subs }
     }
   }
   return null

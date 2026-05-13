@@ -47,18 +47,41 @@ function bloomContains(word: string): boolean {
 }
 
 /**
+ * Exact-match lookup in a caller-supplied custom dictionary. Case-insensitive.
+ * No bloom filter, no false positives.
+ */
+export function isInCustomDictionary(word: string, customDictionary: readonly string[]): boolean {
+  if (word.length === 0) return false
+  const lower: string = word.toLowerCase()
+  for (const entry of customDictionary) {
+    if (entry !== undefined && entry.toLowerCase() === lower) return true
+  }
+  return false
+}
+
+/**
+ * Bloom-filter lookup against the built-in dictionary. Case-insensitive.
+ * Has a small (~0.3%) false-positive rate; callers in `estimate.ts` gate
+ * probes behind candidate-shape filters to limit FP exposure.
+ */
+export function isInBuiltInDictionary(word: string): boolean {
+  if (word.length === 0) return false
+  return bloomContains(word.toLowerCase())
+}
+
+/**
  * Returns true iff `word` is in the built-in dictionary OR in `customDictionary`.
  * Lookup is case-insensitive. Empty input returns false.
  *
  * Bloom filter has a target false-positive rate of ~0.3%.
  */
 export function isInDictionary(word: string, customDictionary?: readonly string[]): boolean {
-  if (word.length === 0) return false
-  const lower: string = word.toLowerCase()
-  if (customDictionary !== undefined && customDictionary.length > 0) {
-    for (const entry of customDictionary) {
-      if (entry !== undefined && entry.toLowerCase() === lower) return true
-    }
+  if (
+    customDictionary !== undefined &&
+    customDictionary.length > 0 &&
+    isInCustomDictionary(word, customDictionary)
+  ) {
+    return true
   }
-  return bloomContains(lower)
+  return isInBuiltInDictionary(word)
 }

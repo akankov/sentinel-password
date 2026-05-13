@@ -62,22 +62,42 @@ function keyboardRowRun(password: string, start: number, row: string): number {
 }
 
 /**
- * Returns the length of the longest run of the same character starting at
- * `start`, or 0 if shorter than {@link MIN_REPETITION_LEN}.
+ * Returns the length (in characters) of the longest *token-level* repetition
+ * starting at `start`, or 0 if shorter than {@link MIN_REPETITION_LEN}.
+ *
+ * Detects both single-character runs (`aaaa`) and multi-character cycles
+ * (`abab`, `abcabc`, `xyxyxy`). Iterates token lengths from 1 upward and
+ * keeps the longest total match — for `aaaa` the single-char interpretation
+ * wins; for `abab` the two-char interpretation wins.
  *
  * @example
- *   repetitionRunLength('aaab', 0) === 3
- *   repetitionRunLength('aab', 0)  === 0  // below threshold
+ *   repetitionRunLength('aaab', 0)   === 3   // 'a' × 3
+ *   repetitionRunLength('abab', 0)   === 4   // 'ab' × 2
+ *   repetitionRunLength('abcabc', 0) === 6   // 'abc' × 2
+ *   repetitionRunLength('aab', 0)    === 0   // 'a' × 2 → below threshold
  */
 export function repetitionRunLength(password: string, start: number): number {
   if (start >= password.length) return 0
-  const ch: string = password.charAt(start)
-  let run: number = 1
-  for (let i: number = start + 1; i < password.length; i++) {
-    if (password.charAt(i) !== ch) break
-    run++
+  const remaining: number = password.length - start
+  let bestRun: number = 0
+
+  // Try token lengths 1 .. floor(remaining / 2). Longer tokens can't possibly
+  // produce two copies fitting in the remaining range.
+  for (let tokenLen: number = 1; tokenLen * 2 <= remaining; tokenLen++) {
+    const token: string = password.substring(start, start + tokenLen)
+    let copies: number = 1
+    let pos: number = start + tokenLen
+    while (pos + tokenLen <= password.length && password.substring(pos, pos + tokenLen) === token) {
+      copies++
+      pos += tokenLen
+    }
+    const total: number = copies * tokenLen
+    if (copies >= 2 && total >= MIN_REPETITION_LEN && total > bestRun) {
+      bestRun = total
+    }
   }
-  return run >= MIN_REPETITION_LEN ? run : 0
+
+  return bestRun
 }
 
 /**

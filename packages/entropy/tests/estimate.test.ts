@@ -57,6 +57,25 @@ describe('estimateEntropy — fixture cases', () => {
     expect(result.score).toBeLessThanOrEqual(2)
   })
 
+  it('records capitalization on l33t matches with an initial capital', () => {
+    // 'P@ssword' unleets to 'password'; the matched substring starts with 'P'.
+    const result = estimateEntropy('P@ssword')
+    expect(result.patterns).toContain('l33t')
+    expect(result.patterns).toContain('capitalization')
+  })
+
+  it('matches alphanumeric seed entries (abc123)', () => {
+    // Reviewer-reported gap — the old pure-alpha filter blocked these.
+    const result = estimateEntropy('abc123')
+    expect(result.patterns).toContain('dictionary')
+    expect(result.score).toBe(0)
+  })
+
+  it('matches alphanumeric seed entries (password1)', () => {
+    const result = estimateEntropy('password1')
+    expect(result.patterns).toContain('dictionary')
+  })
+
   it('classifies a four-word passphrase as high-entropy', () => {
     const result = estimateEntropy('correct horse battery staple')
     expect(result.score).toBeGreaterThanOrEqual(3)
@@ -117,6 +136,25 @@ describe('estimateEntropy — options', () => {
     expect(result.patterns).toContain('dictionary')
   })
 
+  it('matches custom dictionary entries that contain non-alphanumeric chars', () => {
+    // Reviewer-reported gap — entries like 'Acme-2026' must work as exact matches
+    // even though they don't pass the alphanumeric filter used for the bloom.
+    const result = estimateEntropy('Acme-2026', { customDictionary: ['Acme-2026'] })
+    expect(result.patterns).toContain('dictionary')
+  })
+
+  it('matches l33t un-substituted form against custom dictionary', () => {
+    // 'p@ss' unleets to 'pass'; without the bloom seed catching 'pass',
+    // the custom dict still provides the match.
+    const result = estimateEntropy('p@ss', { customDictionary: ['pass'] })
+    expect(result.patterns).toContain('l33t')
+  })
+
+  it('handles empty customDictionary array in l33t path (falls through to bloom)', () => {
+    const result = estimateEntropy('p@ssword', { customDictionary: [] })
+    expect(result.patterns).toContain('l33t')
+  })
+
   it('returns a non-zero bits result for normal mixed input', () => {
     const result = estimateEntropy('hellothere')
     expect(result.bits).toBeGreaterThan(0)
@@ -137,6 +175,16 @@ describe('estimateEntropy — pattern interaction', () => {
     // 'aaaa' — repetition is the only match; trivially a longest-wins case.
     const result = estimateEntropy('aaaa')
     expect(result.patterns).toEqual(['repetition'])
+  })
+
+  it('detects multi-char repetition (abab)', () => {
+    const result = estimateEntropy('abab')
+    expect(result.patterns).toContain('repetition')
+  })
+
+  it('detects 3-char token repetition (abcabcabc)', () => {
+    const result = estimateEntropy('abcabcabc')
+    expect(result.patterns).toContain('repetition')
   })
 
   it('walks past unrecognised chars one at a time', () => {

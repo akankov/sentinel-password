@@ -61,6 +61,35 @@ describe('repetitionRunLength', () => {
   it('breaks at the first different char', () => {
     expect(repetitionRunLength('aaabbb', 0)).toBe(3)
   })
+
+  it('detects multi-character token repetition (abab)', () => {
+    expect(repetitionRunLength('abab', 0)).toBe(4)
+    expect(repetitionRunLength('ababab', 0)).toBe(6)
+  })
+
+  it('detects 3-character token repetition (abcabc)', () => {
+    expect(repetitionRunLength('abcabc', 0)).toBe(6)
+    expect(repetitionRunLength('abcabcabc', 0)).toBe(9)
+  })
+
+  it('returns 0 for non-repeating tokens', () => {
+    expect(repetitionRunLength('abcd', 0)).toBe(0)
+    expect(repetitionRunLength('abcdef', 0)).toBe(0)
+  })
+
+  it('returns 0 for single-token below MIN length', () => {
+    expect(repetitionRunLength('ab', 0)).toBe(0)
+  })
+
+  it('returns 0 for token of length 1 with one copy', () => {
+    expect(repetitionRunLength('a', 0)).toBe(0)
+  })
+
+  it('cuts the repetition at a partial trailing token', () => {
+    // 'abab' × 1 + 'ab' partial — only the complete tokens count
+    expect(repetitionRunLength('ababab', 0)).toBe(6)
+    expect(repetitionRunLength('ababcd', 0)).toBe(4)
+  })
 })
 
 describe('hasInitialCapitalization', () => {
