@@ -26,6 +26,7 @@ Modern TypeScript password validation library with zero dependencies, React inte
 | [`@sentinel-password/core`](https://www.npmjs.com/package/@sentinel-password/core) | Zero-dependency validation engine | [![npm](https://img.shields.io/npm/v/@sentinel-password/core.svg)](https://www.npmjs.com/package/@sentinel-password/core) |
 | [`@sentinel-password/react`](https://www.npmjs.com/package/@sentinel-password/react) | React hook (`usePasswordValidator`) | [![npm](https://img.shields.io/npm/v/@sentinel-password/react.svg)](https://www.npmjs.com/package/@sentinel-password/react) |
 | [`@sentinel-password/react-components`](https://www.npmjs.com/package/@sentinel-password/react-components) | Headless React components | [![npm](https://img.shields.io/npm/v/@sentinel-password/react-components.svg)](https://www.npmjs.com/package/@sentinel-password/react-components) |
+| [`@sentinel-password/entropy`](https://www.npmjs.com/package/@sentinel-password/entropy) | Shannon entropy + crack-time estimation (optional add-on) | [![npm](https://img.shields.io/npm/v/@sentinel-password/entropy.svg)](https://www.npmjs.com/package/@sentinel-password/entropy) |
 
 ## Installing
 
@@ -39,6 +40,12 @@ For React projects:
 
 ```bash
 pnpm add @sentinel-password/react @sentinel-password/react-components
+```
+
+For entropy / crack-time estimates (optional, ≤ 30 KB gzipped):
+
+```bash
+pnpm add @sentinel-password/entropy
 ```
 
 ## Quick Start
