@@ -201,81 +201,86 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  *   provides constant-time verification — that's a separate concern from
  *   strength validation.
  */
+/** Frozen empty array shared across success-path callers to avoid the
+ * per-call `suggestions: []` allocation when no validator fails. */
+const EMPTY_SUGGESTIONS: readonly string[] = Object.freeze([])
+
+/** Total number of validators run by `validatePassword`. Compile-time constant. */
+const TOTAL_CHECKS: number = 7
+
 export function validatePassword(
   password: string,
   options: ValidatorOptions = {}
 ): ValidationResult {
-  const checks: Record<CheckId, boolean> = {
-    length: false,
-    characterTypes: false,
-    repetition: false,
-    sequential: false,
-    keyboardPattern: false,
-    commonPassword: false,
-    personalInfo: false,
-  }
-  const suggestions: string[] = []
-
-  // Run all validators
+  // Run all 7 validators. Captured into individual locals (not an intermediate
+  // record) so we can read `.passed` and `.message` once each without going
+  // through Object.values/Object.keys iterations.
   const lengthResult: ValidatorCheck = validateLength(password, options)
-  checks['length'] = lengthResult.passed
-  if (!lengthResult.passed && lengthResult.message) {
-    suggestions.push(lengthResult.message)
-  }
-
   const charTypesResult: ValidatorCheck = validateCharacterTypes(password, options)
-  checks['characterTypes'] = charTypesResult.passed
-  if (!charTypesResult.passed && charTypesResult.message) {
-    suggestions.push(charTypesResult.message)
-  }
-
   const repetitionResult: ValidatorCheck = validateRepetition(password, options)
-  checks['repetition'] = repetitionResult.passed
-  if (!repetitionResult.passed && repetitionResult.message) {
-    suggestions.push(repetitionResult.message)
-  }
-
   const sequentialResult: ValidatorCheck = validateSequential(password, options)
-  checks['sequential'] = sequentialResult.passed
-  if (!sequentialResult.passed && sequentialResult.message) {
-    suggestions.push(sequentialResult.message)
-  }
-
   const commonPasswordResult: ValidatorCheck = validateCommonPassword(password, options)
-  checks['commonPassword'] = commonPasswordResult.passed
-  if (!commonPasswordResult.passed && commonPasswordResult.message) {
-    suggestions.push(commonPasswordResult.message)
-  }
-
   const personalInfoResult: ValidatorCheck = validatePersonalInfo(password, options)
-  checks['personalInfo'] = personalInfoResult.passed
-  if (!personalInfoResult.passed && personalInfoResult.message) {
-    suggestions.push(personalInfoResult.message)
-  }
-
   const keyboardPatternResult: ValidatorCheck = validateKeyboardPattern(password, options)
-  checks['keyboardPattern'] = keyboardPatternResult.passed
-  if (!keyboardPatternResult.passed && keyboardPatternResult.message) {
-    suggestions.push(keyboardPatternResult.message)
+
+  // Build `checks` and `passedChecks` in a single pass. Lazy-allocate
+  // `suggestions` only when a validator actually fails — most calls in
+  // practice produce all-passing results and pay no allocation cost.
+  const checks: Record<CheckId, boolean> = {
+    length: lengthResult.passed,
+    characterTypes: charTypesResult.passed,
+    repetition: repetitionResult.passed,
+    sequential: sequentialResult.passed,
+    keyboardPattern: keyboardPatternResult.passed,
+    commonPassword: commonPasswordResult.passed,
+    personalInfo: personalInfoResult.passed,
   }
 
-  // Calculate score based on passed checks
-  const passedChecks: number = Object.values(checks).filter(Boolean).length
-  const totalChecks: number = Object.keys(checks).length
-  /* v8 ignore next */
-  const ratio: number = totalChecks > 0 ? passedChecks / totalChecks : 0
-  const score: StrengthScore = Math.min(4, Math.floor(ratio * 5)) as StrengthScore
+  let passedChecks: number = 0
+  let suggestions: string[] | undefined
+  let firstSuggestion: string | undefined
 
-  const firstSuggestion: string | undefined = suggestions.length > 0 ? suggestions[0] : undefined
+  /**
+   * Accumulate a validator's pass/fail outcome. Increments `passedChecks` on
+   * success; otherwise lazy-allocates `suggestions` (so the success-path call
+   * pays no array allocation) and records the first message for `feedback.warning`.
+   */
+  const record = (result: ValidatorCheck): void => {
+    if (result.passed) {
+      passedChecks++
+      return
+    }
+    /* v8 ignore next */
+    if (result.message === undefined) return
+    if (suggestions === undefined) {
+      suggestions = [result.message]
+      firstSuggestion = result.message
+    } else {
+      suggestions.push(result.message)
+    }
+  }
+
+  record(lengthResult)
+  record(charTypesResult)
+  record(repetitionResult)
+  record(sequentialResult)
+  record(commonPasswordResult)
+  record(personalInfoResult)
+  record(keyboardPatternResult)
+
+  const score: StrengthScore = Math.min(
+    4,
+    Math.floor((passedChecks / TOTAL_CHECKS) * 5)
+  ) as StrengthScore
 
   return {
-    valid: Object.values(checks).every(Boolean),
+    valid: passedChecks === TOTAL_CHECKS,
     score,
     /* v8 ignore next */
     strength: STRENGTH_LABELS[score] ?? 'very-weak',
     feedback: {
       ...(firstSuggestion !== undefined && { warning: firstSuggestion }),
-      suggestions,
+      suggestions: suggestions ?? EMPTY_SUGGESTIONS,
     },
     checks,
   }
