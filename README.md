@@ -104,23 +104,23 @@ Numbers below are refreshed from a fresh run via `pnpm bench:update-readme`. See
 
 | Password | sentinel-password | zxcvbn | check-password-strength | password-validator |
 |---|---|---|---|---|
-| Weak (`"password"`) | **123,000 ops/s** | 21,000 ops/s | 2,775,000 ops/s | 1,390,000 ops/s |
-| Medium (`"MyPassword1"`) | **118,000 ops/s** | 6,100 ops/s | 2,437,000 ops/s | 1,808,000 ops/s |
-| Strong (`"MyP@ssw0rd123!"`) | **124,000 ops/s** | 2,400 ops/s | 2,299,000 ops/s | 2,265,000 ops/s |
-| Long (200+ chars) | **55,000 ops/s** | 5 ops/s | 2,295,000 ops/s | 1,212,000 ops/s |
-| Batch (100 passwords) | **1,600 batches/s** | 49 batches/s | 25,000 batches/s | 18,000 batches/s |
+| Weak (`"password"`) | **1,117,000 ops/s** | 17,000 ops/s | 2,329,000 ops/s | 679,000 ops/s |
+| Medium (`"MyPassword1"`) | **1,409,000 ops/s** | 5,200 ops/s | 2,067,000 ops/s | 1,752,000 ops/s |
+| Strong (`"MyP@ssw0rd123!"`) | **1,841,000 ops/s** | 2,300 ops/s | 2,226,000 ops/s | 2,160,000 ops/s |
+| Long (200+ chars) | **312,000 ops/s** | 5 ops/s | 2,174,000 ops/s | 1,099,000 ops/s |
+| Batch (100 passwords) | **15,000 batches/s** | 44 batches/s | 24,000 batches/s | 16,000 batches/s |
 
 ### Entropy estimation (`@sentinel-password/entropy`)
 
 | Password | sentinel-entropy | zxcvbn | Speedup |
 |---|---|---|---|
-| Weak (`"password"`) | **816,000 ops/s** | 21,000 ops/s | **38×** |
-| Medium (`"MyPassword1"`) | **169,000 ops/s** | 6,100 ops/s | **28×** |
-| Strong (`"MyP@ssw0rd123!"`) | **65,000 ops/s** | 2,400 ops/s | **26×** |
-| Long (200+ chars) | **15,000 ops/s** | 5 ops/s | **2,995×** |
-| Batch (100 passwords) | **1,200 batches/s** | 49 batches/s | **24×** |
+| Weak (`"password"`) | **844,000 ops/s** | 19,000 ops/s | **44×** |
+| Medium (`"MyPassword1"`) | **130,000 ops/s** | 4,500 ops/s | **29×** |
+| Strong (`"MyP@ssw0rd123!"`) | **51,000 ops/s** | 1,700 ops/s | **29×** |
+| Long (200+ chars) | **11,000 ops/s** | 4 ops/s | **2,934×** |
+| Batch (100 passwords) | **1,000 batches/s** | 41 batches/s | **25×** |
 
-_Refreshed via `pnpm bench:update-readme` on Apple M4, Node v22.22.2, darwin arm64._  
+_Refreshed via `pnpm bench:update-readme` on Apple M4, Node v22.22.3, darwin arm64._  
 _Ops/sec varies 30-50 % across hardware. See [Performance docs](https://akankov.github.io/sentinel-password/guide/performance) for run methodology + per-fixture latency tables._
 
 <!-- BENCHMARK:END -->

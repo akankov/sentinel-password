@@ -51,15 +51,19 @@ Sentinel Password validates a typical password in **~7 microseconds**. For compa
 
 | Validator | ops/sec | Time per call |
 |-----------|---------|---------------|
-| Length | 30,240,000 | ~33 ns |
-| Repetition | 22,830,000 | ~44 ns |
-| Common password (bloom filter) | 12,930,000 | ~77 ns |
-| Character types | 11,810,000 | ~85 ns |
-| Sequential | 9,360,000 | ~107 ns |
-| Personal info | 8,580,000 | ~117 ns |
-| Keyboard patterns | 117,000 | ~8.5 μs |
+| Length | 30,000,000 | ~33 ns |
+| Repetition | 22,660,000 | ~44 ns |
+| Character types | 11,730,000 | ~85 ns |
+| Common password (bloom filter) | 11,090,000 | ~90 ns |
+| Sequential | 9,170,000 | ~109 ns |
+| Personal info | 8,340,000 | ~120 ns |
+| Keyboard patterns | 6,150,000 | ~163 ns |
 
-The keyboard pattern validator is the most expensive because it checks against multiple keyboard layouts (QWERTY, AZERTY, etc.), but at ~8.5 microseconds per call, it's still well within acceptable limits.
+All seven validators run in tens to hundreds of nanoseconds. The full `validatePassword` pipeline is dominated by per-call function-call overhead rather than any single validator.
+
+::: tip Historical note
+The keyboard pattern validator used to be ~250× slower than the others (~117,000 ops/s) because it rebuilt each pattern's reversed string via `split('').reverse().join('')` on every invocation across the ~80 multi-layout patterns. As of 2026-05-14 it uses a single precomputed regex with all 160 forward+reverse alternatives, which is ~50× faster. See `packages/core/tests/performance.bench.ts` → "Keyboard pattern impl comparison" for the side-by-side benchmark of the three implementations explored.
+:::
 
 ## Entropy Estimation Performance
 
