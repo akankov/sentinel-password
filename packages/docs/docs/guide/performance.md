@@ -31,11 +31,11 @@ Benchmarks were run using Vitest bench on a single core. All numbers are operati
 
 | Password Type | sentinel-password | zxcvbn | check-password-strength | password-validator |
 |---------------|-------------------|--------|-------------------------|--------------------|
-| Weak (`"password"`) | **135,000** ops/s | 23,000 ops/s | 2,975,000 ops/s | 1,468,000 ops/s |
-| Medium (`"MyPassword1"`) | **132,000** ops/s | 6,500 ops/s | 2,658,000 ops/s | 1,925,000 ops/s |
-| Strong (`"MyP@ssw0rd123!"`) | **136,000** ops/s | 2,600 ops/s | 2,511,000 ops/s | 2,376,000 ops/s |
-| Long (200+ chars) | **59,000** ops/s | 5.5 ops/s | 2,503,000 ops/s | 1,256,000 ops/s |
-| Batch (100 passwords) | **1,870** batches/s | 53 batches/s | 27,350 batches/s | 18,400 batches/s |
+| Weak (`"password"`) | **119,000** ops/s | 21,500 ops/s | 2,800,000 ops/s | 1,355,000 ops/s |
+| Medium (`"MyPassword1"`) | **115,000** ops/s | 6,000 ops/s | 2,400,000 ops/s | 1,650,000 ops/s |
+| Strong (`"MyP@ssw0rd123!"`) | **123,000** ops/s | 2,300 ops/s | 2,280,000 ops/s | 2,220,000 ops/s |
+| Long (200+ chars) | **55,000** ops/s | 5.2 ops/s | 2,220,000 ops/s | 1,200,000 ops/s |
+| Batch (100 passwords) | **1,665** batches/s | 36 batches/s | 23,700 batches/s | 15,600 batches/s |
 
 ### How to Read These Numbers
 
@@ -51,15 +51,62 @@ Sentinel Password validates a typical password in **~7 microseconds**. For compa
 
 | Validator | ops/sec | Time per call |
 |-----------|---------|---------------|
-| Length | 30,500,000 | ~33 ns |
-| Repetition | 24,000,000 | ~42 ns |
-| Sequential | 23,300,000 | ~43 ns |
-| Bloom filter (common passwords) | 14,300,000 | ~70 ns |
-| Character types | 13,600,000 | ~73 ns |
-| Personal info | 9,660,000 | ~103 ns |
-| Keyboard patterns | 137,600 | ~7 μs |
+| Length | 30,240,000 | ~33 ns |
+| Repetition | 22,830,000 | ~44 ns |
+| Common password (bloom filter) | 12,930,000 | ~77 ns |
+| Character types | 11,810,000 | ~85 ns |
+| Sequential | 9,360,000 | ~107 ns |
+| Personal info | 8,580,000 | ~117 ns |
+| Keyboard patterns | 117,000 | ~8.5 μs |
 
-The keyboard pattern validator is the most expensive because it checks against multiple keyboard layouts (QWERTY, AZERTY, etc.), but at ~7 microseconds per call, it's still well within acceptable limits.
+The keyboard pattern validator is the most expensive because it checks against multiple keyboard layouts (QWERTY, AZERTY, etc.), but at ~8.5 microseconds per call, it's still well within acceptable limits.
+
+## Entropy Estimation Performance
+
+`@sentinel-password/entropy` is an optional standalone package that adds Shannon entropy + crack-time estimation alongside core's rule-based validation. Install it only if you need a "how long would this survive a brute-force attack?" signal.
+
+### Latency by Password Shape
+
+| Fixture | ops/sec | Time per call |
+|---------|---------|---------------|
+| Dictionary hit (`"password"`) | **835,000** | ~1.2 μs |
+| Repetition (`"aaaaaaaa"`) | **918,000** | ~1.1 μs |
+| Keyboard pattern (`"qwertyuiop"`) | **737,000** | ~1.4 μs |
+| Passphrase (`"correct horse battery staple"`) | **74,000** | ~13 μs |
+| Long edge case (256 chars) | **42,000** | ~24 μs |
+| L33t + capitalization (`"Tr0ub4dor&3"`) | **33,000** | ~31 μs |
+| Pure-random 12-char | **24,000** | ~41 μs |
+
+Fast paths (dictionary hits, repetitions, keyboard patterns) exit early via specific detectors. Slower fixtures exercise the full substring-scan plus l33t-candidate enumeration paths.
+
+### sentinel-entropy vs zxcvbn
+
+The only meaningful entropy comparator is zxcvbn — both libraries produce entropy bits + a 0-4 score + crack-time estimates under multiple attacker models.
+
+| Password Type | sentinel-entropy | zxcvbn | Speedup |
+|---------------|------------------|--------|---------|
+| Weak (`"password"`) | **817,000** ops/s | 21,500 ops/s | **38×** |
+| Medium (`"MyPassword1"`) | **135,000** ops/s | 5,400 ops/s | **25×** |
+| Strong (`"MyP@ssw0rd123!"`) | **63,000** ops/s | 2,400 ops/s | **26×** |
+| Long (200+ chars) | **14,300** ops/s | 5.2 ops/s | **2,766×** |
+| Batch (100 passwords) | **1,150** batches/s | 36 batches/s | **32×** |
+
+The gap widens dramatically on long inputs — zxcvbn's dictionary partition search scales superlinearly with length, while sentinel-entropy's greedy walk caps each dictionary probe at 18 chars.
+
+::: tip Trade-off
+sentinel-entropy is intentionally simpler than zxcvbn. It skips the dynamic-programming partition search to stay under the 30 KB bundle budget (zxcvbn ships ~400 KB). Accuracy on adversarial inputs is somewhat lower; runtime and bundle cost are dramatically better.
+:::
+
+### Run Environment
+
+The numbers above were captured on:
+
+- **CPU**: Apple M4 (10 cores)
+- **OS**: macOS (Darwin 25.5.0, arm64)
+- **Node**: v22.22.2
+- **Vitest**: `^4.1.5`
+
+Ops/sec varies 30-50 % across hardware (Intel/AMD/ARM, laptop/desktop/CI runner). Treat absolute values as illustrative; **relative ranking** (which library is fastest, by what factor) is stable across machines.
 
 ## Performance Tips
 
@@ -126,7 +173,13 @@ To reproduce these benchmarks on your machine:
 git clone https://github.com/akankov/sentinel-password.git
 cd sentinel-password
 pnpm install
+
+# Run all packages' benchmarks (core + entropy)
+pnpm bench
+
+# Or scope to a single package
 pnpm --filter @sentinel-password/core bench
+pnpm --filter @sentinel-password/entropy bench
 ```
 
-This runs both internal benchmarks (`performance.bench.ts`) and comparative benchmarks (`comparative.bench.ts`).
+Each package has two suites: `performance.bench.ts` (internal latency) and `comparative.bench.ts` (vs competitor libraries).

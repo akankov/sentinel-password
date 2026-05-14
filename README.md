@@ -94,6 +94,37 @@ function SignupForm() {
 
 See the [full documentation](https://akankov.github.io/sentinel-password/guide/getting-started.html) for more examples, or try the [interactive playground](https://akankov.github.io/sentinel-password/playground/).
 
+## Benchmarks
+
+Numbers below are refreshed from a fresh run via `pnpm bench:update-readme`. See the [Performance docs](https://akankov.github.io/sentinel-password/guide/performance) for per-fixture latency tables, individual validator timings, and run methodology.
+
+<!-- BENCHMARK:START -->
+
+### Password validation (`@sentinel-password/core`)
+
+| Password | sentinel-password | zxcvbn | check-password-strength | password-validator |
+|---|---|---|---|---|
+| Weak (`"password"`) | **123,000 ops/s** | 21,000 ops/s | 2,775,000 ops/s | 1,390,000 ops/s |
+| Medium (`"MyPassword1"`) | **118,000 ops/s** | 6,100 ops/s | 2,437,000 ops/s | 1,808,000 ops/s |
+| Strong (`"MyP@ssw0rd123!"`) | **124,000 ops/s** | 2,400 ops/s | 2,299,000 ops/s | 2,265,000 ops/s |
+| Long (200+ chars) | **55,000 ops/s** | 5 ops/s | 2,295,000 ops/s | 1,212,000 ops/s |
+| Batch (100 passwords) | **1,600 batches/s** | 49 batches/s | 25,000 batches/s | 18,000 batches/s |
+
+### Entropy estimation (`@sentinel-password/entropy`)
+
+| Password | sentinel-entropy | zxcvbn | Speedup |
+|---|---|---|---|
+| Weak (`"password"`) | **816,000 ops/s** | 21,000 ops/s | **38×** |
+| Medium (`"MyPassword1"`) | **169,000 ops/s** | 6,100 ops/s | **28×** |
+| Strong (`"MyP@ssw0rd123!"`) | **65,000 ops/s** | 2,400 ops/s | **26×** |
+| Long (200+ chars) | **15,000 ops/s** | 5 ops/s | **2,995×** |
+| Batch (100 passwords) | **1,200 batches/s** | 49 batches/s | **24×** |
+
+_Refreshed via `pnpm bench:update-readme` on Apple M4, Node v22.22.2, darwin arm64._  
+_Ops/sec varies 30-50 % across hardware. See [Performance docs](https://akankov.github.io/sentinel-password/guide/performance) for run methodology + per-fixture latency tables._
+
+<!-- BENCHMARK:END -->
+
 ## Configuration
 
 ```typescript
@@ -118,12 +149,14 @@ Requirements: Node.js >= 20, pnpm (see `packageManager` in `package.json`)
 
 ```bash
 pnpm install
-pnpm build         # Build all packages
-pnpm test          # Run all tests
-pnpm lint          # Run ESLint (does NOT run Prettier — see format:check)
-pnpm format:check  # Run Prettier --check
-pnpm typecheck     # TypeScript strict mode check
-pnpm docs:dev      # Dev docs site
+pnpm build              # Build all packages
+pnpm test               # Run all tests
+pnpm bench              # Run benchmarks (read-only; prints to stdout)
+pnpm bench:update-readme # Run benchmarks AND rewrite the tables above
+pnpm lint               # Run ESLint (does NOT run Prettier — see format:check)
+pnpm format:check       # Run Prettier --check
+pnpm typecheck          # TypeScript strict mode check
+pnpm docs:dev           # Dev docs site
 ```
 
 ## License

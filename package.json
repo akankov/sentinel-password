@@ -16,6 +16,8 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",
+    "bench": "turbo run bench",
+    "bench:update-readme": "node scripts/update-readme-bench.cjs",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
