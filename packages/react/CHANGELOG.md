@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies [[`2ac3ef3`](https://github.com/akankov/sentinel-password/commit/2ac3ef3da778afba3313145fb20ec5508af9f746)]:
+  - @sentinel-password/core@1.2.1
+
 ## 1.3.0
 
 ### Minor Changes

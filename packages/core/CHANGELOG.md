@@ -1,5 +1,20 @@
 # @sentinel-password/core
 
+## 1.2.1
+
+### Patch Changes
+
+- [#171](https://github.com/akankov/sentinel-password/pull/171) [`2ac3ef3`](https://github.com/akankov/sentinel-password/commit/2ac3ef3da778afba3313145fb20ec5508af9f746) Thanks [@akankov](https://github.com/akankov)! - Replace `validateKeyboardPattern`'s inline loop with a single precomputed
+  regex. The previous implementation called `pattern.split('').reverse().join('')`
+  on every invocation across ~80 multi-layout keyboard patterns, producing ~480
+  redundant allocations per call. A single `RegExp` built once at module load
+  with all 160 forward+reverse alternatives is **~53× faster** for the individual
+  validator (117,000 → 6,150,000 ops/s) and propagates to **~10-15× speedup** on
+  the full `validatePassword` pipeline.
+
+  No public API change — same `passed`/`message`/`code`/`params` returned for
+  every input. Bundle gains ~600 bytes gzipped (well under the 10 KB CI cap).
+
 ## 1.2.0
 
 ### Minor Changes
