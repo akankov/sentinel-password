@@ -197,6 +197,56 @@ Deno.serve(async (req) => {
 ```
 :::
 
+## Breach Checking (Have I Been Pwned)
+
+Rule strength and breach exposure are orthogonal: `Tr0ub4dor&3!!` can pass every rule and still appear in millions of leaked-password dumps. [`@sentinel-password/breach`](/api/breach) closes that gap using the **k-anonymity** model — the password is SHA-1 hashed locally and only the first 5 hex characters of the digest are sent to the Pwned Passwords API.
+
+This is **server-side territory**. Calling it from the browser exposes the k-anonymity prefix from every client and adds an external origin to your CSP / egress allowlist — a known enterprise adoption blocker. Run it where you already handle the plaintext password.
+
+```bash
+pnpm add @sentinel-password/breach
+```
+
+```typescript
+import express from 'express'
+import { validatePassword } from '@sentinel-password/core'
+import { checkBreach } from '@sentinel-password/breach'
+
+const app = express()
+app.use(express.json())
+
+app.post('/signup', async (req, res) => {
+  const { email, name, password } = req.body
+
+  const rule = validatePassword(password, {
+    minLength: 12,
+    requireUppercase: true,
+    requireDigit: true,
+    requireSymbol: true,
+    personalInfo: [email, name],
+  })
+  if (!rule.valid) {
+    return res.status(400).json({ ok: false, stage: 'rules', suggestions: rule.feedback.suggestions })
+  }
+
+  const pwned = await checkBreach(password)
+
+  if (pwned.status === 'error') {
+    // Never silently "safe". This is fail-CLOSED — swap to fail-open
+    // (allow + log) if availability matters more than the guarantee.
+    return res.status(503).json({ ok: false, stage: 'breach', reason: pwned.reason })
+  }
+  if (pwned.breached) {
+    return res.status(400).json({ ok: false, stage: 'breach', breachCount: pwned.breachCount })
+  }
+
+  // Hash with argon2/bcrypt and persist — see "Security Boundary" below.
+  return res.status(201).json({ ok: true, strength: rule.strength })
+})
+```
+
+`checkBreach` never throws and never silently reports "safe": failures resolve to `{ status: 'error', reason }` so **you** decide fail-open vs fail-closed. Pass a `createBreachCache()` instance to deduplicate API calls across requests. A runnable version is in [`examples/express-backend`](https://github.com/akankov/sentinel-password/tree/main/examples/express-backend); full reference in the [breach API docs](/api/breach).
+
 ## Security Boundary
 
 ::: warning Strength validation is not storage
@@ -256,3 +306,4 @@ The client uses it via `usePasswordValidator(PASSWORD_POLICY)` for instant feedb
 - [Configuration](/guide/configuration)
 - [Validators](/guide/validators)
 - [Core API Reference](/api/core)
+- [Breach Checking API Reference](/api/breach)

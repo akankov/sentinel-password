@@ -21,6 +21,7 @@ export default defineConfig({
           { text: '@sentinel-password/react', link: '/api/react' },
           { text: '@sentinel-password/react-components', link: '/api/react-components' },
           { text: '@sentinel-password/entropy', link: '/api/entropy' },
+          { text: '@sentinel-password/breach', link: '/api/breach' },
         ],
       },
     ],
@@ -63,6 +64,7 @@ export default defineConfig({
             { text: 'React Hook', link: '/api/react' },
             { text: 'React Components', link: '/api/react-components' },
             { text: 'Entropy Estimator', link: '/api/entropy' },
+            { text: 'Breach Checking', link: '/api/breach' },
           ],
         },
         {

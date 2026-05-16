@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@sentinel-password/breach": "workspace:*",
     "@sentinel-password/core": "workspace:*",
     "express": "^5.1.0"
   },

@@ -111,3 +111,17 @@ jobs:
           fi
 
           echo "::notice::Entropy bundle size ${ENTROPY_SIZE_KB}KB is within 30KB limit"
+
+      - name: Check breach bundle size
+        run: |
+          BREACH_SIZE=$(gzip -c packages/breach/dist/index.js | wc -c)
+          BREACH_SIZE_KB=$(echo "scale=2; $BREACH_SIZE / 1024" | bc)
+          echo "Breach bundle size: ${BREACH_SIZE_KB}KB gzipped"
+
+          # Fail if over 10KB (10240 bytes)
+          if [ "$BREACH_SIZE" -gt 10240 ]; then
+            echo "::error::Breach bundle size ${BREACH_SIZE_KB}KB exceeds 10KB limit"
+            exit 1
+          fi
+
+          echo "::notice::Breach bundle size ${BREACH_SIZE_KB}KB is within 10KB limit"
