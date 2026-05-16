@@ -1,5 +1,12 @@
 # @sentinel-password/react-components
 
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [[`445d728`](https://github.com/akankov/sentinel-password/commit/445d728571e89137e242672888332276c4d4b470)]:
+  - @sentinel-password/core@1.2.2
+
 ## 1.2.1
 
 ### Patch Changes

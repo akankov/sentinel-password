@@ -53,7 +53,7 @@ Sentinel Password validates a typical password in **~7 microseconds**. For compa
 |-----------|---------|---------------|
 | Length | 30,000,000 | ~33 ns |
 | Repetition | 22,660,000 | ~44 ns |
-| Character types | 11,730,000 | ~85 ns |
+| Character types | 16,570,000 | ~60 ns |
 | Common password (bloom filter) | 11,090,000 | ~90 ns |
 | Sequential | 9,170,000 | ~109 ns |
 | Personal info | 8,340,000 | ~120 ns |
