@@ -27,6 +27,7 @@ Modern TypeScript password validation library with zero dependencies, React inte
 | [`@sentinel-password/react`](https://www.npmjs.com/package/@sentinel-password/react) | React hook (`usePasswordValidator`) | [![npm](https://img.shields.io/npm/v/@sentinel-password/react.svg)](https://www.npmjs.com/package/@sentinel-password/react) |
 | [`@sentinel-password/react-components`](https://www.npmjs.com/package/@sentinel-password/react-components) | Headless React components | [![npm](https://img.shields.io/npm/v/@sentinel-password/react-components.svg)](https://www.npmjs.com/package/@sentinel-password/react-components) |
 | [`@sentinel-password/entropy`](https://www.npmjs.com/package/@sentinel-password/entropy) | Shannon entropy + crack-time estimation (optional add-on) | [![npm](https://img.shields.io/npm/v/@sentinel-password/entropy.svg)](https://www.npmjs.com/package/@sentinel-password/entropy) |
+| [`@sentinel-password/breach`](https://www.npmjs.com/package/@sentinel-password/breach) | Have I Been Pwned breach checking via k-anonymity (optional add-on) | [![npm](https://img.shields.io/npm/v/@sentinel-password/breach.svg)](https://www.npmjs.com/package/@sentinel-password/breach) |
 
 ## Installing
 
@@ -46,6 +47,12 @@ For entropy / crack-time estimates (optional, ≤ 30 KB gzipped):
 
 ```bash
 pnpm add @sentinel-password/entropy
+```
+
+For Have I Been Pwned breach checking (optional, ≤ 10 KB gzipped, server-side recommended):
+
+```bash
+pnpm add @sentinel-password/breach
 ```
 
 ## Quick Start
