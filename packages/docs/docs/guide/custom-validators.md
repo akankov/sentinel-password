@@ -91,6 +91,68 @@ export function validateMyPassword(password: string) {
 
 This pattern is also how you'd build a validator with a **different** set of built-ins than `validatePassword` runs (for example, skipping sequential/keyboard-pattern checks entirely while still using length and character-type validation).
 
+## Recipe: Forbidden Words / Blocklist
+
+A common requirement is rejecting passwords that contain a specific word — a product name, the literal string `password`, or an internal codename. You may not need any custom code.
+
+### Zero-code: you might already be covered
+
+- **Common words like `password`, `admin`, `letmein`** are already rejected. The `checkCommonPasswords` option is `true` by default and matches against the top‑1,000 list, so `validatePassword('password123')` already fails the common-password check — no extra work needed.
+- **A handful of org-specific words** can ride on the existing `personalInfo` option, which does a case-insensitive **substring** match against every entry:
+
+```typescript
+import { validatePassword } from '@sentinel-password/core'
+
+// Rejects any password containing "acme" or "projectx" (case-insensitive).
+const result = validatePassword(userPassword, {
+  minLength: 12,
+  personalInfo: ['acme', 'projectx'],
+})
+```
+
+Two caveats on the `personalInfo` shortcut: entries shorter than **3 characters are ignored** (to avoid false positives), and entries containing `@` are treated as emails and reduced to the local part (everything before `@`). For a curated wordlist where those rules don't fit, use the validator below.
+
+### Reusable: a dedicated forbidden-words validator
+
+When you want a real, testable rule with its own message, write a `Validator` and wire it through [Pattern 1](#pattern-1-wrap-and-combine):
+
+```typescript
+import { validatePassword } from '@sentinel-password/core'
+import type { Validator, ValidationResult } from '@sentinel-password/core'
+
+const FORBIDDEN_WORDS = ['password', 'acme', 'projectx', 'admin']
+
+// Case-insensitive substring match — same semantics as the personalInfo check.
+const validateNoForbiddenWords: Validator = (password) => {
+  const lower = password.toLowerCase()
+  const hit = FORBIDDEN_WORDS.find((w) => lower.includes(w.toLowerCase()))
+  return hit
+    ? { passed: false, message: 'Password contains a forbidden word.' }
+    : { passed: true }
+}
+
+export function validateWithBlocklist(password: string): ValidationResult {
+  const builtin = validatePassword(password, { minLength: 12, requireDigit: true })
+  const custom = validateNoForbiddenWords(password)
+
+  const mergedSuggestions = [
+    ...builtin.feedback.suggestions,
+    ...(custom.message ? [custom.message] : []),
+  ]
+
+  return {
+    ...builtin,
+    valid: builtin.valid && custom.passed,
+    feedback: {
+      ...(mergedSuggestions[0] !== undefined && { warning: mergedSuggestions[0] }),
+      suggestions: mergedSuggestions,
+    },
+  }
+}
+```
+
+`includes` is a substring match, so blocklisting `'admin'` also rejects `'badminton'`. If that's too aggressive, swap the check for a word-boundary regex such as `new RegExp(\`\\b${w}\\b\`, 'i').test(password)`.
+
 ## Typing Your Custom Validators
 
 The exported `Validator` type is the same signature the built-ins use:
