@@ -33,4 +33,16 @@ describe('createBreachCache', () => {
     expect(cache.get('AAAAA')).toBe('a2')
     expect(cache.get('BBBBB')).toBe('b')
   })
+
+  it('updating a key keeps its original insertion position (true FIFO)', () => {
+    const cache = createBreachCache(2)
+    cache.set('AAAAA', 'a')
+    cache.set('BBBBB', 'b')
+    cache.set('AAAAA', 'a2') // update must NOT move AAAAA to newest
+    cache.set('CCCCC', 'c') // AAAAA is still the oldest, so it is evicted
+
+    expect(cache.get('AAAAA')).toBeUndefined()
+    expect(cache.get('BBBBB')).toBe('b')
+    expect(cache.get('CCCCC')).toBe('c')
+  })
 })

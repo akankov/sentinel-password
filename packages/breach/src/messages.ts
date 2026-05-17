@@ -9,8 +9,11 @@ import type { BreachMessageCode, BreachMessageOptions, BreachMessageParams } fro
  * stay decoupled and version independently.
  */
 export const DEFAULT_BREACH_MESSAGES: Readonly<Record<BreachMessageCode, string>> = {
-  'breach.found':
-    'This password has appeared in {count} known data breaches. Choose a different one.',
+  // Intentionally count-free: a logic-less template cannot pluralize, and
+  // "appeared in 1 known data breaches" would be ungrammatical. The exact
+  // exposure count is available as `BreachOk.breachCount`; callers who want it
+  // in the message can interpolate via a `messages` / `formatMessage` override.
+  'breach.found': 'This password has appeared in known data breaches. Choose a different one.',
 } as const
 
 const PLACEHOLDER_PATTERN: RegExp = /\{(\w+)\}/g
@@ -39,8 +42,8 @@ function formatTemplate(template: string, params: BreachMessageParams): string {
  * ```typescript
  * import { resolveBreachMessage } from '@sentinel-password/breach'
  *
- * resolveBreachMessage('breach.found', { count: 12 })
- * // → "This password has appeared in 12 known data breaches. Choose a different one."
+ * resolveBreachMessage('breach.found')
+ * // → "This password has appeared in known data breaches. Choose a different one."
  * ```
  */
 export function resolveBreachMessage(
