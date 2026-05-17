@@ -25,13 +25,13 @@ export function createBreachCache(maxEntries: number = 1024): BreachCache {
       return store.get(prefix)
     },
     set(prefix: string, body: string): void {
-      store.delete(prefix)
-      store.set(prefix, body)
-      if (store.size > maxEntries) {
-        // size > maxEntries >= 0 implies at least one entry exists.
+      if (!store.has(prefix) && store.size >= maxEntries) {
+        // A new key at capacity: size >= maxEntries >= 0 and the key is
+        // absent, so the store is non-empty and has an oldest entry.
         const oldest: string = store.keys().next().value as string
         store.delete(oldest)
       }
+      store.set(prefix, body)
     },
   }
 }

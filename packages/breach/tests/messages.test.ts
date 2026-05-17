@@ -1,17 +1,19 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_BREACH_MESSAGES, resolveBreachMessage } from '../src/messages'
 
+const DEFAULT_FOUND = 'This password has appeared in known data breaches. Choose a different one.'
+
 describe('DEFAULT_BREACH_MESSAGES', () => {
-  it('has a stable English template for breach.found with a {count} placeholder', () => {
-    expect(DEFAULT_BREACH_MESSAGES['breach.found']).toContain('{count}')
+  it('is grammatical for any count: no count-dependent pluralization in the default', () => {
+    expect(DEFAULT_BREACH_MESSAGES['breach.found']).toBe(DEFAULT_FOUND)
+    expect(DEFAULT_BREACH_MESSAGES['breach.found']).not.toContain('{count}')
   })
 })
 
 describe('resolveBreachMessage', () => {
-  it('renders the default template with params substituted', () => {
-    expect(resolveBreachMessage('breach.found', { count: 42 })).toBe(
-      'This password has appeared in 42 known data breaches. Choose a different one.'
-    )
+  it('renders the default template; it is grammatical even at count 1', () => {
+    expect(resolveBreachMessage('breach.found', { count: 42 })).toBe(DEFAULT_FOUND)
+    expect(resolveBreachMessage('breach.found', { count: 1 })).toBe(DEFAULT_FOUND)
   })
 
   it('uses a per-code messages override when provided', () => {
@@ -31,9 +33,7 @@ describe('resolveBreachMessage', () => {
         formatMessage: (code, params, def) => `[${code}] ${String(params.count)} :: ${def}`,
       }
     )
-    expect(msg).toBe(
-      '[breach.found] 7 :: This password has appeared in 7 known data breaches. Choose a different one.'
-    )
+    expect(msg).toBe(`[breach.found] 7 :: ${DEFAULT_FOUND}`)
   })
 
   it('falls back to the default rendering when formatMessage throws', () => {
@@ -46,7 +46,7 @@ describe('resolveBreachMessage', () => {
         },
       }
     )
-    expect(msg).toBe('This password has appeared in 1 known data breaches. Choose a different one.')
+    expect(msg).toBe(DEFAULT_FOUND)
   })
 
   it('leaves unknown placeholders intact so missing data is visible', () => {

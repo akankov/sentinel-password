@@ -111,9 +111,11 @@ Optional decoupled i18n, mirroring core's `messages` / `formatMessage` mechanism
 ```typescript
 import { resolveBreachMessage } from '@sentinel-password/breach'
 
-resolveBreachMessage('breach.found', { count: 12 })
-// → "This password has appeared in 12 known data breaches. Choose a different one."
+resolveBreachMessage('breach.found')
+// → "This password has appeared in known data breaches. Choose a different one."
 ```
+
+The default message is intentionally count-free (a logic-less template can't pluralize grammatically). The exact exposure count is on `BreachOk.breachCount`; interpolate it yourself via a `messages` or `formatMessage` override if you want it in the string.
 
 ## Server-side recommended
 
