@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/entropy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Shannon entropy estimator with dictionary, l33t, and pattern detection for sentinel-password. Zero runtime dependencies; ≤ 30 KB gzipped (CI enforced).",
   "main": "./dist/index.cjs",
