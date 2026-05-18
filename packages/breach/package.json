@@ -1,6 +1,6 @@
 {
   "name": "@sentinel-password/breach",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Have I Been Pwned breach checking via k-anonymity for sentinel-password. Zero runtime dependencies; ≤ 10 KB gzipped (CI enforced).",
   "main": "./dist/index.cjs",
