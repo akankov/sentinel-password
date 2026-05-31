@@ -1,5 +1,16 @@
 # @sentinel-password/react-components
 
+## 1.2.4
+
+### Patch Changes
+
+- [#186](https://github.com/akankov/sentinel-password/pull/186) [`7e3d814`](https://github.com/akankov/sentinel-password/commit/7e3d814a8d17493c3e06b6d0f711f8aa04f14db2) Thanks [@akankov](https://github.com/akankov)! - chore: bump development dependencies
+
+  turbo 2.9.16, vitest 4.1.7, @vitest/coverage-v8 4.1.7, storybook 10.4.1, vite 8.0.14, typescript-eslint 8.60.0, eslint 10.4.1, tsx 4.22.4, vue 3.5.35, @types/node 25.9.1, @types/react 19.2.15
+
+- Updated dependencies [[`7e3d814`](https://github.com/akankov/sentinel-password/commit/7e3d814a8d17493c3e06b6d0f711f8aa04f14db2)]:
+  - @sentinel-password/core@1.2.4
+
 ## 1.2.3
 
 ### Patch Changes
