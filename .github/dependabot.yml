@@ -8,7 +8,7 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
-      day: 'monday'
+      day: 'friday'
     open-pull-requests-limit: 5
     ignore:
       # eslint-plugin-react 7.37.5 is incompatible with ESLint 10
@@ -43,7 +43,7 @@ updates:
     directory: '/packages/core'
     schedule:
       interval: 'weekly'
-      day: 'monday'
+      day: 'friday'
     open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore'
@@ -54,7 +54,7 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
-      day: 'monday'
+      day: 'friday'
     open-pull-requests-limit: 3
     commit-message:
       prefix: 'chore'
