@@ -1,5 +1,13 @@
 # @sentinel-password/core
 
+## 1.2.5
+
+### Patch Changes
+
+- [#191](https://github.com/akankov/sentinel-password/pull/191) [`8c721f9`](https://github.com/akankov/sentinel-password/commit/8c721f9eae9ed31aa564e83267096c2a03f9b459) Thanks [@akankov](https://github.com/akankov)! - chore: bump dependencies
+
+  react 19.2.7, @types/react 19.2.16, vitest 4.1.8, @vitest/coverage-v8 4.1.8, storybook 10.4.2, vite 8.0.16, typescript-eslint 8.60.1, eslint-config-next 16.2.7, next 16.2.7
+
 ## 1.2.4
 
 ### Patch Changes
