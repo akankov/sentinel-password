@@ -37,7 +37,19 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run Stryker on @sentinel-password/core
-        run: pnpm --filter @sentinel-password/core test:mutation
+        # Activate the Stryker Dashboard reporter only when the API key secret is
+        # present, so the score is published for the README badge. Without the
+        # secret (e.g. before it's configured, or on forks) the run still works —
+        # it just skips the upload instead of erroring.
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+        run: |
+          if [ -n "$STRYKER_DASHBOARD_API_KEY" ]; then
+            pnpm --filter @sentinel-password/core exec stryker run --reporters clear-text,progress,html,dashboard
+          else
+            echo "::notice::STRYKER_DASHBOARD_API_KEY not set — running without dashboard upload."
+            pnpm --filter @sentinel-password/core test:mutation
+          fi
 
       - name: Upload mutation report
         if: always()

@@ -6,6 +6,10 @@
   "coverageAnalysis": "perTest",
   "mutate": ["src/**/*.ts", "!src/**/*.d.ts"],
   "reporters": ["clear-text", "progress", "html"],
+  "dashboard": {
+    "project": "github.com/akankov/sentinel-password",
+    "version": "main"
+  },
   "thresholds": {
     "high": 80,
     "low": 65,

@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/akankov/sentinel-password/actions/workflows/ci.yml/badge.svg)](https://github.com/akankov/sentinel-password/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/akankov/sentinel-password/graph/badge.svg)](https://codecov.io/gh/akankov/sentinel-password)
+[![Mutation score](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fakankov%2Fsentinel-password%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/akankov/sentinel-password/main)
 [![npm version](https://img.shields.io/npm/v/@sentinel-password/core.svg)](https://www.npmjs.com/package/@sentinel-password/core)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/@sentinel-password/core)](https://bundlephobia.com/package/@sentinel-password/core)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue.svg)](https://www.typescriptlang.org/)
