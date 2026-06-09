@@ -1,3 +1,15 @@
 packages:
   - 'packages/*'
   - 'examples/*'
+
+# Migrated from the package.json "pnpm" field, which pnpm 10.33.1 no longer
+# reads (it warns "the pnpm field ... is no longer read"). These must live here
+# so the vite/postcss CVE overrides stay applied on lockfile regeneration.
+overrides:
+  vite@<6.4.2: ^6.4.2
+  postcss@<8.5.10: ^8.5.10
+
+# Allowlist the only dependency permitted to run its install/build script
+# (pnpm 10 blocks lifecycle scripts by default).
+onlyBuiltDependencies:
+  - esbuild
