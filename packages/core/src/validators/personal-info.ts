@@ -8,7 +8,9 @@ import { resolveMessage } from '../messages'
  */
 const extractUsername = (email: string): string => {
   const atIndex: number = email.indexOf('@')
-  /* v8 ignore next */
+  // `normalizePersonalInfo` only calls this when the string contains '@', so
+  // `atIndex` is never -1; the `: email` fallback covers a leading-'@' entry
+  // (e.g. '@admin'), where the whole string is matched as a literal substring.
   return atIndex > 0 ? email.substring(0, atIndex) : email
 }
 

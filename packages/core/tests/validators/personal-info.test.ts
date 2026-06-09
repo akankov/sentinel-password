@@ -64,6 +64,13 @@ describe('validatePersonalInfo', () => {
     expect(result.passed).toBe(false)
   })
 
+  it('should match a leading-@ entry as a literal substring (no username to extract)', () => {
+    // '@admin' has '@' at index 0, so there is no local part to extract;
+    // the whole string is matched literally.
+    const result = validatePersonalInfo('my@admin99', { personalInfo: ['@admin'] })
+    expect(result.passed).toBe(false)
+  })
+
   it('should ignore very short personal info (< 3 chars)', () => {
     const result = validatePersonalInfo('password_ab', { personalInfo: ['ab'] })
     expect(result.passed).toBe(true)
