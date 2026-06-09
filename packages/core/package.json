@@ -2,7 +2,7 @@
   "name": "@sentinel-password/core",
   "version": "1.2.5",
   "type": "module",
-  "description": "Modern, zero-dependency TypeScript password validation with bloom filter-based common password detection. 100% test coverage (enforced); ~5.5 KB gzipped (10 KB CI limit).",
+  "description": "Modern, zero-dependency TypeScript password validation with bloom filter-based common password detection. 100% test coverage (enforced); ~6.3 KB gzipped (10 KB CI limit).",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -22,7 +22,8 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "sideEffects": false,
   "scripts": {
@@ -53,9 +54,12 @@
   ],
   "author": "Aleksei Kankov <akankov@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/akankov/sentinel-password",
+    "url": "git+https://github.com/akankov/sentinel-password.git",
     "directory": "packages/core"
   },
   "homepage": "https://akankov.github.io/sentinel-password/",

@@ -25,6 +25,10 @@
     "dev": "turbo run dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "publint": "pnpm -r --filter \"./packages/*\" --filter \"!@sentinel-password/docs\" exec publint",
+    "attw": "pnpm -r --filter \"./packages/*\" --filter \"!@sentinel-password/docs\" exec attw --pack .",
+    "knip": "knip",
+    "audit:prod": "pnpm audit --prod --audit-level high",
     "storybook": "pnpm --filter @sentinel-password/react storybook",
     "build-storybook": "pnpm --filter @sentinel-password/react build-storybook",
     "storybook:components": "pnpm --filter @sentinel-password/react-components storybook",
@@ -51,11 +55,14 @@
     "node": ">=20"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.3",
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.4.1",
+    "knip": "^6.16.1",
     "prettier": "^3.8.3",
+    "publint": "^0.3.21",
     "turbo": "^2.9.16",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.1"

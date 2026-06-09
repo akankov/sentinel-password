@@ -22,7 +22,8 @@
     "dist"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "sideEffects": false,
   "scripts": {
@@ -53,9 +54,12 @@
   ],
   "author": "Aleksei Kankov <akankov@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/akankov/sentinel-password",
+    "url": "git+https://github.com/akankov/sentinel-password.git",
     "directory": "packages/entropy"
   },
   "homepage": "https://akankov.github.io/sentinel-password/",

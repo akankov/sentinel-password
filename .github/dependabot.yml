@@ -3,9 +3,15 @@
 
 version: 2
 updates:
-  # Root workspace dependencies
+  # All workspace manifests: root, every package, and every example.
+  # The `directories` globs cover nested workspace package.json files that a
+  # single `directory: '/'` entry would not propose updates for (per-package
+  # devDeps like docs' vitepress/vue and each example's own dependency tree).
   - package-ecosystem: 'npm'
-    directory: '/'
+    directories:
+      - '/'
+      - '/packages/*'
+      - '/examples/*'
     schedule:
       interval: 'weekly'
       day: 'friday'
@@ -34,17 +40,6 @@ updates:
           - 'react-dom'
           - '@types/react'
           - '@types/react-dom'
-    commit-message:
-      prefix: 'chore'
-      include: 'scope'
-
-  # Core package dependencies
-  - package-ecosystem: 'npm'
-    directory: '/packages/core'
-    schedule:
-      interval: 'weekly'
-      day: 'friday'
-    open-pull-requests-limit: 5
     commit-message:
       prefix: 'chore'
       include: 'scope'
