@@ -83,7 +83,7 @@ export function PasswordInput({
 
   // Internal state for uncontrolled mode
   const [internalValue, setInternalValue]: [string, React.Dispatch<React.SetStateAction<string>>] =
-    useState<string>(String(defaultValue ?? ''))
+    useState<string>(defaultValue ?? '')
   const [internalShowPassword, setInternalShowPassword]: [
     boolean,
     React.Dispatch<React.SetStateAction<boolean>>,
@@ -102,7 +102,7 @@ export function PasswordInput({
 
   // Determine if component is controlled
   const isControlled: boolean = controlledValue !== undefined
-  const value: string = (isControlled ? controlledValue : internalValue) as string
+  const value: string = controlledValue ?? internalValue
   const showPassword: boolean =
     controlledShowPassword !== undefined ? controlledShowPassword : internalShowPassword
 
@@ -213,7 +213,7 @@ export function PasswordInput({
   // Validate on mount if requested
   useEffect(() => {
     if (validateOnMount && value) {
-      performValidation(String(value))
+      performValidation(value)
     }
     // Cleanup debounce timer on unmount
     return () => {
@@ -245,7 +245,7 @@ export function PasswordInput({
       return
     }
     if (validationResult !== undefined) {
-      performValidation(String(value))
+      performValidation(value)
     }
     // `value`, `validationResult`, and `performValidation` are intentionally
     // excluded from deps — change handlers (`handleInputChange`, Escape)

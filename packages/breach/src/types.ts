@@ -51,7 +51,9 @@ export type BreachErrorReason =
 export interface BreachOptions {
   /**
    * Exposure count at or above which `breached` is `true`. Default `1` (any
-   * appearance counts). Raise it to tolerate low-frequency hits.
+   * appearance counts). Raise it to tolerate low-frequency hits. Non-finite or
+   * `< 1` values (NaN, 0, negative) are ignored and the default `1` is used, so
+   * a misconfigured threshold can never silently report a pwned password safe.
    */
   readonly threshold?: number
   /**

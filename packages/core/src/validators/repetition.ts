@@ -29,19 +29,18 @@ import { resolveMessage } from '../messages'
  * @remarks
  * Default maximum is 3 consecutive repeated characters.
  * Only checks for consecutive repetition, not overall character frequency.
+ *
+ * Iterates by Unicode code point (via `for...of`), so a run of identical astral
+ * characters — e.g. repeated emoji — is counted as user-perceived characters
+ * rather than UTF-16 code units (which would let `😀😀😀😀` slip through).
  */
 export const validateRepetition: Validator = (password, options = {}) => {
   const { maxRepeatedChars = 3 }: Partial<{ maxRepeatedChars: number }> = options
 
-  if (password.length === 0) {
-    return { passed: true }
-  }
+  let currentChar: string | undefined
+  let count: number = 0
 
-  let currentChar: string = password.charAt(0)
-  let count: number = 1
-
-  for (let i: number = 1; i < password.length; i++) {
-    const char: string = password.charAt(i)
+  for (const char of password) {
     if (char === currentChar) {
       count++
       if (count > maxRepeatedChars) {

@@ -24,6 +24,7 @@ export type {
   EntropyOptions,
   EntropyPattern,
   EntropyResult,
+  EntropyScore,
   ScoreThresholds,
   StrengthScore,
 } from './types'

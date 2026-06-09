@@ -103,6 +103,16 @@ describe('checkBreach — verdicts', () => {
       breached: true,
     })
   })
+
+  it('ignores a misconfigured threshold (NaN, 0, negative) and uses the default instead', async () => {
+    const { fetch } = recordingFetch({ body: `${SUFFIX}:5\r\n` })
+    const pwned = { status: 'ok', breachCount: 5, breached: true }
+    // A NaN threshold would make `5 >= NaN` false and silently report the
+    // pwned password safe — the guard must fall back to the default (1).
+    expect(await checkBreach(PASSWORD, { fetch, threshold: Number.NaN })).toEqual(pwned)
+    expect(await checkBreach(PASSWORD, { fetch, threshold: 0 })).toEqual(pwned)
+    expect(await checkBreach(PASSWORD, { fetch, threshold: -3 })).toEqual(pwned)
+  })
 })
 
 describe('checkBreach — Add-Padding header', () => {
