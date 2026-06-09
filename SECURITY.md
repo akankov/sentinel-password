@@ -4,7 +4,7 @@ The security of Sentinel Password and its users is a top priority. We appreciate
 
 ## Supported Versions
 
-We provide security updates for the latest published version of the `@sentinel-password/core` package.
+We provide security updates for the latest published version of every `@sentinel-password/*` package — `core`, `react`, `react-components`, `entropy`, and `breach`. This explicitly includes `@sentinel-password/breach`, the only package that makes outbound network requests (Have I Been Pwned, via SHA-1 k-anonymity).
 
 If you are using an older version, we strongly recommend upgrading to the latest release to benefit from the most recent security fixes and hardening.
 
