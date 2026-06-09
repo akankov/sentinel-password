@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, waitFor, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { axe } from 'vitest-axe'
 import React from 'react'
 import type { ValidationResult } from '@sentinel-password/core'
 import { PasswordInput } from '../src'
@@ -137,23 +138,20 @@ describe('PasswordInput', () => {
   })
 
   describe('Validation', () => {
-    it.skip('should validate password and show feedback', async () => {
-      vi.useFakeTimers()
-      const user = userEvent.setup({ delay: null })
+    it('should validate password and show feedback', async () => {
+      const user = userEvent.setup()
       const handleValidationChange = vi.fn()
 
       render(
         <PasswordInput
           label="Password"
           onValidationChange={handleValidationChange}
-          debounceMs={300}
+          debounceMs={0}
         />
       )
 
       const input = screen.getByLabelText('Password')
       await user.type(input, 'weak')
-
-      await vi.runAllTimersAsync()
 
       await waitFor(() => {
         expect(handleValidationChange).toHaveBeenCalled()
@@ -163,9 +161,11 @@ describe('PasswordInput', () => {
       })
     })
 
-    it.skip('should debounce validation by default', async () => {
-      vi.useFakeTimers()
-      const user = userEvent.setup({ delay: null })
+    it('should debounce validation by default', async () => {
+      // Real timers (the fake-timer + userEvent + waitFor combination is the
+      // flake source). With a 300ms debounce, validation must not fire in the
+      // few ms it takes to type, then must fire once the window elapses.
+      const user = userEvent.setup()
       const handleValidationChange = vi.fn()
 
       render(
@@ -179,15 +179,11 @@ describe('PasswordInput', () => {
       const input = screen.getByLabelText('Password')
       await user.type(input, 'test')
 
-      // Should not validate immediately
+      // Still inside the debounce window immediately after typing
       expect(handleValidationChange).not.toHaveBeenCalled()
 
-      // Fast-forward time
-      await vi.runAllTimersAsync()
-
-      await waitFor(() => {
-        expect(handleValidationChange).toHaveBeenCalled()
-      })
+      // Fires once the debounce elapses
+      await waitFor(() => expect(handleValidationChange).toHaveBeenCalled(), { timeout: 1000 })
     })
 
     it('should validate immediately when debounceMs is 0', async () => {
@@ -374,40 +370,39 @@ describe('PasswordInput', () => {
       })
     })
 
-    it.skip('should show validation messages when enabled', async () => {
-      vi.useFakeTimers()
-      const user = userEvent.setup({ delay: null })
+    it('should show validation messages when enabled', async () => {
+      const user = userEvent.setup()
 
-      render(<PasswordInput label="Password" showValidationMessages={true} debounceMs={300} />)
+      render(<PasswordInput label="Password" showValidationMessages={true} debounceMs={0} />)
 
       const input = screen.getByLabelText('Password')
       await user.type(input, 'weak')
 
-      await vi.runAllTimersAsync()
-
       await waitFor(() => {
-        const validationRegion = screen.queryByRole('alert')
-        expect(validationRegion).toBeInTheDocument()
+        expect(screen.queryByRole('alert')).toBeInTheDocument()
       })
     })
 
-    it.skip('should not show validation messages when disabled', async () => {
-      vi.useFakeTimers()
-      const user = userEvent.setup({ delay: null })
+    it('should not show validation messages when disabled', async () => {
+      const user = userEvent.setup()
+      const handleValidationChange = vi.fn()
 
-      render(<PasswordInput label="Password" showValidationMessages={false} debounceMs={300} />)
+      render(
+        <PasswordInput
+          label="Password"
+          showValidationMessages={false}
+          onValidationChange={handleValidationChange}
+          debounceMs={0}
+        />
+      )
 
       const input = screen.getByLabelText('Password')
       await user.type(input, 'weak')
 
-      await vi.runAllTimersAsync()
-
-      await waitFor(
-        () => {
-          expect(screen.queryByRole('alert')).not.toBeInTheDocument()
-        },
-        { timeout: 1000 }
-      )
+      // Validation still runs (callback fires) — but with messages disabled the
+      // alert region must never render.
+      await waitFor(() => expect(handleValidationChange).toHaveBeenCalled())
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     })
   })
 
@@ -518,35 +513,29 @@ describe('PasswordInput', () => {
       expect(input).toHaveAttribute('aria-describedby', expect.stringContaining(description.id))
     })
 
-    it.skip('should mark input as invalid when validation fails', async () => {
-      vi.useFakeTimers()
-      const user = userEvent.setup({ delay: null })
+    it('should mark input as invalid when validation fails', async () => {
+      const user = userEvent.setup()
 
-      render(<PasswordInput label="Password" debounceMs={300} />)
+      render(<PasswordInput label="Password" debounceMs={0} />)
 
       const input = screen.getByLabelText('Password')
       await user.type(input, 'a')
-
-      await vi.runAllTimersAsync()
 
       await waitFor(() => {
         expect(input).toHaveAttribute('aria-invalid', 'true')
       })
     })
 
-    it.skip('should use ARIA live region for validation feedback', async () => {
-      vi.useFakeTimers()
-      const user = userEvent.setup({ delay: null })
+    it('should use ARIA live region for validation feedback', async () => {
+      const user = userEvent.setup()
 
-      render(<PasswordInput label="Password" showValidationMessages={true} debounceMs={300} />)
+      render(<PasswordInput label="Password" showValidationMessages={true} debounceMs={0} />)
 
       const input = screen.getByLabelText('Password')
       await user.type(input, 'weak')
 
-      await vi.runAllTimersAsync()
-
       await waitFor(() => {
-        const liveRegion = screen.queryByRole('alert')
+        const liveRegion = screen.getByRole('alert')
         expect(liveRegion).toHaveAttribute('aria-live', 'polite')
         expect(liveRegion).toHaveAttribute('aria-atomic', 'true')
       })
@@ -581,6 +570,30 @@ describe('PasswordInput', () => {
 
       expect(toggleButton).toHaveTextContent('Ocultar')
       expect(toggleButton).toHaveAttribute('aria-label', 'Ocultar contraseña')
+    })
+  })
+
+  describe('Accessibility (axe)', () => {
+    it('has no axe violations in the default state', async () => {
+      const { container } = render(<PasswordInput label="Password" />)
+      expect(await axe(container)).toHaveNoViolations()
+    })
+
+    it('has no axe violations while showing validation messages for an invalid password', async () => {
+      const user = userEvent.setup()
+      const { container } = render(
+        <PasswordInput label="Password" showValidationMessages debounceMs={0} />
+      )
+
+      await user.type(screen.getByLabelText('Password'), 'weak')
+      await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+
+      expect(await axe(container)).toHaveNoViolations()
+    })
+
+    it('has no axe violations when disabled', async () => {
+      const { container } = render(<PasswordInput label="Password" disabled />)
+      expect(await axe(container)).toHaveNoViolations()
     })
   })
 

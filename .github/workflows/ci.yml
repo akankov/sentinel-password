@@ -49,6 +49,18 @@ jobs:
       - name: Coverage (core, 100% threshold enforced)
         run: pnpm --filter @sentinel-password/core test:coverage
 
+      - name: Coverage (entropy, 100% threshold enforced)
+        run: pnpm --filter @sentinel-password/entropy test:coverage
+
+      - name: Coverage (breach, 100% threshold enforced)
+        run: pnpm --filter @sentinel-password/breach test:coverage
+
+      - name: Coverage (react)
+        run: pnpm --filter @sentinel-password/react test:coverage
+
+      - name: Coverage (react-components)
+        run: pnpm --filter @sentinel-password/react-components test:coverage
+
       - name: Type check
         run: pnpm typecheck
 
