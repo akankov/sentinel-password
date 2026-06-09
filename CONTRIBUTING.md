@@ -184,6 +184,8 @@ This is a pnpm workspace monorepo:
 - `packages/core` — Zero-dependency password validation engine (`@sentinel-password/core`)
 - `packages/react` — `usePasswordValidator` React hook (`@sentinel-password/react`)
 - `packages/react-components` — Headless `PasswordInput` component (`@sentinel-password/react-components`)
+- `packages/entropy` — Optional Shannon entropy + crack-time estimator (`@sentinel-password/entropy`, ≤ 30 KB gzipped CI gate)
+- `packages/breach` — Optional Have I Been Pwned k-anonymity breach check (`@sentinel-password/breach`, ≤ 10 KB gzipped CI gate)
 
 **Internal packages** (not published — listed in `.changeset/config.json` `ignore`):
 

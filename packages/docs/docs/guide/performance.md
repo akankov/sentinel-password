@@ -31,20 +31,20 @@ Benchmarks were run using Vitest bench on a single core. All numbers are operati
 
 | Password Type | sentinel-password | zxcvbn | check-password-strength | password-validator |
 |---------------|-------------------|--------|-------------------------|--------------------|
-| Weak (`"password"`) | **119,000** ops/s | 21,500 ops/s | 2,800,000 ops/s | 1,355,000 ops/s |
-| Medium (`"MyPassword1"`) | **115,000** ops/s | 6,000 ops/s | 2,400,000 ops/s | 1,650,000 ops/s |
-| Strong (`"MyP@ssw0rd123!"`) | **123,000** ops/s | 2,300 ops/s | 2,280,000 ops/s | 2,220,000 ops/s |
-| Long (200+ chars) | **55,000** ops/s | 5.2 ops/s | 2,220,000 ops/s | 1,200,000 ops/s |
-| Batch (100 passwords) | **1,665** batches/s | 36 batches/s | 23,700 batches/s | 15,600 batches/s |
+| Weak (`"password"`) | **1,410,000** ops/s | 22,000 ops/s | 2,902,000 ops/s | 1,290,000 ops/s |
+| Medium (`"MyPassword1"`) | **1,741,000** ops/s | 6,500 ops/s | 2,348,000 ops/s | 1,732,000 ops/s |
+| Strong (`"MyP@ssw0rd123!"`) | **2,221,000** ops/s | 2,700 ops/s | 2,275,000 ops/s | 2,063,000 ops/s |
+| Long (200+ chars) | **319,000** ops/s | 8 ops/s | 2,185,000 ops/s | 1,238,000 ops/s |
+| Batch (100 passwords) | **18,000** batches/s | 56 batches/s | 24,000 batches/s | 16,000 batches/s |
 
 ### How to Read These Numbers
 
-- **vs. zxcvbn**: Sentinel Password is **5–10,000x faster** depending on password length. zxcvbn's entropy-based pattern matching is thorough but computationally expensive, especially on long inputs where it degrades to ~5 ops/sec.
+- **vs. zxcvbn**: Sentinel Password is **60–40,000x faster** depending on password length. zxcvbn's entropy-based pattern matching is thorough but computationally expensive, especially on long inputs where it degrades to single-digit ops/sec.
 - **vs. check-password-strength**: It's faster because it only runs basic regex checks — no dictionary, no keyboard patterns, no sequential detection. The speed difference reflects the difference in validation depth.
 - **vs. password-validator**: Similar scope but uses a fluent API with simple regex rules. Faster for the same reason — fewer checks.
 
 ::: tip Key Takeaway
-Sentinel Password validates a typical password in **~7 microseconds**. For comparison, a single DOM repaint takes ~16 milliseconds — over 2,000x longer. Password validation will never be your bottleneck.
+Sentinel Password validates a typical password in **well under a microsecond** (~0.6 µs). For comparison, a single DOM repaint takes ~16 milliseconds — over 20,000x longer. Password validation will never be your bottleneck.
 :::
 
 ### Individual Validator Performance
@@ -107,8 +107,8 @@ The numbers above were captured on:
 
 - **CPU**: Apple M4 (10 cores)
 - **OS**: macOS (Darwin 25.5.0, arm64)
-- **Node**: v22.22.2
-- **Vitest**: `^4.1.5`
+- **Node**: v26.0.0
+- **Vitest**: `^4.1.8`
 
 Ops/sec varies 30-50 % across hardware (Intel/AMD/ARM, laptop/desktop/CI runner). Treat absolute values as illustrative; **relative ranking** (which library is fastest, by what factor) is stable across machines.
 

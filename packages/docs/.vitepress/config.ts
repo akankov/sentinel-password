@@ -54,6 +54,13 @@ export default defineConfig({
             { text: 'Performance', link: '/guide/performance' },
           ],
         },
+        {
+          text: 'Optional Add-ons',
+          items: [
+            { text: 'Entropy Estimator', link: '/api/entropy' },
+            { text: 'Breach Checking', link: '/api/breach' },
+          ],
+        },
       ],
 
       '/api/': [

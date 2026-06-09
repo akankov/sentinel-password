@@ -2,19 +2,21 @@
 
 ## Package Overview
 
-Sentinel Password ships four packages — pick the one(s) that match what you're building:
+Sentinel Password ships five packages — pick the one(s) that match what you're building:
 
 | Package | Gzipped (ESM) | Raw (ESM) | Runtime deps | Peer deps |
 |---------|---------------|-----------|--------------|-----------|
-| `@sentinel-password/core` | ~5.4 KB | ~15.8 KB | none | none |
+| `@sentinel-password/core` | ~6.3 KB | ~18.5 KB | none | none |
 | `@sentinel-password/react` | ~0.7 KB | ~2.5 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19 |
-| `@sentinel-password/react-components` | ~1.7 KB | ~6.0 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19, React DOM 18 or 19 |
-| `@sentinel-password/entropy` | ~28 KB | ~53 KB | none | none |
+| `@sentinel-password/react-components` | ~1.9 KB | ~7.3 KB | `@sentinel-password/core` (installed transitively) | React 18 or 19, React DOM 18 or 19 |
+| `@sentinel-password/entropy` | ~28 KB | ~47 KB | none | none |
+| `@sentinel-password/breach` | ~1.6 KB | ~4.0 KB | none | none |
 
 - **`@sentinel-password/core`** — zero-dependency validation engine. Use directly with vanilla JS, Node, Deno, Bun, or any framework.
 - **`@sentinel-password/react`** — `usePasswordValidator` hook with debouncing and state management.
 - **`@sentinel-password/react-components`** — headless, accessible `PasswordInput` component.
 - **`@sentinel-password/entropy`** — optional Shannon entropy + crack-time estimator. Standalone, not bundled with core. Use alongside core when you need a "how long would it survive an offline attack?" signal in addition to rule-based validity.
+- **`@sentinel-password/breach`** — optional Have I Been Pwned breach check using SHA-1 k-anonymity (only a 5-character hash prefix ever leaves the process). Standalone and async; **server-side recommended**. Use alongside core when you want to reject passwords known to appear in public breaches.
 
 > Sizes are the ESM build measured at the time of this release; CJS is slightly larger. Runtime deps install automatically with your package-manager command — you only ever need to `npm install` the package you're using. Peer deps are bring-your-own.
 
@@ -38,6 +40,10 @@ npm install @sentinel-password/react-components
 ```bash [Entropy]
 npm install @sentinel-password/entropy
 ```
+
+```bash [Breach]
+npm install @sentinel-password/breach
+```
 :::
 
 ### pnpm
@@ -57,6 +63,10 @@ pnpm add @sentinel-password/react-components
 
 ```bash [Entropy]
 pnpm add @sentinel-password/entropy
+```
+
+```bash [Breach]
+pnpm add @sentinel-password/breach
 ```
 :::
 
@@ -78,6 +88,10 @@ yarn add @sentinel-password/react-components
 ```bash [Entropy]
 yarn add @sentinel-password/entropy
 ```
+
+```bash [Breach]
+yarn add @sentinel-password/breach
+```
 :::
 
 ### bun
@@ -97,6 +111,10 @@ bun add @sentinel-password/react-components
 
 ```bash [Entropy]
 bun add @sentinel-password/entropy
+```
+
+```bash [Breach]
+bun add @sentinel-password/breach
 ```
 :::
 
@@ -139,6 +157,11 @@ import type {
   EntropyPattern,
   CrackTimePresets,
 } from '@sentinel-password/entropy'
+
+import type {
+  BreachOptions,
+  BreachResult,
+} from '@sentinel-password/breach'
 ```
 
 ## Module Formats
