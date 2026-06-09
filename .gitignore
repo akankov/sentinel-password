@@ -12,6 +12,8 @@ storybook-static/
 # Testing
 coverage/
 .nyc_output/
+.stryker-tmp/
+**/reports/mutation/
 
 # Environment variables
 .env

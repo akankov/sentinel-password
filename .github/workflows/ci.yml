@@ -61,6 +61,15 @@ jobs:
       - name: Coverage (react-components)
         run: pnpm --filter @sentinel-password/react-components test:coverage
 
+      - name: Upload coverage to Codecov
+        if: matrix.node-version == 24
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          files: packages/core/coverage/lcov.info,packages/entropy/coverage/lcov.info,packages/breach/coverage/lcov.info,packages/react/coverage/lcov.info,packages/react-components/coverage/lcov.info
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Type check
         run: pnpm typecheck
 
