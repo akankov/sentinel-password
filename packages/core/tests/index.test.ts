@@ -143,6 +143,33 @@ describe('validatePassword', () => {
     })
   })
 
+  describe('failures', () => {
+    it('is empty for a fully valid password', () => {
+      const result = validatePassword('V4lidP4ssw0rd!')
+      expect(result.valid).toBe(true)
+      expect(result.failures).toEqual([])
+    })
+
+    it('reports a single structured failure with a stable code and params', () => {
+      const result = validatePassword('Ab1!x') // 5 chars — fails length only
+      expect(result.failures).toHaveLength(1)
+      expect(result.failures[0]).toMatchObject({ check: 'length', code: 'length.tooShort' })
+      expect(result.failures[0]?.params).toBeDefined()
+      expect(typeof result.failures[0]?.message).toBe('string')
+    })
+
+    it('reports multiple failures whose messages mirror feedback.suggestions', () => {
+      const result = validatePassword('abc') // fails length + sequential (>= 2 checks)
+      expect(result.failures.length).toBeGreaterThanOrEqual(2)
+      const codes = result.failures.map((failure) => failure.code)
+      expect(codes).toContain('length.tooShort')
+      expect(codes).toContain('sequential.found')
+      expect(result.failures.map((failure) => failure.message)).toEqual([
+        ...result.feedback.suggestions,
+      ])
+    })
+  })
+
   describe('personal info validation', () => {
     it('should reject password containing username', () => {
       const result = validatePassword('alice2024', { personalInfo: ['alice'] })

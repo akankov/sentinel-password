@@ -67,4 +67,11 @@ describe('validateRepetition', () => {
     const result = validateRepetition('a'.repeat(100), { maxRepeatedChars: 3 })
     expect(result.passed).toBe(false)
   })
+
+  it('detects repeated astral characters (emoji) by code point', () => {
+    // Four identical emoji are 8 UTF-16 code units; a code-unit scan would miss
+    // the run. Code-point iteration counts them as 4 repeats and flags it.
+    expect(validateRepetition('\u{1F600}'.repeat(4)).passed).toBe(false)
+    expect(validateRepetition('\u{1F600}'.repeat(3)).passed).toBe(true)
+  })
 })

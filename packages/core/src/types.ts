@@ -44,18 +44,22 @@ export type MessageFormatter = (
 ) => string
 
 /**
- * Individual validator check result
+ * Individual validator check result. A discriminated union on `passed`: the
+ * failure branch guarantees `message`, `code`, and `params` are present, so
+ * consumers can read them after a `passed === false` narrow without
+ * optional-chaining or non-null assertions.
  */
-export interface ValidatorCheck {
-  /** Whether this check passed */
-  passed: boolean
-  /** Default rendering of the message (English unless overridden via options) */
-  message?: string
-  /** Stable, locale-independent identifier for the failure (`undefined` when `passed: true`) */
-  code?: MessageCode
-  /** Interpolation values for the message template (`undefined` when `passed: true`) */
-  params?: MessageParams
-}
+export type ValidatorCheck =
+  | { passed: true }
+  | {
+      passed: false
+      /** Default rendering of the message (English unless overridden via options) */
+      message: string
+      /** Stable, locale-independent identifier for the failure */
+      code: MessageCode
+      /** Interpolation values for the message template */
+      params: MessageParams
+    }
 
 /**
  * Identifiers for individual validation checks
@@ -68,6 +72,22 @@ export type CheckId =
   | 'keyboardPattern'
   | 'commonPassword'
   | 'personalInfo'
+
+/**
+ * A single failed check, surfaced on {@link ValidationResult.failures} so
+ * consumers can localize per-check failures via the stable `code`/`params`
+ * without re-running the individual validators.
+ */
+export interface ValidationFailure {
+  /** Which check failed. */
+  check: CheckId
+  /** Stable, locale-independent failure identifier. */
+  code: MessageCode
+  /** Interpolation values for the message template. */
+  params: MessageParams
+  /** Default (English) rendering, or the consumer's `formatMessage` output. */
+  message: string
+}
 
 /**
  * Result of password validation
@@ -88,6 +108,13 @@ export interface ValidationResult {
   }
   /** Individual check results */
   checks: Record<CheckId, boolean>
+  /**
+   * Structured per-check failures in evaluation order (empty when every check
+   * passes). Carries the stable `code`/`params` that `feedback.suggestions`
+   * (pre-rendered strings) and `checks` (booleans) don't expose — use these to
+   * localize per failing check from the zero-config `validatePassword` call.
+   */
+  failures: readonly ValidationFailure[]
 }
 
 /**

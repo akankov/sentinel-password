@@ -111,6 +111,14 @@ export async function checkBreach(
   }
 
   const breachCount: number = countFor(body, suffix)
-  const threshold: number = options.threshold ?? DEFAULT_THRESHOLD
+  // Guard against a misconfigured threshold (NaN/0/negative — e.g. a bad
+  // `parseInt` of an env var). A NaN threshold makes `breachCount >= threshold`
+  // always false, silently reporting a pwned password as safe — the exact
+  // fail-open this package avoids elsewhere. Fall back to the default instead.
+  const rawThreshold: number | undefined = options.threshold
+  const threshold: number =
+    rawThreshold !== undefined && Number.isFinite(rawThreshold) && rawThreshold >= 1
+      ? rawThreshold
+      : DEFAULT_THRESHOLD
   return { status: 'ok', breachCount, breached: breachCount >= threshold }
 }

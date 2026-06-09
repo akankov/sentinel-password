@@ -5,7 +5,7 @@ import type { ValidationResult, ValidatorOptions } from '@sentinel-password/core
  */
 export interface PasswordInputProps extends Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'onChange'
+  'type' | 'onChange' | 'value' | 'defaultValue'
 > {
   /**
    * Accessible label for the password input
@@ -18,6 +18,19 @@ export interface PasswordInputProps extends Omit<
    * Displayed below the label and associated with the input via aria-describedby
    */
   description?: string
+
+  /**
+   * Controlled value. Narrowed to `string` — a password field is always text
+   * (React's base type also allows `number`/`readonly string[]`, which are
+   * meaningless here).
+   */
+  value?: string
+
+  /**
+   * Initial value for uncontrolled usage. Narrowed to `string` for the same
+   * reason as {@link value}.
+   */
+  defaultValue?: string
 
   /**
    * Callback fired when validation state changes

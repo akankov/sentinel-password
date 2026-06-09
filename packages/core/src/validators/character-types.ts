@@ -60,51 +60,26 @@ export const hasDigit = (password: string): boolean => /\d/.test(password)
  * ```
  *
  * @remarks
- * Accepted symbols: ! @ # $ % ^ & * ( ) _ + - = [ ] { } ; ' : " \ | , . < > / ?
+ * A symbol is any printable ASCII character that is not a letter or digit —
+ * code points 0x20–0x7E excluding 0-9, A-Z, a-z. This includes space, backtick
+ * (`` ` ``) and tilde (`~`), matching the character-class counting in
+ * `@sentinel-password/entropy`.
  */
 export const hasSymbol = (password: string): boolean =>
-  /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
+  /[\x20-\x2F\x3A-\x40\x5B-\x60\x7B-\x7E]/.test(password)
 
 /**
- * Char codes for the symbol set above, packed into a Set for O(1) lookup during
- * the single-pass scan in {@link validateCharacterTypes}. Built once at module
- * load. Must stay in sync with the regex character class in {@link hasSymbol}.
- *
- * Backtick (0x60) is intentionally NOT in this set — it isn't in `hasSymbol`'s
- * regex either.
+ * Char-code counterpart of {@link hasSymbol}, used by the single-pass scan in
+ * {@link validateCharacterTypes}: true for any printable ASCII code point that
+ * is not a letter or digit (0x20-0x2F, 0x3A-0x40, 0x5B-0x60, 0x7B-0x7E). Covers
+ * space (0x20), backtick (0x60) and tilde (0x7E). Must stay in sync with the
+ * regex character class in {@link hasSymbol}.
  */
-const SYMBOL_CODES: ReadonlySet<number> = new Set<number>([
-  33, // !
-  34, // "
-  35, // #
-  36, // $
-  37, // %
-  38, // &
-  39, // '
-  40, // (
-  41, // )
-  42, // *
-  43, // +
-  44, // ,
-  45, // -
-  46, // .
-  47, // /
-  58, // :
-  59, // ;
-  60, // <
-  61, // =
-  62, // >
-  63, // ?
-  64, // @
-  91, // [
-  92, // \
-  93, // ]
-  94, // ^
-  95, // _
-  123, // {
-  124, // |
-  125, // }
-])
+const isSymbolCode = (c: number): boolean =>
+  (c >= 0x20 && c <= 0x2f) ||
+  (c >= 0x3a && c <= 0x40) ||
+  (c >= 0x5b && c <= 0x60) ||
+  (c >= 0x7b && c <= 0x7e)
 
 /**
  * Validates character type requirements (uppercase, lowercase, digits, symbols)
@@ -184,7 +159,7 @@ export const validateCharacterTypes: Validator = (password, options = {}) => {
       foundLower = true
     } else if (!foundDigit && c >= 48 && c <= 57) {
       foundDigit = true
-    } else if (!foundSymbol && SYMBOL_CODES.has(c)) {
+    } else if (!foundSymbol && isSymbolCode(c)) {
       foundSymbol = true
     }
   }

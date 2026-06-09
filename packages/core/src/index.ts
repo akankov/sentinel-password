@@ -7,6 +7,7 @@ export type {
   StrengthScore,
   StrengthLabel,
   ValidationResult,
+  ValidationFailure,
   ValidatorOptions,
   ValidatorCheck,
   Validator,
@@ -34,6 +35,7 @@ export { validatePersonalInfo } from './validators/personal-info'
 
 import type {
   ValidationResult,
+  ValidationFailure,
   ValidatorOptions,
   StrengthScore,
   StrengthLabel,
@@ -205,6 +207,9 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * per-call `suggestions: []` allocation when no validator fails. */
 const EMPTY_SUGGESTIONS: readonly string[] = Object.freeze([])
 
+/** Frozen empty array shared by the all-passing path (no per-call allocation). */
+const EMPTY_FAILURES: readonly ValidationFailure[] = Object.freeze([])
+
 /** Total number of validators run by `validatePassword`. Compile-time constant. */
 const TOTAL_CHECKS: number = 7
 
@@ -237,41 +242,51 @@ export function validatePassword(
   }
 
   let passedChecks: number = 0
-  let suggestions: string[] | undefined
-  let firstSuggestion: string | undefined
+  let failures: ValidationFailure[] | undefined
 
   /**
    * Accumulate a validator's pass/fail outcome. Increments `passedChecks` on
-   * success; otherwise lazy-allocates `suggestions` (so the success-path call
-   * pays no array allocation) and records the first message for `feedback.warning`.
+   * success; otherwise lazy-allocates `failures` (so the all-passing path pays
+   * no array allocation) with the stable code/params. The discriminated
+   * `ValidatorCheck` guarantees message/code/params are present once `passed` is
+   * `false`, so no presence guard is needed. `feedback` is derived from
+   * `failures` below — a single source of truth for warning/suggestions.
    */
-  const record = (result: ValidatorCheck): void => {
+  const record = (check: CheckId, result: ValidatorCheck): void => {
     if (result.passed) {
       passedChecks++
       return
     }
-    /* v8 ignore next */
-    if (result.message === undefined) return
-    if (suggestions === undefined) {
-      suggestions = [result.message]
-      firstSuggestion = result.message
+    const failure: ValidationFailure = {
+      check,
+      code: result.code,
+      params: result.params,
+      message: result.message,
+    }
+    if (failures === undefined) {
+      failures = [failure]
     } else {
-      suggestions.push(result.message)
+      failures.push(failure)
     }
   }
 
-  record(lengthResult)
-  record(charTypesResult)
-  record(repetitionResult)
-  record(sequentialResult)
-  record(commonPasswordResult)
-  record(personalInfoResult)
-  record(keyboardPatternResult)
+  record('length', lengthResult)
+  record('characterTypes', charTypesResult)
+  record('repetition', repetitionResult)
+  record('sequential', sequentialResult)
+  record('commonPassword', commonPasswordResult)
+  record('personalInfo', personalInfoResult)
+  record('keyboardPattern', keyboardPatternResult)
 
   const score: StrengthScore = Math.min(
     4,
     Math.floor((passedChecks / TOTAL_CHECKS) * 5)
   ) as StrengthScore
+
+  const suggestions: readonly string[] = failures
+    ? failures.map((failure) => failure.message)
+    : EMPTY_SUGGESTIONS
+  const firstSuggestion: string | undefined = failures?.[0]?.message
 
   return {
     valid: passedChecks === TOTAL_CHECKS,
@@ -280,8 +295,9 @@ export function validatePassword(
     strength: STRENGTH_LABELS[score] ?? 'very-weak',
     feedback: {
       ...(firstSuggestion !== undefined && { warning: firstSuggestion }),
-      suggestions: suggestions ?? EMPTY_SUGGESTIONS,
+      suggestions,
     },
     checks,
+    failures: failures ?? EMPTY_FAILURES,
   }
 }

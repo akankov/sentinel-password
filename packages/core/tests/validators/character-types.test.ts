@@ -80,6 +80,12 @@ describe('hasSymbol', () => {
     expect(hasSymbol('pass(word')).toBe(true)
     expect(hasSymbol('pass)word')).toBe(true)
   })
+
+  it('counts space, backtick, and tilde as symbols (any printable non-alphanumeric ASCII)', () => {
+    expect(hasSymbol('pass~word')).toBe(true)
+    expect(hasSymbol('pass`word')).toBe(true)
+    expect(hasSymbol('pass word')).toBe(true)
+  })
 })
 
 describe('validateCharacterTypes', () => {
@@ -122,6 +128,12 @@ describe('validateCharacterTypes', () => {
 
     const resultValid = validateCharacterTypes('password!', { requireSymbol: true })
     expect(resultValid.passed).toBe(true)
+  })
+
+  it('accepts tilde, backtick, and space for the symbol requirement', () => {
+    expect(validateCharacterTypes('Password1~', { requireSymbol: true }).passed).toBe(true)
+    expect(validateCharacterTypes('Password1`', { requireSymbol: true }).passed).toBe(true)
+    expect(validateCharacterTypes('Password1 ', { requireSymbol: true }).passed).toBe(true)
   })
 
   it('should validate multiple requirements', () => {

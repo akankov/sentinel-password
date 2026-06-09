@@ -24,7 +24,15 @@ export interface EntropyOptions {
   readonly scoreThresholds?: ScoreThresholds
 }
 
-export type StrengthScore = 0 | 1 | 2 | 3 | 4
+/** Banded strength score: 0 (very weak) – 4 (very strong). */
+export type EntropyScore = 0 | 1 | 2 | 3 | 4
+
+/**
+ * @deprecated Use {@link EntropyScore}. Retained as an alias to avoid a name
+ * collision with `@sentinel-password/core`'s `StrengthScore` when both packages
+ * are imported in the same module. Will be removed in a future major.
+ */
+export type StrengthScore = EntropyScore
 
 export type EntropyPattern =
   | 'sequence'
@@ -59,7 +67,7 @@ export interface EntropyResult {
   /** Effective entropy after pattern/dictionary/l33t reduction. */
   readonly bits: number
   /** Banded score derived from `bits` via `scoreThresholds`. */
-  readonly score: StrengthScore
+  readonly score: EntropyScore
   /** Estimated crack times under four standard attack models. */
   readonly crackTime: CrackTimePresets
   /** Reducing patterns detected, in left-to-right encounter order, deduplicated. */
