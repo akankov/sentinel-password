@@ -1,0 +1,17 @@
+# Codecov configuration.
+#
+# PR comments are disabled to respect this repo's no-bot-PR-comment convention
+# (commit messages + PR descriptions carry the context). Coverage status checks
+# are informational only — the authoritative gate is the per-package Vitest
+# coverage threshold enforced in CI (core/entropy/breach at 100%), so Codecov
+# provides visibility/trends without blocking merges.
+comment: false
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
