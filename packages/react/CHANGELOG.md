@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.6
+
+### Patch Changes
+
+- [#195](https://github.com/akankov/sentinel-password/pull/195) [`fba8ca1`](https://github.com/akankov/sentinel-password/commit/fba8ca141d9fd0d66c76e0a4beca780833755c79) Thanks [@akankov](https://github.com/akankov)! - Packaging hygiene: ship a `LICENSE` file in every published tarball (previously
+  only the repo root had one), declare `engines.node: ">=20"`, emit npm provenance
+  intrinsically via `publishConfig.provenance` (so manual/first publishes match the
+  CI flow), and use the canonical `git+https://….git` repository URL.
+- Updated dependencies [[`275f4d4`](https://github.com/akankov/sentinel-password/commit/275f4d4bc69aca7888478bcf0b898c274db66cd8), [`fba8ca1`](https://github.com/akankov/sentinel-password/commit/fba8ca141d9fd0d66c76e0a4beca780833755c79)]:
+  - @sentinel-password/core@1.3.0
+
 ## 1.3.5
 
 ### Patch Changes
