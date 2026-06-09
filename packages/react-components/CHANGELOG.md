@@ -1,5 +1,41 @@
 # @sentinel-password/react-components
 
+## 1.3.0
+
+### Minor Changes
+
+- [#196](https://github.com/akankov/sentinel-password/pull/196) [`275f4d4`](https://github.com/akankov/sentinel-password/commit/275f4d4bc69aca7888478bcf0b898c274db66cd8) Thanks [@akankov](https://github.com/akankov)! - Core correctness and type-design improvements.
+  - **core:** `requireSymbol` now counts every printable non-alphanumeric ASCII
+    character — including space, backtick (`` ` ``) and tilde (`~`) — matching
+    `@sentinel-password/entropy`'s character-class counting. Previously these
+    three were rejected, so e.g. `Abcdef1~` failed the symbol requirement.
+  - **core:** the repetition validator iterates by Unicode code point, so runs of
+    identical astral characters (e.g. repeated emoji) are detected instead of
+    slipping through a UTF-16 code-unit scan.
+  - **core:** `ValidatorCheck` is now a discriminated union on `passed` — the
+    failure branch guarantees `message`/`code`/`params`, so consumers no longer
+    need non-null assertions to read them.
+  - **core:** `ValidationResult` gains `failures: ValidationFailure[]`, exposing
+    each failing check's stable `code`/`params` from the zero-config
+    `validatePassword` call (previously only pre-rendered English strings were
+    surfaced via `feedback.suggestions`).
+  - **entropy:** added `EntropyScore` as the canonical score type; `StrengthScore`
+    is retained as a deprecated alias to avoid a name collision with core's
+    `StrengthScore` when both packages are imported together.
+  - **react-components:** `PasswordInput`'s `value`/`defaultValue` props are
+    narrowed to `string` (a password field is always text).
+  - **breach:** a misconfigured `threshold` (NaN, 0, or negative) now falls back
+    to the default of `1` instead of silently reporting a pwned password as safe.
+
+### Patch Changes
+
+- [#195](https://github.com/akankov/sentinel-password/pull/195) [`fba8ca1`](https://github.com/akankov/sentinel-password/commit/fba8ca141d9fd0d66c76e0a4beca780833755c79) Thanks [@akankov](https://github.com/akankov)! - Packaging hygiene: ship a `LICENSE` file in every published tarball (previously
+  only the repo root had one), declare `engines.node: ">=20"`, emit npm provenance
+  intrinsically via `publishConfig.provenance` (so manual/first publishes match the
+  CI flow), and use the canonical `git+https://….git` repository URL.
+- Updated dependencies [[`275f4d4`](https://github.com/akankov/sentinel-password/commit/275f4d4bc69aca7888478bcf0b898c274db66cd8), [`fba8ca1`](https://github.com/akankov/sentinel-password/commit/fba8ca141d9fd0d66c76e0a4beca780833755c79)]:
+  - @sentinel-password/core@1.3.0
+
 ## 1.2.5
 
 ### Patch Changes
