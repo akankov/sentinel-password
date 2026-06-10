@@ -85,4 +85,18 @@ describe('validatePersonalInfo', () => {
     const result = validatePersonalInfo('john.doe123', { personalInfo: ['john.doe'] })
     expect(result.passed).toBe(false)
   })
+
+  it('should trim surrounding whitespace before matching', () => {
+    // Without trimming, the stored value would be '  john  ', which is not a
+    // substring of 'john123' — so detection depends on the .trim() call.
+    const result = validatePersonalInfo('john123', { personalInfo: ['  john  '] })
+    expect(result.passed).toBe(false)
+  })
+
+  it('should default to no personal info when the option is omitted', () => {
+    // With no personalInfo option the check must be a no-op: even a password
+    // that would match an injected default value still passes.
+    const result = validatePersonalInfo('xxStryker was herexx')
+    expect(result.passed).toBe(true)
+  })
 })

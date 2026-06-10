@@ -11,8 +11,8 @@
     "version": "main"
   },
   "thresholds": {
-    "high": 80,
-    "low": 65,
-    "break": 60
+    "high": 95,
+    "low": 85,
+    "break": 90
   }
 }

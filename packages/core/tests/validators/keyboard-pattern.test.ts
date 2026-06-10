@@ -422,4 +422,25 @@ describe('validateKeyboardPattern', () => {
       expect(validateKeyboardPattern('R@nd0mP@ss!').passed).toBe(true)
     })
   })
+
+  // These wrappers deliberately avoid digits and other layout fragments so the
+  // ONLY thing that can trigger detection is the case-folding (/i) or the
+  // reverse-pattern expansion — not an incidental numeric pattern like '123'.
+  describe('case-insensitivity and reverse patterns (isolated)', () => {
+    it('detects an uppercase pattern (relies on the /i flag)', () => {
+      expect(validateKeyboardPattern('QWERT').passed).toBe(false)
+    })
+
+    it('detects a mixed-case pattern (relies on the /i flag)', () => {
+      expect(validateKeyboardPattern('QwErT').passed).toBe(false)
+    })
+
+    it('detects a reversed pattern (trewq = reverse of qwert)', () => {
+      expect(validateKeyboardPattern('trewq').passed).toBe(false)
+    })
+
+    it('accepts a clean wrapper with no pattern, case, or reverse match', () => {
+      expect(validateKeyboardPattern('Gh').passed).toBe(true)
+    })
+  })
 })

@@ -166,3 +166,82 @@ describe('validateCharacterTypes', () => {
     expect(result.message).toContain('symbol')
   })
 })
+
+describe('validateCharacterTypes — class boundaries (single-pass scan)', () => {
+  // Each boundary char is the only candidate for its required class, so the
+  // result hinges on the exact comparison operators inside the char-code scan.
+  const requireSymbol = { requireSymbol: true } as const
+
+  it.each([
+    ['space', ' '], // 0x20 — lower edge of range 1
+    ['slash', '/'], // 0x2f — upper edge of range 1
+    ['colon', ':'], // 0x3a — lower edge of range 2
+    ['at', '@'], // 0x40 — upper edge of range 2
+    ['open-bracket', '['], // 0x5b — lower edge of range 3
+    ['backtick', '`'], // 0x60 — upper edge of range 3
+    ['open-brace', '{'], // 0x7b — lower edge of range 4
+    ['tilde', '~'], // 0x7e — upper edge of range 4
+  ])('treats %s as a symbol', (_name, char) => {
+    expect(validateCharacterTypes(char, requireSymbol).passed).toBe(true)
+  })
+
+  it.each([
+    ['unit separator (0x1f)', '\x1f'], // just below range 1
+    ['delete (0x7f)', '\x7f'], // just above range 4
+  ])('does not treat %s as a symbol', (_name, char) => {
+    expect(validateCharacterTypes(char, requireSymbol).passed).toBe(false)
+  })
+
+  it('treats A and Z as uppercase but @ (0x40) as not', () => {
+    expect(validateCharacterTypes('A', { requireUppercase: true }).passed).toBe(true)
+    expect(validateCharacterTypes('Z', { requireUppercase: true }).passed).toBe(true)
+    expect(validateCharacterTypes('@', { requireUppercase: true }).passed).toBe(false)
+  })
+
+  it('treats a and z as lowercase but { (0x7b) as not', () => {
+    expect(validateCharacterTypes('a', { requireLowercase: true }).passed).toBe(true)
+    expect(validateCharacterTypes('z', { requireLowercase: true }).passed).toBe(true)
+    expect(validateCharacterTypes('{', { requireLowercase: true }).passed).toBe(false)
+  })
+
+  it('treats 0 and 9 as digits but / (0x2f) as not', () => {
+    expect(validateCharacterTypes('0', { requireDigit: true }).passed).toBe(true)
+    expect(validateCharacterTypes('9', { requireDigit: true }).passed).toBe(true)
+    expect(validateCharacterTypes('/', { requireDigit: true }).passed).toBe(false)
+  })
+})
+
+describe('validateCharacterTypes — defaults and missing-type accounting', () => {
+  it('does not require lowercase unless asked', () => {
+    // No requireLowercase → an all-uppercase+digit password must still pass.
+    const result = validateCharacterTypes('PASSWORD1', {
+      requireUppercase: true,
+      requireDigit: true,
+    })
+    expect(result.passed).toBe(true)
+  })
+
+  it('reports only the genuinely missing type (symbol)', () => {
+    const result = validateCharacterTypes('Aa1', {
+      requireUppercase: true,
+      requireLowercase: true,
+      requireDigit: true,
+      requireSymbol: true,
+    })
+    expect(result.passed).toBe(false)
+    expect(result.params?.missing).toBe('symbol')
+    expect(result.params?.missingTypes).toBe('symbol')
+  })
+
+  it('reports only the genuinely missing type (lowercase)', () => {
+    const result = validateCharacterTypes('A1!', {
+      requireUppercase: true,
+      requireLowercase: true,
+      requireDigit: true,
+      requireSymbol: true,
+    })
+    expect(result.passed).toBe(false)
+    expect(result.params?.missing).toBe('lowercase letter')
+    expect(result.params?.missingTypes).toBe('lowercase')
+  })
+})
