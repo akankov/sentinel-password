@@ -24,35 +24,39 @@ describe('validateKeyboardPattern', () => {
       expect(result.passed).toBe(false)
     })
 
+    // NOTE: wrappers here must stay digit-free. A suffix like '123' is itself a
+    // keyboard pattern, so it would mask whether case-folding actually works.
     it('should be case-insensitive for QWERTY', () => {
-      const result = validateKeyboardPattern('QWERTY123')
+      const result = validateKeyboardPattern('QWERTY')
       expect(result.passed).toBe(false)
     })
 
     it('should be case-insensitive for mixed case', () => {
-      const result = validateKeyboardPattern('QwErTy123')
+      const result = validateKeyboardPattern('QwErTy')
       expect(result.passed).toBe(false)
     })
   })
 
+  // Each wrapper avoids digits and forward fragments so detection can ONLY come
+  // from the reverse-pattern expansion, not an incidental pattern like '123'.
   describe('reverse patterns', () => {
     it('should reject reversed qwerty (ytrewq)', () => {
-      const result = validateKeyboardPattern('ytrewq123')
+      const result = validateKeyboardPattern('ytrewq')
       expect(result.passed).toBe(false)
     })
 
     it('should reject reversed asdfgh (hgfdsa)', () => {
-      const result = validateKeyboardPattern('hgfdsa456')
+      const result = validateKeyboardPattern('hgfdsa')
       expect(result.passed).toBe(false)
     })
 
     it('should reject reversed zxcvbn (nbvcxz)', () => {
-      const result = validateKeyboardPattern('nbvcxz789')
+      const result = validateKeyboardPattern('nbvcxz')
       expect(result.passed).toBe(false)
     })
 
-    it('should reject reversed number sequence (0987654321)', () => {
-      const result = validateKeyboardPattern('pass0987654321')
+    it('should reject reversed numeric keypad (987 = reverse of 789)', () => {
+      const result = validateKeyboardPattern('987')
       expect(result.passed).toBe(false)
     })
   })
@@ -270,12 +274,12 @@ describe('validateKeyboardPattern', () => {
     })
 
     it('should be case-insensitive for AZERTY', () => {
-      const result = validateKeyboardPattern('AZERTY789')
+      const result = validateKeyboardPattern('AZERTY')
       expect(result.passed).toBe(false)
     })
 
     it('should reject reversed azerty (ytreza)', () => {
-      const result = validateKeyboardPattern('ytreza123')
+      const result = validateKeyboardPattern('ytreza')
       expect(result.passed).toBe(false)
     })
   })
@@ -302,12 +306,12 @@ describe('validateKeyboardPattern', () => {
     })
 
     it('should be case-insensitive for QWERTZ', () => {
-      const result = validateKeyboardPattern('QWERTZ456')
+      const result = validateKeyboardPattern('QWERTZ')
       expect(result.passed).toBe(false)
     })
 
     it('should reject reversed qwertz (ztrewq)', () => {
-      const result = validateKeyboardPattern('ztrewq123')
+      const result = validateKeyboardPattern('ztrewq')
       expect(result.passed).toBe(false)
     })
   })
@@ -388,7 +392,7 @@ describe('validateKeyboardPattern', () => {
     })
 
     it('should reject reversed йцукен (некуцй)', () => {
-      const result = validateKeyboardPattern('некуцй789')
+      const result = validateKeyboardPattern('некуцй')
       expect(result.passed).toBe(false)
     })
   })
@@ -420,27 +424,6 @@ describe('validateKeyboardPattern', () => {
 
     it('should accept password with no patterns from any layout', () => {
       expect(validateKeyboardPattern('R@nd0mP@ss!').passed).toBe(true)
-    })
-  })
-
-  // These wrappers deliberately avoid digits and other layout fragments so the
-  // ONLY thing that can trigger detection is the case-folding (/i) or the
-  // reverse-pattern expansion — not an incidental numeric pattern like '123'.
-  describe('case-insensitivity and reverse patterns (isolated)', () => {
-    it('detects an uppercase pattern (relies on the /i flag)', () => {
-      expect(validateKeyboardPattern('QWERT').passed).toBe(false)
-    })
-
-    it('detects a mixed-case pattern (relies on the /i flag)', () => {
-      expect(validateKeyboardPattern('QwErT').passed).toBe(false)
-    })
-
-    it('detects a reversed pattern (trewq = reverse of qwert)', () => {
-      expect(validateKeyboardPattern('trewq').passed).toBe(false)
-    })
-
-    it('accepts a clean wrapper with no pattern, case, or reverse match', () => {
-      expect(validateKeyboardPattern('Gh').passed).toBe(true)
     })
   })
 })
