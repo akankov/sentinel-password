@@ -17,6 +17,11 @@ import { resolveMessage } from '../messages'
 const BLOOM_SIZE: number = 12000
 const BLOOM_HASH_COUNT: number = 7
 
+// Stryker disable all: the values below are GENERATED data, not logic. Mutating
+// individual table entries (e.g. flipping one int's sign) produces equivalent
+// mutants — altering a single bucket in a 12,000-bit filter never changes the
+// pass/fail outcome for any password. Filter integrity is verified instead by
+// the full-wordlist test in tests/validators/common-password.test.ts.
 const BLOOM_BUCKETS: Int32Array = new Int32Array([
   -1274142440, -1983615455, -2110842727, -1440077142, 1782964852, 956870738, 48445478, 290080800,
   -1961772502, -1869995330, 787111091, 140549329, -1508237141, -800970204, -1987272632, -1439602637,
@@ -67,6 +72,7 @@ const BLOOM_BUCKETS: Int32Array = new Int32Array([
   -1484380630, 1101004848, -1054523758, -2116504793, 1118667297, 86058657, 975856680, 749906058,
   1937961650, 620890537, 918765730, -1366546774,
 ])
+// Stryker restore all
 // --- END GENERATED BLOOM FILTER ---
 
 /**

@@ -115,6 +115,9 @@ describe('validatePassword', () => {
       const result = validatePassword('V4lidP4ssw0rd!')
       expect(result.feedback.suggestions).toHaveLength(0)
       expect(result.feedback.warning).toBeUndefined()
+      // The `warning` key must be ABSENT (not present-but-undefined) when there
+      // are no failures — it is conditionally spread in only on a real failure.
+      expect('warning' in result.feedback).toBe(false)
     })
 
     it('should set warning to first suggestion', () => {
@@ -218,5 +221,30 @@ describe('validatePassword', () => {
       const result = validatePassword('qwerty123', { checkKeyboardPatterns: false })
       expect(result.checks['keyboardPattern']).toBe(true)
     })
+  })
+
+  describe('failure identity (check field)', () => {
+    // Each scenario is crafted so the named validator is (at least) one of the
+    // failing checks, pinning the `check` label recorded for that validator.
+    const cases: ReadonlyArray<{
+      check: string
+      password: string
+      options?: Parameters<typeof validatePassword>[1]
+    }> = [
+      { check: 'characterTypes', password: 'bnfmwzqxpv', options: { requireUppercase: true } },
+      { check: 'repetition', password: 'aaaabnfmwzqx' },
+      { check: 'sequential', password: 'abcnfmwzqp' },
+      { check: 'commonPassword', password: 'password' },
+      { check: 'personalInfo', password: 'johnsmithqpv', options: { personalInfo: ['johnsmith'] } },
+      { check: 'keyboardPattern', password: 'qwertbnfmz' },
+    ]
+
+    it.each(cases)(
+      'labels a $check failure with check="$check"',
+      ({ check, password, options }) => {
+        const result = validatePassword(password, options)
+        expect(result.failures.map((f) => f.check)).toContain(check)
+      }
+    )
   })
 })
