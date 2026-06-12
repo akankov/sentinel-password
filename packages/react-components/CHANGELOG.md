@@ -1,5 +1,16 @@
 # @sentinel-password/react-components
 
+## 1.3.1
+
+### Patch Changes
+
+- [#209](https://github.com/akankov/sentinel-password/pull/209) [`7bcdd21`](https://github.com/akankov/sentinel-password/commit/7bcdd213f5c58b7ab3f5ca2084fb65232e7f75be) Thanks [@akankov](https://github.com/akankov)! - Maintenance release: refresh development tooling (Storybook 10.4.4, turbo
+  2.9.18, @types/node 25.9.3) and add Stryker mutation testing to core
+  (96% mutation score, enforced via `test:mutation`). No runtime changes —
+  published code is identical in behavior to the previous versions.
+- Updated dependencies [[`7bcdd21`](https://github.com/akankov/sentinel-password/commit/7bcdd213f5c58b7ab3f5ca2084fb65232e7f75be)]:
+  - @sentinel-password/core@1.3.1
+
 ## 1.3.0
 
 ### Minor Changes
