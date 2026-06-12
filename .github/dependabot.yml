@@ -3,15 +3,13 @@
 
 version: 2
 updates:
-  # All workspace manifests: root, every package, and every example.
-  # The `directories` globs cover nested workspace package.json files that a
-  # single `directory: '/'` entry would not propose updates for (per-package
-  # devDeps like docs' vitepress/vue and each example's own dependency tree).
+  # Single root entry: pnpm-workspace.yaml covers packages/* and examples/*,
+  # so Dependabot traverses every workspace manifest from '/' and updates the
+  # shared pnpm-lock.yaml alongside each package.json. Per-directory entries
+  # must not be added back: they propose the same bumps without lockfile
+  # access, so their PRs always fail CI's `pnpm install --frozen-lockfile`.
   - package-ecosystem: 'npm'
-    directories:
-      - '/'
-      - '/packages/*'
-      - '/examples/*'
+    directory: '/'
     schedule:
       interval: 'weekly'
       day: 'friday'
