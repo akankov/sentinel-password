@@ -123,6 +123,14 @@ export default defineConfig({
     },
   },
 
+  vite: {
+    build: {
+      // esbuild >= 0.28 refuses to down-level destructuring to VitePress's
+      // default low target; modern browsers are fine for a docs site.
+      target: 'es2022',
+    },
+  },
+
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/sentinel-password/logo.svg' }],
     ['meta', { name: 'theme-color', content: '#3c8772' }],
