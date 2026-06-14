@@ -1,5 +1,17 @@
 # @sentinel-password/entropy
 
+## 0.2.1
+
+### Patch Changes
+
+- [#211](https://github.com/akankov/sentinel-password/pull/211) [`818ae3c`](https://github.com/akankov/sentinel-password/commit/818ae3c3de286b7b6c03cb5e085eff7176c691ba) Thanks [@akankov](https://github.com/akankov)! - Security maintenance: pin esbuild to >= 0.28.1 via a pnpm override,
+  closing the high-severity binary-integrity bypass (GHSA, Deno install
+  path) and the low-severity Windows dev-server file-read advisory. esbuild
+  is a build-time dev dependency only — published code is identical in
+  behavior to the previous versions. The VitePress docs site build target
+  was raised to es2022 since esbuild 0.28 no longer down-levels
+  destructuring to the previous low target.
+
 ## 0.2.0
 
 ### Minor Changes
