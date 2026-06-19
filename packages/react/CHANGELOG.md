@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.9
+
+### Patch Changes
+
+- [#216](https://github.com/akankov/sentinel-password/pull/216) [`3a74f36`](https://github.com/akankov/sentinel-password/commit/3a74f3641949c4874fe73700928a76f61e2d4420) Thanks [@akankov](https://github.com/akankov)! - Maintenance release: refresh development tooling (Storybook 10.4.6, Vitest
+  4.1.9, typescript-eslint 8.61.1, knip 6.17.1, eslint-plugin-react-refresh
+  0.5.3) and pin CI actions (actions/checkout v7, pnpm/action-setup v6.0.9).
+  No runtime changes — published code is identical in behavior to the previous
+  versions. entropy and breach are untouched since their last release and are
+  not bumped.
+- Updated dependencies [[`3a74f36`](https://github.com/akankov/sentinel-password/commit/3a74f3641949c4874fe73700928a76f61e2d4420)]:
+  - @sentinel-password/core@1.3.3
+
 ## 1.3.8
 
 ### Patch Changes
