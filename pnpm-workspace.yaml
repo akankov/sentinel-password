@@ -9,6 +9,7 @@ overrides:
   vite@<6.4.2: ^6.4.2
   postcss@<8.5.10: ^8.5.10
   esbuild@<0.28.1: ^0.28.1
+  qs@<6.15.2: ^6.15.2
 
 # Allowlist the only dependency permitted to run its install/build script
 # (pnpm 10 blocks lifecycle scripts by default).
