@@ -218,13 +218,11 @@ function isPureAlpha(s: string): boolean {
 function isAlphanumeric(s: string): boolean {
   for (let i: number = 0; i < s.length; i++) {
     const c: number = s.charCodeAt(i)
-    if (
-      !(
-        (c >= 65 && c <= 90) || // A-Z
-        (c >= 97 && c <= 122) || // a-z
-        (c >= 48 && c <= 57) // 0-9
-      )
-    ) {
+    if (!(
+      (c >= 65 && c <= 90) || // A-Z
+      (c >= 97 && c <= 122) || // a-z
+      (c >= 48 && c <= 57) // 0-9
+    )) {
       return false
     }
   }
