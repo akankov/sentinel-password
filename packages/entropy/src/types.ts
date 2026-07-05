@@ -35,12 +35,7 @@ export type EntropyScore = 0 | 1 | 2 | 3 | 4
 export type StrengthScore = EntropyScore
 
 export type EntropyPattern =
-  | 'sequence'
-  | 'repetition'
-  | 'dictionary'
-  | 'l33t'
-  | 'capitalization'
-  | 'personalInfo'
+  'sequence' | 'repetition' | 'dictionary' | 'l33t' | 'capitalization' | 'personalInfo'
 
 export interface CrackEstimate {
   /** Estimated seconds to brute-force at the corresponding guess rate. */
