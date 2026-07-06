@@ -4,8 +4,16 @@ const RANGE_API: string = 'https://api.pwnedpasswords.com/range/'
 const DEFAULT_TIMEOUT_MS: number = 5000
 const DEFAULT_THRESHOLD: number = 1
 
-/** True for the abort/timeout signals raised by `AbortSignal.timeout`. */
+/**
+ * True for the abort/timeout signals raised by `AbortSignal.timeout`.
+ * Tolerates arbitrary rejection reasons — a user-injected `options.fetch`
+ * may reject with `null`/`undefined`/primitives, and reading `.name` off
+ * those would throw, violating checkBreach's never-throws contract.
+ */
 function isTimeout(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false
+  }
   const name: string = String((error as { name?: unknown }).name)
   return name === 'AbortError' || name === 'TimeoutError'
 }
@@ -78,7 +86,18 @@ export async function checkBreach(
   const prefix: string = hash.slice(0, 5)
   const suffix: string = hash.slice(5)
 
-  let body: string | undefined = options.cache?.get(prefix)
+  // A throwing or misbehaving user cache (e.g. localStorage-backed hitting a
+  // quota/security error, or returning a non-string) must not break the
+  // never-throws contract — treat any failure as a cache miss.
+  let body: string | undefined
+  try {
+    const cached: string | undefined = options.cache?.get(prefix)
+    if (typeof cached === 'string') {
+      body = cached
+    }
+  } catch {
+    body = undefined
+  }
   if (body === undefined) {
     const headers: Record<string, string> = {}
     if (options.addPadding ?? true) {
@@ -107,7 +126,12 @@ export async function checkBreach(
     } catch {
       return { status: 'error', reason: 'network' }
     }
-    options.cache?.set(prefix, body)
+    try {
+      options.cache?.set(prefix, body)
+    } catch {
+      // Failing to populate the cache is not a failed check — the fresh
+      // response body is already in hand.
+    }
   }
 
   const breachCount: number = countFor(body, suffix)
