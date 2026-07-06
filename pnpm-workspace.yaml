@@ -23,3 +23,19 @@ overrides:
 # (pnpm 10 blocks lifecycle scripts by default).
 onlyBuiltDependencies:
   - esbuild
+
+# Cooling-off window (minutes) before a freshly-published registry version is
+# eligible for resolution — 7 days shields against npm-worm-style attacks
+# where a compromised maintainer account ships malware that's usually yanked
+# within hours/days. Does not affect `--frozen-lockfile` CI installs (no
+# resolution) or workspace-linked packages; at worst a Dependabot bump waits
+# out the window (its cadence here is weekly anyway).
+minimumReleaseAge: 10080
+
+# Refuse transitive dependencies resolved from exotic sources (git/URL
+# tarballs) that bypass registry integrity guarantees.
+blockExoticSubdeps: true
+
+# Prevent dependency updates from silently downgrading their own security
+# settings (e.g. re-enabling lifecycle scripts).
+trustPolicy: no-downgrade
