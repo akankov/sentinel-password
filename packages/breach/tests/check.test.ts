@@ -188,6 +188,27 @@ describe('checkBreach — error mapping (never silently "safe")', () => {
       reason: 'network',
     })
   })
+
+  // A user-injected fetch may reject with anything — reading `.name` off a
+  // nullish/primitive reason used to throw TypeError, violating the
+  // never-throws contract the fail-open/fail-closed design depends on.
+  it('maps a nullish fetch rejection to reason "network" instead of throwing', async () => {
+    expect(await checkBreach(PASSWORD, { fetch: rejectingFetch(null) })).toEqual({
+      status: 'error',
+      reason: 'network',
+    })
+    expect(await checkBreach(PASSWORD, { fetch: rejectingFetch(undefined) })).toEqual({
+      status: 'error',
+      reason: 'network',
+    })
+  })
+
+  it('maps a primitive fetch rejection to reason "network" instead of throwing', async () => {
+    expect(await checkBreach(PASSWORD, { fetch: rejectingFetch('boom') })).toEqual({
+      status: 'error',
+      reason: 'network',
+    })
+  })
 })
 
 describe('checkBreach — capability guard', () => {
@@ -230,5 +251,44 @@ describe('checkBreach — caching', () => {
     await checkBreach(PASSWORD, { fetch, cache })
     expect(calls).toHaveLength(1)
     expect(cache.get(PREFIX)).toBe(FOUND_BODY)
+  })
+
+  // BreachOptions.cache is a user-supplied object (e.g. localStorage-backed,
+  // which throws on quota/security errors). Cache failures must degrade to a
+  // cache miss, never break the never-throws contract.
+  it('treats a throwing cache.get as a miss and completes via the network', async () => {
+    const cache = {
+      get: (): string | undefined => {
+        throw new Error('SecurityError: access denied')
+      },
+      set: vi.fn(),
+    }
+    const { fetch, calls } = recordingFetch({ body: FOUND_BODY })
+    const result = await checkBreach(PASSWORD, { fetch, cache })
+    expect(result).toEqual({ status: 'ok', breachCount: 9659365, breached: true })
+    expect(calls).toHaveLength(1)
+  })
+
+  it('ignores a throwing cache.set and still returns the fresh verdict', async () => {
+    const cache = {
+      get: (): string | undefined => undefined,
+      set: (): void => {
+        throw new Error('QuotaExceededError')
+      },
+    }
+    const { fetch } = recordingFetch({ body: FOUND_BODY })
+    const result = await checkBreach(PASSWORD, { fetch, cache })
+    expect(result).toEqual({ status: 'ok', breachCount: 9659365, breached: true })
+  })
+
+  it('ignores a cache.get returning a non-string and falls back to the network', async () => {
+    const cache = {
+      get: (): string | undefined => 42 as unknown as string,
+      set: vi.fn(),
+    }
+    const { fetch, calls } = recordingFetch({ body: FOUND_BODY })
+    const result = await checkBreach(PASSWORD, { fetch, cache })
+    expect(result).toEqual({ status: 'ok', breachCount: 9659365, breached: true })
+    expect(calls).toHaveLength(1)
   })
 })
