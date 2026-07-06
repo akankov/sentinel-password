@@ -36,13 +36,13 @@ function shallowEqualOptions(a: ValidatorOptions, b: ValidatorOptions): boolean 
  * skips the re-render.
  */
 function isSameValidationResult(a: ValidationResult, b: ValidationResult): boolean {
-  if (a === b) return true
   if (a.valid !== b.valid) return false
   if (a.score !== b.score) return false
   if (a.feedback.warning !== b.feedback.warning) return false
+  // No length check needed: equal `score` + equal `valid` pin the passed-check
+  // count, so both results carry the same number of failure suggestions.
   const aSuggestions: readonly string[] = a.feedback.suggestions
   const bSuggestions: readonly string[] = b.feedback.suggestions
-  if (aSuggestions.length !== bSuggestions.length) return false
   for (let i: number = 0; i < aSuggestions.length; i++) {
     if (aSuggestions[i] !== bSuggestions[i]) return false
   }
