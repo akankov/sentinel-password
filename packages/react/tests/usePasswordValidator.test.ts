@@ -528,6 +528,75 @@ describe('usePasswordValidator', () => {
       expect(result.current.result).toBeUndefined()
     })
 
+    it('re-validates when the score changes while staying invalid', () => {
+      // 'aaaabbbb' with minLength 10 fails length + repetition (score 3);
+      // adding requireUppercase also fails characterTypes (score 2) — same
+      // valid=false, different score.
+      const { result, rerender } = renderHook(
+        ({ requireUppercase }: { requireUppercase: boolean }) =>
+          usePasswordValidator({
+            debounceMs: 0,
+            validateOnChange: true,
+            minLength: 10,
+            requireUppercase,
+          }),
+        { initialProps: { requireUppercase: false } }
+      )
+
+      act(() => {
+        result.current.setPassword('aaaabbbb')
+      })
+      const scoreBefore = result.current.result?.score
+
+      rerender({ requireUppercase: true })
+      expect(result.current.result?.score).not.toBe(scoreBefore)
+      expect(result.current.result?.checks['characterTypes']).toBe(false)
+    })
+
+    it('re-validates when only a later suggestion message changes', () => {
+      // 'aaaa' fails length (first suggestion) and repetition (second).
+      // Overriding only the repetition template keeps valid/score/warning
+      // identical while the second suggestion differs.
+      const { result, rerender } = renderHook(
+        ({ messages }: { messages: Record<string, string> }) =>
+          usePasswordValidator({
+            debounceMs: 0,
+            validateOnChange: true,
+            minLength: 8,
+            messages,
+          }),
+        { initialProps: { messages: {} as Record<string, string> } }
+      )
+
+      act(() => {
+        result.current.setPassword('aaaa')
+      })
+      expect(result.current.result?.feedback.suggestions.length).toBeGreaterThan(1)
+
+      rerender({
+        messages: { 'repetition.tooMany': 'Zu viele Wiederholungen (max {maxRepeatedChars})' },
+      })
+      expect(result.current.result?.feedback.suggestions).toContain(
+        'Zu viele Wiederholungen (max 3)'
+      )
+    })
+
+    it('detects option-set shape changes (added key) as an options change', () => {
+      const { result, rerender } = renderHook(
+        (props: { minLength?: number; requireDigit?: boolean }) =>
+          usePasswordValidator({ debounceMs: 0, validateOnChange: true, ...props }),
+        { initialProps: { minLength: 4 } as { minLength?: number; requireDigit?: boolean } }
+      )
+
+      act(() => {
+        result.current.setPassword('abcdef')
+      })
+      expect(result.current.result?.checks['characterTypes']).toBe(true)
+
+      rerender({ minLength: 4, requireDigit: true })
+      expect(result.current.result?.checks['characterTypes']).toBe(false)
+    })
+
     it('keeps callback identity stable across renders with equal inline options', () => {
       const { result, rerender } = renderHook(() =>
         // Inline literal: new object identity every render, same values.
