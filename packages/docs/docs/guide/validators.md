@@ -149,7 +149,7 @@ validateKeyboardPattern('qwerty123!')
 Looks the password up in a precomputed Bloom filter of the top 1,000 common passwords. O(1) lookup, no network calls.
 
 ::: tip Bloom filter tradeoff
-A Bloom filter is space-efficient (~1.5 KB here, vs ~8 KB for the raw list) but probabilistic in one direction: **no false negatives** (every password in the top-1,000 list is rejected) and a small **false-positive rate of ~0.84%** — about 1 in 119 passwords *not* in the list may still be flagged as "common." This is by design and documented in `common-password.ts`. If you have a use case that needs exact-match rejection (e.g., a curated wordlist with no near-collisions), do that lookup yourself outside the validator.
+A Bloom filter is space-efficient (~1.5 KB here, vs ~8 KB for the raw list) but probabilistic in one direction: **no false negatives** (every password in the top-1,000 list is rejected — including its l33t-speak readings: `P@ssw0rd`, `l3tm3in`, and `m0nkey` fail like their plain forms) and a small **false-positive rate of ~0.33% per probe**, up to roughly 1% for inputs full of substitutable characters (at most three probes run). This is by design and documented in `common-password.ts`. If you have a use case that needs exact-match rejection (e.g., a curated wordlist with no near-collisions), do that lookup yourself outside the validator.
 :::
 
 **Options:**
