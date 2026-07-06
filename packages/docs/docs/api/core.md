@@ -109,6 +109,7 @@ interface ValidatorOptions {
   personalInfo?: string[]         // Default: undefined (disabled)
   messages?: Partial<Record<MessageCode, string>>  // Default: undefined — English
   formatMessage?: MessageFormatter                  // Default: undefined
+  customValidators?: Readonly<Record<string, CustomValidator>> // Default: undefined
 }
 ```
 
@@ -127,6 +128,7 @@ interface ValidatorOptions {
 | `personalInfo` | — | Array of strings the password must not contain (substring match, case-insensitive; entries containing `@` are reduced to the local part before matching) |
 | `messages` | — | Partial map of `MessageCode → template string` for localization. `{placeholder}` tokens are substituted with `params` values. Missing codes fall back to the built-in English. See [i18n guide](/guide/i18n). |
 | `formatMessage` | — | Callback `(code, params, defaultMessage) => string`. Takes precedence over `messages`. Use to plug in `react-intl`, `i18next`, FormatJS/ICU, etc. See [i18n guide](/guide/i18n). |
+| `customValidators` | — | Map of check name → `CustomValidator` function. Custom checks run after the seven built-ins, count toward `valid` and the score denominator (`7 + N`), appear in `result.checks` under their names, and contribute failure messages to `feedback.suggestions`. Built-in check names are reserved (colliding entries are skipped); a throwing validator is treated as failed. See [Custom Validators](/guide/custom-validators). |
 
 ### `ValidationResult`
 
