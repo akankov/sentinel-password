@@ -62,6 +62,7 @@ Enforces required character classes.
 | `requireLowercase` | `false` | Require ≥1 lowercase letter |
 | `requireDigit` | `false` | Require ≥1 digit |
 | `requireSymbol` | `false` | Require ≥1 symbol |
+| `unicodeCharacterTypes` | `false` | Opt-in Unicode-aware classification: `Пароль123!` satisfies `requireUppercase`, `№`/`€`/em-dash count as symbols, `\p{Nd}` digits count. Default ASCII mode only recognizes `A-Z`/`a-z`/`0-9`/printable ASCII punctuation. |
 
 **Standalone:**
 ```typescript

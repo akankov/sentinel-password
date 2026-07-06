@@ -121,6 +121,7 @@ interface ValidatorOptions {
 | `requireLowercase` | `false` | Require at least one lowercase letter |
 | `requireDigit` | `false` | Require at least one digit |
 | `requireSymbol` | `false` | Require at least one symbol |
+| `unicodeCharacterTypes` | `false` | Classify character types by Unicode property instead of ASCII: `\p{Lu}`/`\p{Ll}` for case (Cyrillic, Greek, accented Latin…), `\p{Nd}` for digits, and anything that is neither a letter nor a number as a symbol. Caseless scripts (CJK, Arabic) have no upper/lowercase — don't require case for them. |
 | `maxRepeatedChars` | `3` | Max consecutive repeated characters allowed |
 | `checkSequential` | `true` | Reject three or more letters or digits whose code points are consecutive ascending or descending — `abc`, `xyz`, `123`, `987`, Cyrillic `абв`. Symbol runs (`!"#`, `()*`) and cross-class runs (`9:;`) do not count. See [Sequential](/guide/validators#sequential). |
 | `checkKeyboardPatterns` | `true` | Reject keyboard runs (`qwerty`, `asdfgh`) |
