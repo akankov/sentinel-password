@@ -8,7 +8,7 @@ One of the key advantages of Sentinel Password is its minimal footprint:
 
 | Package | ESM | ESM (gzip) | CJS (gzip) |
 |---------|-----|------------|------------|
-| `@sentinel-password/core` | 15.8 KB | **5.4 KB** | 5.9 KB |
+| `@sentinel-password/core` | 18.4 KB | **6.3 KB** | 6.5 KB |
 | `@sentinel-password/react` | 2.5 KB | **0.7 KB** | — |
 | `@sentinel-password/react-components` | 6.0 KB | **1.7 KB** | — |
 
@@ -16,7 +16,7 @@ One of the key advantages of Sentinel Password is its minimal footprint:
 
 | Library | Gzipped Size | Dependencies | Notes |
 |---------|-------------|--------------|-------|
-| **@sentinel-password/core** | **5.4 KB** | 0 | Bloom filter, 7 validators, O(1) common password lookup |
+| **@sentinel-password/core** | **6.3 KB** | 0 | Bloom filter, 7 validators, O(1) common password lookup |
 | zxcvbn | ~400 KB | 0 | Large frequency-ranked dictionaries |
 | password-validator | ~4 KB | 0 | Basic rule-based validation |
 | check-password-strength | ~1 KB | 0 | Regex-only strength scoring |

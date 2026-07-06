@@ -34,6 +34,7 @@ export default defineConfig({
             { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Why Sentinel Password?', link: '/guide/why-sentinel-password' },
             { text: 'Installation', link: '/guide/installation' },
+            { text: 'Migrating from zxcvbn', link: '/guide/migrating-from-zxcvbn' },
           ],
         },
         {
