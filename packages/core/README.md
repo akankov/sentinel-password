@@ -11,7 +11,7 @@ Modern TypeScript password validation library with zero dependencies, comprehens
 
 ## Features
 
-- **Zero Dependencies** - No external dependencies, tree-shakeable, ~5.5KB gzipped
+- **Zero Dependencies** - No external dependencies, tree-shakeable, ~6.3KB gzipped
 - **TypeScript-First** - Full type safety with strict mode enabled
 - **Rich Feedback** - Actionable suggestions for password improvement
 - **Comprehensive Validation** - 7 built-in validators covering OWASP best practices
@@ -352,7 +352,7 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 
 ## Bundle Size
 
-- **ESM**: ~16KB uncompressed, ~5.5KB gzipped
+- **ESM**: ~18KB uncompressed, ~6.3KB gzipped
 - **CJS**: ~17KB uncompressed, ~6KB gzipped
 - **Zero dependencies** - no additional packages needed
 - **Tree-shakeable** - only import what you use

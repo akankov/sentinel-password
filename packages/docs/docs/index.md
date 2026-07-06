@@ -34,7 +34,7 @@ features:
   
   - icon: 📦
     title: Tiny Bundle Size
-    details: Core package is ~5.5 KB gzipped (under the 10 KB CI limit) with zero dependencies. Tree-shakeable validators load only what you need.
+    details: Core package is ~6.3 KB gzipped (under the 10 KB CI limit) with zero dependencies. Tree-shakeable validators load only what you need.
   
   - icon: 🌍
     title: Pluggable i18n

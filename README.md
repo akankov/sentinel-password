@@ -15,7 +15,7 @@ Modern TypeScript password validation library with zero dependencies, React inte
 
 ## Features
 
-- **Zero Dependencies** - No external dependencies, tree-shakeable, ~5.5KB gzipped (< 10KB limit)
+- **Zero Dependencies** - No external dependencies, tree-shakeable, ~6.3KB gzipped (< 10KB limit)
 - **TypeScript-First** - Full type safety with 100% test coverage on core, enforced via vitest coverage thresholds in CI
 - **React Integration** - Hook and headless components designed to meet WCAG 2.1 AAA — semantic HTML, ARIA live region, keyboard support; page-level conformance is your CSS and surrounding markup. See [Accessibility guide](https://akankov.github.io/sentinel-password/guide/accessibility) for what's covered vs. what's the consumer's.
 - **Rich Feedback** - Actionable suggestions for password improvement
