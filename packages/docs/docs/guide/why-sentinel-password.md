@@ -160,7 +160,7 @@ const options: ValidatorOptions = {
 
 | Feature | Sentinel Password | Traditional Regex | Other Libraries |
 |---------|-------------------|-------------------|-----------------|
-| Bundle Size | ~5.5 KB | N/A | 20-100KB+ |
+| Bundle Size | ~6.3 KB | N/A | 20-100KB+ |
 | Dependencies | 0 | 0 | 5-50+ |
 | Accessibility | Designed for AAA | ❌ | Varies |
 | Customizable | ✅ Full control | ⚠️ Limited | ⚠️ Partial |
