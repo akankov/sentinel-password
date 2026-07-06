@@ -8,7 +8,7 @@ The component provides the building blocks for AAA:
 
 - ✅ Semantic HTML with `useId()`-linked `<label>`
 - ✅ ARIA attributes managed for you: `aria-invalid` (set when invalid, omitted otherwise), `aria-describedby`, `aria-pressed` on the toggle
-- ✅ Live region (`role="alert" aria-live="polite" aria-atomic="true"`) for validation announcements
+- ✅ Always-mounted live region (`role="status" aria-atomic="true"`, implicit polite announcements) for validation feedback
 - ✅ Keyboard support: `Tab`, `Escape` to clear, `Space`/`Enter` on the toggle
 - ✅ Focus management for the component's own elements
 
@@ -68,8 +68,7 @@ The `<PasswordInput>` component renders this DOM tree. **Initial state** (no val
 
   <div
     id=":r3:"
-    role="alert"
-    aria-live="polite"
+    role="status"
     aria-atomic="true"
     data-password-validation
   >
@@ -83,7 +82,7 @@ The `<PasswordInput>` component renders this DOM tree. **Initial state** (no val
 Two patterns worth calling out:
 
 - **`aria-invalid` is `true` or absent**, never `"false"`. The component uses `aria-invalid={invalid ? true : undefined}` so a freshly mounted (untouched) input is not pre-announced as valid by assistive tech.
-- **The validation region is conditional**, not persistent. The whole `<div role="alert">` only mounts when there's a message to render (warning text or one or more suggestions). A valid password produces no region at all.
+- **The validation region is persistent.** The `<div role="status">` container is always in the DOM — live regions must exist before content is injected to be reliably announced — and the message list inside it renders only when there's feedback. `role="status"` carries implicit `aria-live="polite"`, so per-keystroke feedback never interrupts the screen reader mid-sentence.
 - **IDs (`:r1:`, `:r2:`, `:r3:`) come from `React.useId()`** so they're stable per-instance and SSR-safe — concrete values vary across renders/processes; don't query the DOM by hard-coded ID.
 
 ## ARIA Attributes
@@ -131,7 +130,7 @@ Provides accessible labels for buttons:
 Announces validation changes to screen readers:
 
 ```tsx
-<div role="alert" aria-live="polite">
+<div role="status">
   {result?.feedback.suggestions.map((msg, i) => (
     <p key={i}>{msg}</p>
   ))}
@@ -213,7 +212,7 @@ The description should match the policy actually enforced. `PasswordInput` valid
 Errors are announced via `aria-live`:
 
 ```typescript
-<div role="alert" aria-live="polite">
+<div role="status">
   <p>Password must be at least 8 characters long</p>
 </div>
 ```

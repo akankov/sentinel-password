@@ -475,4 +475,95 @@ describe('usePasswordValidator', () => {
       expect(result.current.result?.feedback.suggestions).toContain('[length.tooShort]')
     })
   })
+
+  describe('re-validation when validator options change', () => {
+    it('re-renders the result in the new locale after a messages switch', () => {
+      const english = { 'length.tooShort': 'Too short (min {minLength})' }
+      const spanish = { 'length.tooShort': 'Demasiado corta (mínimo {minLength})' }
+
+      const { result, rerender } = renderHook(
+        ({ messages }) =>
+          usePasswordValidator({
+            debounceMs: 0,
+            validateOnChange: true,
+            minLength: 8,
+            messages,
+          }),
+        { initialProps: { messages: english } }
+      )
+
+      act(() => {
+        result.current.setPassword('abc')
+      })
+      expect(result.current.result?.feedback.suggestions).toContain('Too short (min 8)')
+
+      // Locale switch with NO keystroke — the rendered result must update.
+      rerender({ messages: spanish })
+      expect(result.current.result?.feedback.suggestions).toContain('Demasiado corta (mínimo 8)')
+    })
+
+    it('re-validates when a policy option changes', () => {
+      const { result, rerender } = renderHook(
+        ({ minLength }) =>
+          usePasswordValidator({ debounceMs: 0, validateOnChange: true, minLength }),
+        { initialProps: { minLength: 4 } }
+      )
+
+      act(() => {
+        result.current.setPassword('Str0ng!x')
+      })
+      expect(result.current.result?.checks.length).toBe(true)
+
+      rerender({ minLength: 12 })
+      expect(result.current.result?.checks.length).toBe(false)
+    })
+
+    it('does not surface a result for an untouched input when options change', () => {
+      const { result, rerender } = renderHook(
+        ({ minLength }) => usePasswordValidator({ minLength }),
+        { initialProps: { minLength: 8 } }
+      )
+
+      rerender({ minLength: 12 })
+      expect(result.current.result).toBeUndefined()
+    })
+
+    it('keeps callback identity stable across renders with equal inline options', () => {
+      const { result, rerender } = renderHook(() =>
+        // Inline literal: new object identity every render, same values.
+        usePasswordValidator({ debounceMs: 0, validateOnChange: true, minLength: 10 })
+      )
+
+      const firstSetPassword = result.current.setPassword
+      const firstValidate = result.current.validate
+
+      rerender()
+
+      expect(result.current.setPassword).toBe(firstSetPassword)
+      expect(result.current.validate).toBe(firstValidate)
+    })
+
+    it('does not loop when nested option values churn identity every render', () => {
+      // `messages` is a fresh object each render — the equality bail-out on
+      // the result must stop the re-validation effect from looping.
+      const { result, rerender } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          minLength: 8,
+          messages: { 'length.tooShort': 'Too short' },
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('abc')
+      })
+      const firstResult = result.current.result
+      expect(firstResult?.feedback.suggestions).toContain('Too short')
+
+      rerender()
+      // Same reference back — React bailed out, no render loop.
+      expect(result.current.result).toBe(firstResult)
+    })
+  })
 })

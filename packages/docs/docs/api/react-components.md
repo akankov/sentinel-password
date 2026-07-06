@@ -120,7 +120,7 @@ The component owns these and overrides any consumer value. Passing them is harml
 | `onChange` | Replaced with a `(value: string) => void` signature — see the `onChange` row above |
 | `aria-describedby` | Built dynamically from `description` and validation message IDs |
 | `aria-invalid` | Set automatically when validation fails |
-| `autoComplete` | Hardcoded to `"new-password"` — appropriate for the password use case and prevents browsers from autofilling other credentials |
+| `autoComplete` | **Defaults** to `"new-password"` (signup/change-password) but respects an explicit value — pass `autoComplete="current-password"` for login forms or `"off"` to disable |
 | `ref` | Not forwarded — the component is not wrapped in `React.forwardRef` |
 | `type` | Toggled internally between `"password"` and `"text"`; `Omit`-ed from the props type so you can't pass it |
 
@@ -279,10 +279,10 @@ If you'd rather drive validation yourself and render your own input, use [`usePa
 
 ### Validation Messages
 
-When `showValidationMessages` is true **and** the validation result has any feedback to show, the component renders:
+The live-region container is **always mounted** (screen readers only reliably announce content injected into a region that already existed in the DOM). When `showValidationMessages` is true **and** the validation result has feedback, the message list renders inside it:
 
 ```html
-<div role="alert" aria-live="polite">
+<div role="status" aria-atomic="true">
   <ul>
     <li data-severity="warning">{feedback.suggestions[0]}</li>
     <!-- one <li data-severity="error"> per remaining suggestion -->

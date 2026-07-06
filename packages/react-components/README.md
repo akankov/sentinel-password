@@ -86,7 +86,7 @@ A headless password input component with built-in validation.
 | `validateOnMount` | `boolean` | `false` | Validate the initial value once on mount — **only if `value`/`defaultValue` is non-empty**. Uses the debounced path; set `debounceMs: 0` for synchronous mount validation. |
 | `validateOnChange` | `boolean` | `true` | Validate on every change (debounced). Set to `false` to disable change-driven validation. |
 | `debounceMs` | `number` | `300` | Debounce delay in milliseconds. `0` validates synchronously. |
-| `showValidationMessages` | `boolean` | `true` | Render the validation messages `<div role="alert">`. Set to `false` to suppress the messages and render your own. |
+| `showValidationMessages` | `boolean` | `true` | Render the validation messages inside the `<div role="status">` live region. Set to `false` to keep the region empty and render your own messages. |
 | `showToggleButton` | `boolean` | `true` | Render the show/hide password button. Set to `false` to suppress (e.g., for a localized custom toggle). |
 | `validatorOptions` | `ValidatorOptions` | `undefined` | Forwarded to every internal `validatePassword(...)` call. Covers `minLength`, `requireUppercase`, `personalInfo`, plus the v1.2.0 i18n options `messages` and `formatMessage`. Nested rather than spread because the prop type already extends `React.InputHTMLAttributes<HTMLInputElement>` (which defines `minLength` / `maxLength` as HTML attrs). Memoize this object if it contains closures — see the [i18n guide](https://akankov.github.io/sentinel-password/guide/i18n). |
 | `toggleShowText` | `string` | `'Show'` | Visible button text when the password is hidden |
@@ -107,7 +107,7 @@ A handful are **reserved** by the component for its a11y and controlled-state in
 
 - `id` — generated via `useId()` so the `<label>` can be associated correctly
 - `aria-describedby` / `aria-invalid` — managed for validation feedback
-- `autoComplete` — hardcoded to `"new-password"`
+- `autoComplete` — **defaults** to `"new-password"` but is overridable: pass `autoComplete="current-password"` for login forms or `"off"` to disable
 - `ref` — not forwarded (the component is not wrapped in `React.forwardRef`)
 - `type` — toggled internally between `"password"` and `"text"`; omitted from the props type
 - `onChange` — replaced with the `(value: string) => void` signature documented above
@@ -122,7 +122,7 @@ The component is designed to *meet* WCAG 2.1 AAA criteria when integrated correc
 
 - Semantic HTML (`<label htmlFor>` linked to the input via `useId()`)
 - ARIA attributes managed by the component: `aria-invalid` (`true`/omitted), `aria-describedby`, `aria-pressed` on the toggle button
-- A live region (`role="alert" aria-live="polite" aria-atomic="true"`) that mounts only when there's feedback to announce
+- An always-mounted live region (`role="status" aria-atomic="true"`, implicit `aria-live="polite"`) — persistent so screen readers reliably announce feedback injected into it
 - Keyboard support: `Tab` between input and toggle, `Escape` to clear the input, `Space`/`Enter` on the toggle button
 - Focus management for the input and toggle
 
