@@ -13,9 +13,14 @@ If you are using an older version, we strongly recommend upgrading to the latest
 If you believe you have found a security vulnerability in this project:
 
 1. **Do not open a public issue.**
-2. Contact the maintainers privately at:
+2. **Preferred:** use GitHub's private vulnerability reporting —
+   [Report a vulnerability](https://github.com/akankov/sentinel-password/security/advisories/new)
+   (the **Security** tab → **Report a vulnerability**). It keeps the report
+   private, gives both sides a tracked advisory thread, and provides a CVE
+   assignment path on disclosure.
+3. Alternatively, contact the maintainers privately at:
    - **Email:** `akankov@gmail.com`
-3. Provide as much detail as possible, including:
+4. Provide as much detail as possible, including:
    - A description of the issue
    - Steps to reproduce
    - Potential impact
@@ -25,7 +30,7 @@ Please avoid including any real passwords, API keys, or other sensitive data in 
 
 ## Our Commitment
 
-- We will acknowledge your report as soon as reasonably possible.
+- We will acknowledge your report **within 5 business days**.
 - We will investigate the issue and work to reproduce it.
 - Once confirmed, we will:
   - Assess the severity and impact
@@ -41,6 +46,38 @@ We ask that you:
 - Give us a reasonable amount of time to investigate and remediate the issue before publicly disclosing it.
 - Avoid violating privacy, destroying data, or disrupting production systems while investigating.
 - Comply with applicable laws and avoid accessing data that does not belong to you.
+
+## Threat Model
+
+What these packages do — and deliberately do not do — with passwords:
+
+- **`core` and `entropy` are pure in-process computation.** No network calls,
+  no storage, no logging — the password never leaves the caller's runtime.
+  Validators are *not* constant-time: every pattern they check (lengths,
+  character classes, the common-password list, keyboard layouts) is public,
+  so timing reveals nothing secret. Constant-time comparison belongs to
+  password *verification* against a stored hash (Argon2/bcrypt), which is
+  explicitly out of this library's scope.
+- **The common-password check is a Bloom filter**: it can flag a password as
+  "common" that isn't (small false-positive rate) but never misses one that
+  is in the embedded list (no false negatives). Treat a "common" verdict as
+  advice to pick another password, not as proof of presence in a breach.
+- **`breach` makes the project's only outbound network request** — to Have I
+  Been Pwned's range API using SHA-1 k-anonymity: only the first 5 hex chars
+  of the local SHA-1 digest are transmitted; the password, full hash, and
+  matched suffix never leave the process and are never logged. `checkBreach`
+  never throws and never silently reports "safe" on failure — errors surface
+  as `{ status: 'error' }` so the caller decides fail-open vs fail-closed.
+  Server-side use is recommended: a browser call exposes the requester's IP
+  and query timing to the HIBP CDN.
+- **The React packages hold the plaintext password in component state** while
+  the user edits — inherent to a controlled input. They never log, persist,
+  or transmit it. Clear the state (`reset()`) after successful submission.
+- **Supply chain:** `core`, `entropy`, and `breach` have zero runtime
+  dependencies. CI actions are SHA-pinned with minimal per-job permissions;
+  npm publishing uses OIDC trusted publishing with provenance; dependency
+  lifecycle scripts are blocked by pnpm except an explicit allowlist; new
+  registry versions face a cooling-off window (`minimumReleaseAge`).
 
 ## Out of Scope
 

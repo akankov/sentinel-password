@@ -30,6 +30,9 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
+          # Build job only reads the repo; Pages deployment happens in the
+          # separate deploy job via OIDC, not git credentials.
+          persist-credentials: false
 
       # pnpm must be installed before setup-node so its `cache: 'pnpm'`
       # (which replaces the previous hand-rolled store cache) can resolve
