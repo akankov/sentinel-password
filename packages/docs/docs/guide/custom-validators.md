@@ -1,104 +1,90 @@
 # Custom Validators
 
-`@sentinel-password/core` does not yet have a built-in hook for registering custom validators with `validatePassword` — the seven built-in checks run unconditionally and `ValidatorOptions` has no `customValidators` slot. Until that lands on the roadmap, two patterns let you add your own rules today.
-
-## Pattern 1: Wrap and Combine
-
-Call `validatePassword` for the built-in checks, then run your own logic against the same password and merge the results. Cleanest if you want the built-ins **plus** an extra check or two.
+`validatePassword` accepts consumer-defined rules through the
+`customValidators` option: a map of check name → validator function. Custom
+checks run after the seven built-ins and participate in the result exactly
+like them — they count toward `valid` and the strength score, appear in
+`result.checks` under their registered name, and their failure messages join
+`feedback.suggestions`.
 
 ```typescript
 import { validatePassword } from '@sentinel-password/core'
-import type { ValidationResult } from '@sentinel-password/core'
 
-// Your custom check — reject passwords that look like a date.
-function rejectDateLikePasswords(password: string): { passed: boolean; message?: string } {
-  const looksLikeDate = /\b(19|20)\d{2}\b|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}/.test(password)
-  return looksLikeDate
-    ? { passed: false, message: 'Password looks like a date — pick something less guessable.' }
-    : { passed: true }
-}
+const result = validatePassword(userPassword, {
+  minLength: 12,
+  customValidators: {
+    noDates: (password) =>
+      /\b(19|20)\d{2}\b|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}/.test(password)
+        ? { passed: false, message: 'Password looks like a date — pick something less guessable.' }
+        : { passed: true },
+  },
+})
 
-export function validateWithCustomRules(password: string): ValidationResult {
-  const builtin = validatePassword(password, {
-    minLength: 12,
-    requireUppercase: true,
-    requireDigit: true,
-    requireSymbol: true,
-  })
-
-  const custom = rejectDateLikePasswords(password)
-  const customPassed = custom.passed
-
-  // Merge: the result is invalid if either side failed; combine suggestions.
-  const mergedSuggestions = [
-    ...builtin.feedback.suggestions,
-    ...(custom.message ? [custom.message] : []),
-  ]
-
-  return {
-    ...builtin,
-    valid: builtin.valid && customPassed,
-    feedback: {
-      ...(mergedSuggestions[0] !== undefined && { warning: mergedSuggestions[0] }),
-      suggestions: mergedSuggestions,
-    },
-    checks: {
-      ...builtin.checks,
-      // Note: `checks` is keyed by built-in CheckId. If you want to surface
-      // your custom check in the result, return your own ValidationResult-like
-      // shape instead of overloading `checks`.
-    },
-  }
-}
+result.checks.noDates // boolean, alongside the 7 built-in checks
+result.valid          // false if ANY check — built-in or custom — failed
 ```
 
-## Pattern 2: Build Your Own Aggregator
+Because the option rides on `ValidatorOptions`, it flows through
+[`usePasswordValidator`](/api/react) and
+[`PasswordInput`](/api/react-components)'s `validatorOptions` prop with no
+extra wiring — custom failure messages render in the component's validation
+list like any built-in message.
 
-If you want full control — including swapping out built-in checks — import the individual validators you need and write your own aggregator. Every built-in validator is exported individually and conforms to the `Validator` type.
+## How custom checks surface in the result
+
+For a custom validator registered as `noDates` that fails:
+
+| Field | Value |
+|-------|-------|
+| `checks.noDates` | `false` |
+| `valid` | `false` |
+| `feedback.suggestions` | includes your `message` |
+| `failures` | includes `{ check: 'noDates', code: 'custom.noDates', params: {}, message: '…' }` |
+| `score` | denominator grows to `7 + N` — e.g. 7 built-ins passing + 1 custom failing = `floor((7/8)·5)` = 4 |
+
+You can override the defaulted `code` and attach interpolation `params` for
+your own localization pipeline:
 
 ```typescript
-import {
-  validateLength,
-  validateCharacterTypes,
-  validateCommonPassword,
-} from '@sentinel-password/core'
-import type { Validator, ValidatorCheck } from '@sentinel-password/core'
-
-// Your custom validator, conforming to the built-in signature.
-const validateNoDate: Validator = (password) => {
-  const looksLikeDate = /\b(19|20)\d{2}\b|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}/.test(password)
-  return looksLikeDate
-    ? { passed: false, message: 'Password looks like a date — pick something less guessable.' }
-    : { passed: true }
-}
-
-// Compose only the built-in checks you want, plus your own.
-export function validateMyPassword(password: string) {
-  const checks: ValidatorCheck[] = [
-    validateLength(password, { minLength: 12 }),
-    validateCharacterTypes(password, { requireUppercase: true, requireDigit: true }),
-    validateCommonPassword(password),
-    validateNoDate(password),
-  ]
-
-  const failures = checks.filter((c) => !c.passed)
-  return {
-    valid: failures.length === 0,
-    messages: failures.map((c) => c.message).filter((m): m is string => Boolean(m)),
-  }
+customValidators: {
+  noCompanyName: (pw) =>
+    pw.toLowerCase().includes('acme')
+      ? { passed: false, message: 'No company names', code: 'company.blocked', params: { company: 'acme' } }
+      : { passed: true },
 }
 ```
 
-This pattern is also how you'd build a validator with a **different** set of built-ins than `validatePassword` runs (for example, skipping sequential/keyboard-pattern checks entirely while still using length and character-type validation).
+## Rules of the road
+
+- **Never throw.** Validators are pure functions returning `{ passed, … }`.
+  If a custom validator does throw, `validatePassword` treats it as a
+  *failed* check (fail closed) rather than crashing — but that's a safety
+  net, not a feature.
+- **Built-in names are reserved.** A custom validator registered as `length`,
+  `commonPassword`, etc. would overwrite the built-in entry in
+  `result.checks`, so colliding names are skipped entirely.
+- **Render your own messages.** Custom messages are NOT routed through the
+  `messages` / `formatMessage` i18n options (those are keyed by the closed
+  built-in `MessageCode` union). Your validator receives the full options
+  object, so it can implement whatever localization it needs.
+- Anything other than a literal `passed: true` — including a malformed
+  return value — counts as failed.
 
 ## Recipe: Forbidden Words / Blocklist
 
-A common requirement is rejecting passwords that contain a specific word — a product name, the literal string `password`, or an internal codename. You may not need any custom code.
+A common requirement is rejecting passwords that contain a specific word — a
+product name, the literal string `password`, or an internal codename. You may
+not need any custom code.
 
 ### Zero-code: you might already be covered
 
-- **Common words like `password`, `admin`, `letmein`** are already rejected. The `checkCommonPasswords` option is `true` by default and matches against the top‑1,000 list, so `validatePassword('password123')` already fails the common-password check — no extra work needed.
-- **A handful of org-specific words** can ride on the existing `personalInfo` option, which does a case-insensitive **substring** match against every entry:
+- **Common words like `password`, `admin`, `letmein`** are already rejected.
+  The `checkCommonPasswords` option is `true` by default and matches against
+  the top‑1,000 list, so `validatePassword('password123')` already fails the
+  common-password check — no extra work needed.
+- **A handful of org-specific words** can ride on the existing `personalInfo`
+  option, which does a case-insensitive **substring** match against every
+  entry:
 
 ```typescript
 import { validatePassword } from '@sentinel-password/core'
@@ -110,65 +96,99 @@ const result = validatePassword(userPassword, {
 })
 ```
 
-Two caveats on the `personalInfo` shortcut: entries shorter than **3 characters are ignored** (to avoid false positives), and entries containing `@` are treated as emails and reduced to the local part (everything before `@`). For a curated wordlist where those rules don't fit, use the validator below.
+Two caveats on the `personalInfo` shortcut: entries shorter than **3
+characters are ignored** (to avoid false positives), and entries containing
+`@` are treated as emails and reduced to the local part (everything before
+`@`). For a curated wordlist where those rules don't fit, register a custom
+validator:
 
-### Reusable: a dedicated forbidden-words validator
-
-When you want a real, testable rule with its own message, write a `Validator` and wire it through [Pattern 1](#pattern-1-wrap-and-combine):
+### As a custom validator
 
 ```typescript
 import { validatePassword } from '@sentinel-password/core'
-import type { Validator, ValidationResult } from '@sentinel-password/core'
+import type { CustomValidator } from '@sentinel-password/core'
 
 const FORBIDDEN_WORDS = ['password', 'acme', 'projectx', 'admin']
 
 // Case-insensitive substring match — same semantics as the personalInfo check.
-const validateNoForbiddenWords: Validator = (password) => {
+const noForbiddenWords: CustomValidator = (password) => {
   const lower = password.toLowerCase()
-  const hit = FORBIDDEN_WORDS.find((w) => lower.includes(w.toLowerCase()))
-  return hit
+  return FORBIDDEN_WORDS.some((w) => lower.includes(w.toLowerCase()))
     ? { passed: false, message: 'Password contains a forbidden word.' }
     : { passed: true }
 }
 
-export function validateWithBlocklist(password: string): ValidationResult {
-  const builtin = validatePassword(password, { minLength: 12, requireDigit: true })
-  const custom = validateNoForbiddenWords(password)
+const result = validatePassword(userPassword, {
+  minLength: 12,
+  requireDigit: true,
+  customValidators: { noForbiddenWords },
+})
+```
 
-  const mergedSuggestions = [
-    ...builtin.feedback.suggestions,
-    ...(custom.message ? [custom.message] : []),
+`includes` is a substring match, so blocklisting `'admin'` also rejects
+`'badminton'`. If that's too aggressive, swap the check for a word-boundary
+regex such as `new RegExp(\`\\b${w}\\b\`, 'i').test(password)`.
+
+## Advanced: Build Your Own Aggregator
+
+`customValidators` *adds* checks to the built-in seven. If you instead want a
+**different** set of built-ins — say, length and character types but no
+sequential/keyboard-pattern checks — import the individual validators and
+compose your own aggregator. Every built-in validator is exported
+individually. (Disabling via options — `checkSequential: false` etc. — covers
+most cases without custom code; see [Validators](/guide/validators).)
+
+```typescript
+import {
+  validateLength,
+  validateCharacterTypes,
+  validateCommonPassword,
+} from '@sentinel-password/core'
+import type { ValidatorCheck } from '@sentinel-password/core'
+
+export function validateMyPassword(password: string) {
+  const checks: ValidatorCheck[] = [
+    validateLength(password, { minLength: 12 }),
+    validateCharacterTypes(password, { requireUppercase: true, requireDigit: true }),
+    validateCommonPassword(password),
   ]
 
+  const failures = checks.filter((c) => !c.passed)
   return {
-    ...builtin,
-    valid: builtin.valid && custom.passed,
-    feedback: {
-      ...(mergedSuggestions[0] !== undefined && { warning: mergedSuggestions[0] }),
-      suggestions: mergedSuggestions,
-    },
+    valid: failures.length === 0,
+    messages: failures.map((c) => (c.passed ? undefined : c.message)).filter(Boolean),
   }
 }
 ```
 
-`includes` is a substring match, so blocklisting `'admin'` also rejects `'badminton'`. If that's too aggressive, swap the check for a word-boundary regex such as `new RegExp(\`\\b${w}\\b\`, 'i').test(password)`.
-
 ## Typing Your Custom Validators
 
-The exported `Validator` type is the same signature the built-ins use:
-
 ```typescript
-import type { Validator, ValidatorOptions } from '@sentinel-password/core'
+import type { CustomValidator, CustomValidatorCheck } from '@sentinel-password/core'
 
-type Validator = (password: string, options?: ValidatorOptions) => ValidatorCheck
-// where ValidatorCheck is { passed: boolean; message?: string }
+// (password, options?) => CustomValidatorCheck
+// where CustomValidatorCheck is:
+// { passed: boolean; message?: string; code?: string; params?: MessageParams }
 ```
 
-Conforming to it now means your custom validators will slot into a future `customValidators` API without refactoring — and it lets you store custom and built-in validators in the same `Validator[]` array today.
+The built-in `Validator` type is structurally assignable to
+`CustomValidator`, so a standalone built-in (e.g. `validateLength` with
+stricter options) can be re-registered under a custom name:
+
+```typescript
+import { validateLength } from '@sentinel-password/core'
+
+validatePassword(password, {
+  customValidators: {
+    strictLength: (pw) => validateLength(pw, { minLength: 20 }),
+  },
+})
+```
 
 ## Testing Custom Validators
 
-Validators are pure functions over a string, so unit tests are trivial — no React, no DOM, no fixtures:
+Validators are pure functions over a string, so unit tests are trivial — no
+React, no DOM, no fixtures:
 
 ```typescript
 import { describe, it, expect } from 'vitest'
@@ -189,14 +209,8 @@ describe('validateNoDate', () => {
 })
 ```
 
-If you build a custom aggregator (Pattern 2), test the aggregator the same way — call it with happy-path and failure-mode strings and assert on the returned shape.
-
-## Roadmap
-
-A future release will expose a `customValidators` option (or similar plugin hook) on `validatePassword` so you can register `Validator` functions with the same dispatch and feedback machinery the built-ins use. Until then, the patterns above are the recommended approach.
-
 ## See Also
 
 - [Validators](/guide/validators) — the canonical list of built-in validators
-- [Core API](/api/core) — `Validator`, `ValidatorCheck`, and `ValidationResult` types
+- [Core API](/api/core) — `CustomValidator`, `ValidatorCheck`, and `ValidationResult` types
 - [Configuration](/guide/configuration) — composing built-in validator options

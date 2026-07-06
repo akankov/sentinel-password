@@ -11,6 +11,8 @@ export type {
   ValidatorOptions,
   ValidatorCheck,
   Validator,
+  CustomValidator,
+  CustomValidatorCheck,
   CheckId,
   MessageCode,
   MessageParams,
@@ -40,6 +42,7 @@ import type {
   StrengthScore,
   StrengthLabel,
   ValidatorCheck,
+  CustomValidatorCheck,
   CheckId,
 } from './types'
 import { validateLength } from './validators/length'
@@ -135,6 +138,23 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * ```
  *
  * @example
+ * **Register custom validators**
+ * ```typescript
+ * const result = validatePassword('hunter2-Corp!', {
+ *   customValidators: {
+ *     noCompanyName: (pw) =>
+ *       pw.toLowerCase().includes('corp')
+ *         ? { passed: false, message: 'Password must not contain the company name' }
+ *         : { passed: true },
+ *   },
+ * })
+ * console.log(result.checks.noCompanyName) // false
+ * console.log(result.valid)                // false
+ * console.log(result.failures.at(-1)?.code) // 'custom.noCompanyName'
+ * // Custom checks join the score denominator (7 built-ins + N custom).
+ * ```
+ *
+ * @example
  * **Disable specific checks**
  * ```typescript
  * const result = validatePassword('qwerty123', {
@@ -175,8 +195,9 @@ const STRENGTH_LABELS: readonly StrengthLabel[] = [
  * - Personal info check: disabled (provide personalInfo array to enable)
  *
  * **Scoring:**
- * - `score` = `Math.min(4, Math.floor((passedChecks / 7) * 5))` — purely a
- *   passed-check ratio.
+ * - `score` = `Math.min(4, Math.floor((passedChecks / totalChecks) * 5))` —
+ *   purely a passed-check ratio. `totalChecks` is 7 for the built-ins plus
+ *   one per registered custom validator.
  * - `strength` is the human label for that score (`very-weak` … `very-strong`).
  * - Because scoring is ratio-based, a password that fails *only* the
  *   common-password (or personal-info, or sequential, etc.) check still passes
@@ -210,8 +231,23 @@ const EMPTY_SUGGESTIONS: readonly string[] = Object.freeze([])
 /** Frozen empty array shared by the all-passing path (no per-call allocation). */
 const EMPTY_FAILURES: readonly ValidationFailure[] = Object.freeze([])
 
-/** Total number of validators run by `validatePassword`. Compile-time constant. */
-const TOTAL_CHECKS: number = 7
+/** Number of built-in validators run by `validatePassword`. Compile-time constant. */
+const TOTAL_BUILTIN_CHECKS: number = 7
+
+/**
+ * Built-in check names. Custom validators may not register under these — a
+ * collision would overwrite the built-in entry in `result.checks`, so
+ * colliding names are skipped (documented on `ValidatorOptions.customValidators`).
+ */
+const BUILTIN_CHECK_IDS: ReadonlySet<string> = new Set<string>([
+  'length',
+  'characterTypes',
+  'repetition',
+  'sequential',
+  'keyboardPattern',
+  'commonPassword',
+  'personalInfo',
+])
 
 export function validatePassword(
   password: string,
@@ -231,7 +267,7 @@ export function validatePassword(
   // Build `checks` and `passedChecks` in a single pass. Lazy-allocate
   // `suggestions` only when a validator actually fails — most calls in
   // practice produce all-passing results and pay no allocation cost.
-  const checks: Record<CheckId, boolean> = {
+  const checks: Record<CheckId, boolean> & Record<string, boolean> = {
     length: lengthResult.passed,
     characterTypes: charTypesResult.passed,
     repetition: repetitionResult.passed,
@@ -278,9 +314,56 @@ export function validatePassword(
   record('personalInfo', personalInfoResult)
   record('keyboardPattern', keyboardPatternResult)
 
+  // Run consumer-registered custom validators after the built-ins. Each one
+  // adds a slot to `checks`, counts toward `valid` and the score denominator,
+  // and contributes its failure message to the suggestions. `validatePassword`
+  // must never throw, so a throwing or malformed custom validator is treated
+  // as a failed check rather than propagated.
+  let totalChecks: number = TOTAL_BUILTIN_CHECKS
+  if (options.customValidators !== undefined) {
+    for (const [name, customValidator] of Object.entries(options.customValidators)) {
+      if (BUILTIN_CHECK_IDS.has(name)) {
+        continue // reserved: would overwrite a built-in entry in `checks`
+      }
+      totalChecks++
+
+      let customResult: CustomValidatorCheck
+      try {
+        customResult = customValidator(password, options)
+      } catch {
+        customResult = { passed: false, message: `Custom check "${name}" threw an error` }
+      }
+
+      // Anything other than a literal `true` (including a malformed return)
+      // counts as failed — fail closed, mirroring the never-silently-safe
+      // posture of the built-ins.
+      const customPassed: boolean = customResult?.passed === true
+      checks[name] = customPassed
+      if (customPassed) {
+        passedChecks++
+        continue
+      }
+
+      const failure: ValidationFailure = {
+        check: name,
+        code: typeof customResult?.code === 'string' ? customResult.code : `custom.${name}`,
+        params: customResult?.params ?? {},
+        message:
+          typeof customResult?.message === 'string'
+            ? customResult.message
+            : `Custom check "${name}" failed`,
+      }
+      if (failures === undefined) {
+        failures = [failure]
+      } else {
+        failures.push(failure)
+      }
+    }
+  }
+
   const score: StrengthScore = Math.min(
     4,
-    Math.floor((passedChecks / TOTAL_CHECKS) * 5)
+    Math.floor((passedChecks / totalChecks) * 5)
   ) as StrengthScore
 
   const suggestions: readonly string[] = failures
@@ -289,7 +372,7 @@ export function validatePassword(
   const firstSuggestion: string | undefined = failures?.[0]?.message
 
   return {
-    valid: passedChecks === TOTAL_CHECKS,
+    valid: passedChecks === totalChecks,
     score,
     /* v8 ignore next */
     strength: STRENGTH_LABELS[score] ?? 'very-weak',

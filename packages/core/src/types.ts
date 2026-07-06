@@ -74,15 +74,54 @@ export type CheckId =
   | 'personalInfo'
 
 /**
+ * Check result returned by a consumer-supplied custom validator. Looser than
+ * the internal {@link ValidatorCheck}: `message` is optional (a default is
+ * synthesized from the validator's name) and `code` is a free-form string
+ * (the built-in {@link MessageCode} union is closed). Built-in `Validator`
+ * functions are structurally assignable to {@link CustomValidator}, so they
+ * can be re-registered under a custom name too.
+ */
+export interface CustomValidatorCheck {
+  /** Whether the check passed. Anything other than `true` counts as failed. */
+  passed: boolean
+  /** Rendered failure message. Defaults to `Custom check "<name>" failed`. */
+  message?: string
+  /**
+   * Stable identifier surfaced on {@link ValidationFailure.code}. Defaults to
+   * `custom.<name>`. Custom messages are NOT routed through the `messages` /
+   * `formatMessage` i18n options — the validator receives the options object
+   * and renders its own message.
+   */
+  code?: string
+  /** Interpolation values surfaced on the failure. Defaults to `{}`. */
+  params?: MessageParams
+}
+
+/**
+ * A consumer-supplied validator registered via
+ * {@link ValidatorOptions.customValidators}. Must never throw — a throwing
+ * validator is defensively treated as a failed check.
+ */
+export type CustomValidator = (password: string, options?: ValidatorOptions) => CustomValidatorCheck
+
+/**
  * A single failed check, surfaced on {@link ValidationResult.failures} so
  * consumers can localize per-check failures via the stable `code`/`params`
  * without re-running the individual validators.
  */
 export interface ValidationFailure {
-  /** Which check failed. */
-  check: CheckId
-  /** Stable, locale-independent failure identifier. */
-  code: MessageCode
+  /**
+   * Which check failed: a built-in {@link CheckId}, or the name a custom
+   * validator was registered under. (`string & {}` keeps the built-in
+   * literals in editor completions.)
+   */
+  check: CheckId | (string & {})
+  /**
+   * Stable, locale-independent failure identifier: a built-in
+   * {@link MessageCode}, or `custom.<name>` / the custom validator's own
+   * `code` for custom checks.
+   */
+  code: MessageCode | (string & {})
   /** Interpolation values for the message template. */
   params: MessageParams
   /** Default (English) rendering, or the consumer's `formatMessage` output. */
@@ -106,8 +145,12 @@ export interface ValidationResult {
     /** Actionable suggestions for improvement */
     suggestions: readonly string[]
   }
-  /** Individual check results */
-  checks: Record<CheckId, boolean>
+  /**
+   * Individual check results. Always contains the seven built-in
+   * {@link CheckId} keys; custom validators appear under their registered
+   * names.
+   */
+  checks: Record<CheckId, boolean> & Record<string, boolean>
   /**
    * Structured per-check failures in evaluation order (empty when every check
    * passes). Carries the stable `code`/`params` that `feedback.suggestions`
@@ -154,6 +197,16 @@ export interface ValidatorOptions {
    * `messages` when both are provided. Use for ICU, react-intl, i18next, etc.
    */
   formatMessage?: MessageFormatter
+  /**
+   * Consumer-supplied validators, keyed by the check name they appear under
+   * in `ValidationResult.checks` / `failures`. They run after the seven
+   * built-in checks, count toward `valid` and the strength score (the score
+   * denominator grows to `7 + N`), and their failure `message`s join
+   * `feedback.suggestions`. Names that collide with a built-in
+   * {@link CheckId} are reserved and skipped. Validators must never throw;
+   * one that does is treated as a failed check.
+   */
+  customValidators?: Readonly<Record<string, CustomValidator>>
 }
 
 /**
