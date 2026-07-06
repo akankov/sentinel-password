@@ -1,5 +1,37 @@
 # @sentinel-password/react-components
 
+## 1.4.0
+
+### Minor Changes
+
+- [#228](https://github.com/akankov/sentinel-password/pull/228) [`e7ba815`](https://github.com/akankov/sentinel-password/commit/e7ba81535f1d8b24bc2245a6dba2be4188aeeae6) Thanks [@akankov](https://github.com/akankov)! - React layer hardening:
+
+  - **Both packages** now emit a `'use client'` banner in their bundles, so they
+    can be imported directly in React Server Components environments (Next.js
+    App Router) without a consumer-side client wrapper file.
+  - **react**: `usePasswordValidator` re-validates the current password when
+    validator options change (locale/`messages`/`formatMessage`/policy switch) —
+    previously the rendered `result` stayed stale until the next keystroke.
+    Validator options are also stabilized by shallow value comparison, so inline
+    options literals no longer destroy `validate`/`setPassword` callback
+    identity on every render.
+  - **react-components**: `PasswordInput`'s validation live region is now
+    always mounted with `role="status"` (implicit polite), replacing the
+    conflicting `role="alert"` + `aria-live="polite"` combination on a
+    conditionally-mounted node that screen readers announced unreliably.
+  - **react-components**: externally-changed controlled `value` (form reset,
+    "generate password" button) now re-validates, so `aria-invalid` and the
+    message list no longer describe the previous value. Respects
+    `validateOnChange: false`.
+  - **react-components**: `autoComplete` is now a default (`"new-password"`)
+    instead of hardcoded — pass `autoComplete="current-password"` (login) or
+    `"off"` and it is respected.
+
+### Patch Changes
+
+- Updated dependencies [[`656de53`](https://github.com/akankov/sentinel-password/commit/656de53ba832d67989e91ce108d786b933704fa1), [`b092924`](https://github.com/akankov/sentinel-password/commit/b092924b4af00049ba9f412f8e6e0f6eb370441e), [`4e7c5fd`](https://github.com/akankov/sentinel-password/commit/4e7c5fd102b759f79a151f173fc37c9899d73340), [`f54f7af`](https://github.com/akankov/sentinel-password/commit/f54f7af6b7dd29375fc44d3ee8c7c39b56b31ffd)]:
+  - @sentinel-password/core@1.4.0
+
 ## 1.3.3
 
 ### Patch Changes

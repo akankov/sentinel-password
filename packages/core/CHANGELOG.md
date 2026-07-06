@@ -1,5 +1,79 @@
 # @sentinel-password/core
 
+## 1.4.0
+
+### Minor Changes
+
+- [#227](https://github.com/akankov/sentinel-password/pull/227) [`656de53`](https://github.com/akankov/sentinel-password/commit/656de53ba832d67989e91ce108d786b933704fa1) Thanks [@akankov](https://github.com/akankov)! - Fix three validator precision bugs that wrongly rejected or accepted passwords:
+
+  - **keyboardPattern**: removed the 2-character column pattern `0p`, which failed
+    any password containing `0p` or `p0` (matched reversed, case-insensitively) —
+    e.g. `Deskt0p`, `Temp0rary!`, `MyLapt0p`. All remaining patterns are 3+ chars.
+  - **sequential**: only letter and digit runs count as sequences now. ASCII
+    symbol/punctuation runs that happen to be code-point-consecutive (`()*`,
+    `?@A`, `[\]`) — typical of password-manager output — are no longer flagged.
+    Non-ASCII alphabets (e.g. Cyrillic `абв`) are still detected.
+  - **length**: `minLength`/`maxLength` now count Unicode code points instead of
+    UTF-16 code units, matching the repetition validator and NIST 800-63B's
+    user-perceived-character guidance. Four emoji no longer satisfy `minLength: 8`.
+
+  No API or message-string changes; only validation outcomes on the affected
+  edge cases differ.
+
+- [#235](https://github.com/akankov/sentinel-password/pull/235) [`b092924`](https://github.com/akankov/sentinel-password/commit/b092924b4af00049ba9f412f8e6e0f6eb370441e) Thanks [@akankov](https://github.com/akankov)! - Add the long-promised `customValidators` option to `validatePassword`:
+
+  ```typescript
+  validatePassword(password, {
+    customValidators: {
+      noDates: (pw) =>
+        /\d{4}/.test(pw) ? { passed: false, message: 'No dates' } : { passed: true },
+    },
+  })
+  ```
+
+  Custom checks run after the seven built-ins and participate fully in the
+  result: they count toward `valid` and the strength score (denominator grows
+  to `7 + N`), appear in `result.checks` under their registered names, surface
+  structured `failures` (code defaults to `custom.<name>`), and their messages
+  join `feedback.suggestions`. Built-in check names are reserved (colliding
+  entries are skipped); a throwing or malformed validator is treated as a
+  failed check — `validatePassword` still never throws.
+
+  New exported types: `CustomValidator`, `CustomValidatorCheck`. Type-level
+  widenings: `ValidationResult.checks` gains a string index signature, and
+  `ValidationFailure.check`/`code` widen to also admit custom names/codes
+  (built-in literal unions are preserved for completions). The option flows
+  through the React packages' `validatorOptions` unchanged.
+
+- [#236](https://github.com/akankov/sentinel-password/pull/236) [`4e7c5fd`](https://github.com/akankov/sentinel-password/commit/4e7c5fd102b759f79a151f173fc37c9899d73340) Thanks [@akankov](https://github.com/akankov)! - Common-password check: l33t-speak detection + Bloom filter hashing repair.
+
+  - **L33t-speak normalization**: `P@ssw0rd`, `p4ssword`, `l3tm3in`, `m0nkey`,
+    and similar substituted forms of listed passwords now fail the
+    `commonPassword` check like their plain forms. Up to two normalized
+    candidates (primary reading, plus the `1`/`|`→`l` reading) are probed
+    alongside the raw lowercased string; mixed per-character readings are
+    deliberately out of scope to bound false positives.
+  - **Double-hashing repair**: the second Bloom hash was previously derived
+    from the same multiplicative function with a different seed — the seed
+    contributes only linearly, so all 7 probe positions collapsed into a
+    function of the first hash (measured ~1.1% false-positive rate). hash2 is
+    now FNV-1a and the filter size is prime (12,007), restoring genuine double
+    hashing: measured **~0.32% FP per probe** on 200k random strings (≲0.8%
+    for l33t-heavy inputs), with the no-false-negative guarantee verified
+    against the full wordlist.
+
+  Same `commonPassword.found` message code and English string — no i18n
+  impact. Bundle: ~6.6 KB gzipped, still well under the 10 KB budget.
+
+- [#240](https://github.com/akankov/sentinel-password/pull/240) [`f54f7af`](https://github.com/akankov/sentinel-password/commit/f54f7af6b7dd29375fc44d3ee8c7c39b56b31ffd) Thanks [@akankov](https://github.com/akankov)! - Opt-in Unicode-aware character classification via
+  `unicodeCharacterTypes: true`: `requireUppercase`/`requireLowercase` match
+  any cased letter (`\p{Lu}`/`\p{Ll}` — Cyrillic, Greek, accented Latin, …),
+  `requireDigit` matches any decimal digit (`\p{Nd}`), and a symbol is any
+  character that is neither a letter nor a number. Previously `Пароль123!`
+  could never satisfy `requireUppercase` and `№`/`€`/em-dash never counted as
+  symbols. Off by default — existing validation outcomes are unchanged; no
+  message-string changes.
+
 ## 1.3.3
 
 ### Patch Changes

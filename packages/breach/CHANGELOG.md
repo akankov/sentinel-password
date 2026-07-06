@@ -1,5 +1,28 @@
 # @sentinel-password/breach
 
+## 0.3.0
+
+### Minor Changes
+
+- [#243](https://github.com/akankov/sentinel-password/pull/243) [`924d9e7`](https://github.com/akankov/sentinel-password/commit/924d9e7e8db3e9430ce661a6bed714ed6d922d87) Thanks [@akankov](https://github.com/akankov)! - `checkBreach` accepts a caller-provided `signal?: AbortSignal`, composed with
+  the internal `timeoutMs` signal via `AbortSignal.any` — whichever fires first
+  cancels the request. Lets UI layers (e.g. `usePasswordValidator`'s
+  `asyncChecks`) cancel superseded lookups. An abort resolves to
+  `{ status: 'error', reason: 'timeout' }`; the never-throws contract holds
+  even for an already-aborted signal.
+
+### Patch Changes
+
+- [#229](https://github.com/akankov/sentinel-password/pull/229) [`8cf7ecd`](https://github.com/akankov/sentinel-password/commit/8cf7ecd2f5f329776adb486324fb9f113e35aaa7) Thanks [@akankov](https://github.com/akankov)! - Honor the documented "never throws" contract in two edge cases:
+
+  - `checkBreach` no longer throws a `TypeError` when a user-injected
+    `options.fetch` rejects with a nullish or primitive reason — it now
+    resolves to `{ status: 'error', reason: 'network' }` as documented.
+  - A throwing or misbehaving user-supplied `options.cache` (e.g. a
+    localStorage-backed cache hitting quota/security errors, or `get`
+    returning a non-string) is treated as a cache miss; a failing
+    `cache.set` after a successful fetch is ignored.
+
 ## 0.2.5
 
 ### Patch Changes
