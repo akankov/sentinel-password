@@ -49,13 +49,36 @@ describe('validateCommonPassword', () => {
   })
 
   it('should fail for common variations', () => {
-    // All these passwords are in the top 10k list
-    const commonPasswords = ['12345678', 'qwerty123', 'letmein', 'welcome', 'dragon']
+    // All of these are literal members of the embedded top-1,000 list.
+    // ('qwerty123' used to sit in this list but is NOT in the top 1,000 —
+    // it was only rejected as a false positive of the pre-repair degenerate
+    // double hashing. It is still rejected by the keyboard-pattern and
+    // sequential validators in full validatePassword runs.)
+    const commonPasswords = ['12345678', 'iloveyou', 'letmein', 'welcome', 'dragon', 'monkey']
 
     commonPasswords.forEach((pwd) => {
       const result = validateCommonPassword(pwd)
       expect(result.passed).toBe(false)
     })
+  })
+
+  it('should fail for l33t-speak variations of listed passwords', () => {
+    // Primary substitutions (@→a, 0→o, 3→e, 4→a, $→s, !→i …)
+    const leetVariants = ['P@ssw0rd', 'p4ssword', 'm0nkey', 'dr@gon', 'we1c0me', 'i10veyou']
+    leetVariants.forEach((pwd) => {
+      expect(validateCommonPassword(pwd).passed).toBe(false)
+    })
+    // Secondary reading: 1/| as l (letmein-style)
+    expect(validateCommonPassword('l3tm3in').passed).toBe(false)
+    // MIXED readings of the same character ('13tm31n' needs the first 1→l
+    // but the second 1→i) are outside the two-candidate cap — documented
+    // limitation that keeps the false-positive ceiling bounded.
+    expect(validateCommonPassword('13tm31n').passed).toBe(true)
+  })
+
+  it('should pass for l33t strings that do not normalize to a listed password', () => {
+    expect(validateCommonPassword('Z9!kQ@7xW$2m').passed).toBe(true)
+    expect(validateCommonPassword('gr@ndp1an0-X').passed).toBe(true)
   })
 
   it('should pass for strong uncommon passwords', () => {
@@ -86,6 +109,29 @@ describe('validateCommonPassword', () => {
         (pwd) => validateCommonPassword(pwd.toUpperCase()).passed
       )
       expect(missed).toEqual([])
+    })
+
+    it('keeps the false-positive rate under 1% on random strings', () => {
+      // Deterministic LCG so the test never flakes: the filter is fixed data,
+      // so for a fixed input set the FP count is a constant. Guards against a
+      // regression to the degenerate double hashing this filter shipped with
+      // until v1.4 (hash2 − hash1 was constant per length → measured ~1.1% FP
+      // vs ~0.33% for genuine double hashing).
+      let seed = 0x2f6e2b1
+      const nextChar = (): string => {
+        seed = (Math.imul(seed, 1103515245) + 12345) >>> 0
+        // Letters only: avoids l33t-substitutable chars so exactly one probe
+        // runs per string, measuring the per-probe rate.
+        return String.fromCharCode(97 + (seed % 26))
+      }
+      const trials = 20_000
+      let falsePositives = 0
+      for (let i = 0; i < trials; i++) {
+        let candidate = ''
+        for (let j = 0; j < 10; j++) candidate += nextChar()
+        if (!validateCommonPassword(candidate).passed) falsePositives++
+      }
+      expect(falsePositives / trials).toBeLessThan(0.01)
     })
   })
 })

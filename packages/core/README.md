@@ -80,7 +80,7 @@ interface ValidationResult {
     repetition: boolean         // No excessive repeated characters
     sequential: boolean         // No three characters with consecutive charCodeAt values (abc, 123, xyz, plus runs like '!"#' or '9:;')
     keyboardPattern: boolean    // No keyboard patterns (qwerty, asdf)
-    commonPassword: boolean     // Not in top 1K common passwords (Bloom filter, ~0.84% false-positive rate)
+    commonPassword: boolean     // Not in top 1K common passwords, incl. l33t forms (Bloom filter, ~0.3% false-positive rate per probe)
     personalInfo: boolean       // Doesn't contain personal information
   }
 }
@@ -341,7 +341,7 @@ const strength: StrengthLabel = result.strength // 'very-weak' | 'weak' | ...
 
 - Blocks the top 1,000 most common passwords
 - Uses a Bloom filter for efficient memory usage (~1.5 KB vs ~8 KB for the raw list)
-- No false negatives (every password in the list is rejected) and a ~0.84% false-positive rate — uncommon passwords are very rarely flagged as "common"
+- No false negatives (every password in the list is rejected, including l33t-speak readings like `P@ssw0rd` and `l3tm3in`) and a ~0.3% per-probe false-positive rate (≲1% for heavily substituted inputs) — uncommon passwords are very rarely flagged as "common"
 - Configurable via `checkCommonPasswords`
 
 ### 7. Personal Information Detection
