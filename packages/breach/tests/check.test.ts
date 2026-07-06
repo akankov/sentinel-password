@@ -137,6 +137,61 @@ describe('checkBreach — Add-Padding header', () => {
   })
 })
 
+describe('checkBreach — caller AbortSignal', () => {
+  /** A fetch stub that honors the abort signal like the real fetch. */
+  function abortAwareFetch(): typeof fetch {
+    return ((_url: string, init?: RequestInit): Promise<Response> =>
+      new Promise((_resolve, reject) => {
+        const abortError = () => Object.assign(new Error('aborted'), { name: 'AbortError' })
+        const signal = init?.signal
+        if (signal?.aborted) {
+          reject(abortError())
+          return
+        }
+        signal?.addEventListener('abort', () => reject(abortError()))
+      })) as unknown as typeof fetch
+  }
+
+  it('composes the caller signal with the timeout — caller abort cancels the request', async () => {
+    const controller = new AbortController()
+    const pending = checkBreach(PASSWORD, {
+      fetch: abortAwareFetch(),
+      signal: controller.signal,
+      timeoutMs: 60_000,
+    })
+    controller.abort()
+    expect(await pending).toEqual({ status: 'error', reason: 'timeout' })
+  })
+
+  it('resolves (never throws) when the caller signal is already aborted', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    const result = await checkBreach(PASSWORD, {
+      fetch: abortAwareFetch(),
+      signal: controller.signal,
+    })
+    expect(result).toEqual({ status: 'error', reason: 'timeout' })
+  })
+
+  it('forwards a composed signal that fires on caller abort', async () => {
+    const controller = new AbortController()
+    const { fetch, calls } = recordingFetch({ body: FOUND_BODY })
+    await checkBreach(PASSWORD, { fetch, signal: controller.signal })
+    const forwarded = calls[0]?.init?.signal
+    expect(forwarded).toBeInstanceOf(AbortSignal)
+    expect(forwarded?.aborted).toBe(false)
+    controller.abort()
+    expect(forwarded?.aborted).toBe(true)
+  })
+
+  it('still succeeds with a caller signal that never fires', async () => {
+    const controller = new AbortController()
+    const { fetch } = recordingFetch({ body: FOUND_BODY })
+    const result = await checkBreach(PASSWORD, { fetch, signal: controller.signal })
+    expect(result).toEqual({ status: 'ok', breachCount: 9659365, breached: true })
+  })
+})
+
 describe('checkBreach — error mapping (never silently "safe")', () => {
   it('maps a timeout/abort to reason "timeout"', async () => {
     const timeoutErr = Object.assign(new Error('timed out'), { name: 'TimeoutError' })

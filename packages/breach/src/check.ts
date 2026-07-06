@@ -104,12 +104,19 @@ export async function checkBreach(
       headers['Add-Padding'] = 'true'
     }
 
+    // Compose the internal timeout with a caller-provided signal (if any) —
+    // whichever fires first cancels the request. Both an elapsed timeout and
+    // a caller abort surface as reason 'timeout' via isTimeout (AbortError /
+    // TimeoutError).
+    const timeoutSignal: AbortSignal = AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS)
+    const signal: AbortSignal =
+      options.signal !== undefined
+        ? AbortSignal.any([options.signal, timeoutSignal])
+        : timeoutSignal
+
     let response: Response
     try {
-      response = await fetchImpl(RANGE_API + prefix, {
-        headers,
-        signal: AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS),
-      })
+      response = await fetchImpl(RANGE_API + prefix, { headers, signal })
     } catch (error: unknown) {
       return { status: 'error', reason: isTimeout(error) ? 'timeout' : 'network' }
     }
