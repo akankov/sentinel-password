@@ -31,6 +31,7 @@ Modern TypeScript password validation library with zero dependencies, React inte
 | [`@sentinel-password/react-components`](https://www.npmjs.com/package/@sentinel-password/react-components) | Headless React components | [![npm](https://img.shields.io/npm/v/@sentinel-password/react-components.svg)](https://www.npmjs.com/package/@sentinel-password/react-components) |
 | [`@sentinel-password/entropy`](https://www.npmjs.com/package/@sentinel-password/entropy) | Shannon entropy + crack-time estimation (optional add-on) | [![npm](https://img.shields.io/npm/v/@sentinel-password/entropy.svg)](https://www.npmjs.com/package/@sentinel-password/entropy) |
 | [`@sentinel-password/breach`](https://www.npmjs.com/package/@sentinel-password/breach) | Have I Been Pwned breach checking via k-anonymity (optional add-on) | [![npm](https://img.shields.io/npm/v/@sentinel-password/breach.svg)](https://www.npmjs.com/package/@sentinel-password/breach) |
+| [`@sentinel-password/generate`](https://www.npmjs.com/package/@sentinel-password/generate) | Secure password + diceware passphrase generation (optional add-on) | [![npm](https://img.shields.io/npm/v/@sentinel-password/generate.svg)](https://www.npmjs.com/package/@sentinel-password/generate) |
 
 ## Installing
 
