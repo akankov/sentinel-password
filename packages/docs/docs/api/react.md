@@ -39,12 +39,54 @@ interface UsePasswordValidatorOptions extends ValidatorOptions {
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Delay in ms after `setPassword` before validating. `0` disables debouncing (paired with `validateOnChange: true` for instant validation). |
-| `initialPassword` | `string` | `''` | Seed value for the hook's `password` state. Pair with `validateOnMount: true` to validate a pre-filled value (e.g. edit-profile flows) on first render. The input stays fully controlled by `setPassword` afterwards. |
+| `initialPassword` | `string` | `''` | Seed value for the hook's `password` state. Pair with `validateOnMount: true` to validate a restored draft (e.g. multi-step signup) on first render — never a user's stored password, which a correct app can't possess in plaintext. The input stays fully controlled by `setPassword` afterwards. |
 | `validateOnMount` | `boolean` | `false` | Validate `initialPassword` once on mount. Skips empty values, so it's a no-op when `initialPassword` is empty or omitted. |
 | `validateOnChange` | `boolean` | `false` | Only takes effect when `debounceMs === 0`. See the behavior matrix below. |
+| `asyncChecks` | `Record<string, AsyncCheck>` | — | Named async checks — `(password, signal) => Promise<{ passed, message? }>` — run whenever validation fires (same debounce). Results surface on `asyncResults` / `isValidatingAsync` and do **not** affect the synchronous `result`. In-flight checks are aborted when the password changes again, on `reset()`, and on unmount. See [Async checks & breach checking](#async-checks-breach-checking). |
 | ...all `ValidatorOptions` | — | — | All flat options from [`@sentinel-password/core`](/api/core#validatoroptions) (`minLength`, `requireUppercase`, `personalInfo`, etc.). |
 
 #### When validation runs
+
+## Async checks & breach checking
+
+`asyncChecks` composes async verdicts (breach lookups, server-side policy) with the synchronous validators. Each check gets the password and an `AbortSignal`; a superseded run (new keystroke, `reset()`, unmount) is aborted and its late results are discarded. A rejected promise becomes `status: 'error'` — deliberately distinct from `'failed'` so you choose fail-open vs fail-closed.
+
+```tsx
+import { usePasswordValidator } from '@sentinel-password/react'
+import { checkBreach } from '@sentinel-password/breach'
+
+function SignupForm() {
+  const { password, setPassword, result, asyncResults, isValidatingAsync } =
+    usePasswordValidator({
+      minLength: 12,
+      asyncChecks: {
+        breach: async (pw) => {
+          const r = await checkBreach(pw)
+          if (r.status === 'error') throw new Error(r.reason) // -> 'error'
+          return r.breached
+            ? { passed: false, message: 'This password appears in known data breaches' }
+            : { passed: true }
+        },
+      },
+    })
+
+  const breach = asyncResults['breach']
+  const canSubmit =
+    result?.valid === true && !isValidatingAsync && breach?.status !== 'failed'
+  // breach 'error' is allowed through here (fail-open); use
+  // breach?.status === 'passed' instead to fail closed.
+
+  return (
+    <form>
+      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      {breach?.status === 'failed' && <p role="alert">{breach.message}</p>}
+      <button type="submit" disabled={!canSubmit}>Sign up</button>
+    </form>
+  )
+}
+```
+
+> Calling the HIBP API from the browser reveals the requester's IP and 5-char hash prefix to the HIBP CDN — server-side checking is recommended for production. See the [breach API](/api/breach).
 
 `debounceMs` and `validateOnChange` interact — the table below covers every combination:
 

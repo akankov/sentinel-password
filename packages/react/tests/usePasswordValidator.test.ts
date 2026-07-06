@@ -476,6 +476,210 @@ describe('usePasswordValidator', () => {
     })
   })
 
+  describe('asyncChecks', () => {
+    const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
+
+    it('runs async checks after synchronous validation and reports passed', async () => {
+      const breach = vi.fn(async () => ({ passed: true }))
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          asyncChecks: { breach },
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('Str0ng!Passphrase')
+      })
+      expect(result.current.asyncResults['breach']?.status).toBe('pending')
+      expect(result.current.isValidatingAsync).toBe(true)
+
+      await act(flush)
+      expect(breach).toHaveBeenCalledWith('Str0ng!Passphrase', expect.any(AbortSignal))
+      expect(result.current.asyncResults['breach']?.status).toBe('passed')
+      expect(result.current.isValidatingAsync).toBe(false)
+    })
+
+    it('reports failed with the provided message', async () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          asyncChecks: {
+            breach: async () => ({ passed: false, message: 'Found in breaches' }),
+          },
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('hunter2hunter2')
+      })
+      await act(flush)
+      expect(result.current.asyncResults['breach']).toEqual({
+        status: 'failed',
+        message: 'Found in breaches',
+      })
+    })
+
+    it('reports error (not failed) when the check rejects, without a message', async () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          asyncChecks: {
+            breach: async () => {
+              throw new Error('ECONNRESET https://internal-secret-host')
+            },
+          },
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('whatever123!X')
+      })
+      await act(flush)
+      expect(result.current.asyncResults['breach']).toEqual({ status: 'error' })
+    })
+
+    it('aborts a superseded run and ignores its late result', async () => {
+      const seenSignals: AbortSignal[] = []
+      let release: (() => void) | undefined
+      const slow = vi.fn((pw: string, signal: AbortSignal) => {
+        seenSignals.push(signal)
+        return new Promise<{ passed: boolean; message?: string }>((resolve) => {
+          release = () => resolve({ passed: false, message: `stale:${pw}` })
+        })
+      })
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          asyncChecks: { slow },
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('first-attempt-1!')
+      })
+      // The check body is invoked in a microtask — flush so run #1 starts.
+      await act(flush)
+      const releaseFirst = release
+      expect(seenSignals[0]?.aborted).toBe(false)
+
+      act(() => {
+        result.current.setPassword('second-attempt-2!')
+      })
+      await act(flush)
+      expect(seenSignals[0]?.aborted).toBe(true)
+      expect(seenSignals[1]?.aborted).toBe(false)
+
+      // Late resolution from the superseded run must not overwrite state.
+      await act(async () => {
+        releaseFirst?.()
+        await flush()
+      })
+      expect(result.current.asyncResults['slow']?.status).toBe('pending')
+    })
+
+    it('runs on manual validate() and clears on reset()', async () => {
+      const breach = vi.fn(async () => ({ passed: true }))
+      const { result } = renderHook(() =>
+        usePasswordValidator({ debounceMs: 0, asyncChecks: { breach } })
+      )
+
+      act(() => {
+        result.current.setPassword('SomethingLong!9')
+      })
+      // manual mode (debounceMs 0, validateOnChange false): nothing ran yet
+      expect(breach).not.toHaveBeenCalled()
+
+      act(() => {
+        result.current.validate()
+      })
+      await act(flush)
+      expect(breach).toHaveBeenCalledTimes(1)
+      expect(result.current.asyncResults['breach']?.status).toBe('passed')
+
+      act(() => {
+        result.current.reset()
+      })
+      expect(result.current.asyncResults).toEqual({})
+      expect(result.current.isValidatingAsync).toBe(false)
+    })
+
+    it('treats a malformed resolution as failed', async () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({
+          debounceMs: 0,
+          validateOnChange: true,
+          asyncChecks: {
+            broken: (async () => undefined) as unknown as (
+              pw: string,
+              signal: AbortSignal
+            ) => Promise<{ passed: boolean }>,
+          },
+        })
+      )
+
+      act(() => {
+        result.current.setPassword('whatever123!X')
+      })
+      await act(flush)
+      expect(result.current.asyncResults['broken']?.status).toBe('failed')
+    })
+
+    it('is a no-op for an empty asyncChecks map', () => {
+      const { result } = renderHook(() =>
+        usePasswordValidator({ debounceMs: 0, validateOnChange: true, asyncChecks: {} })
+      )
+      act(() => {
+        result.current.setPassword('Whatever123!X')
+      })
+      expect(result.current.asyncResults).toEqual({})
+      expect(result.current.isValidatingAsync).toBe(false)
+    })
+
+    it('keeps async state stable across rerenders with identity-equal checks', async () => {
+      const breach = vi.fn(async () => ({ passed: true }))
+      const { result, rerender } = renderHook(() =>
+        // Inline map literal, but the function reference is stable.
+        usePasswordValidator({ debounceMs: 0, validateOnChange: true, asyncChecks: { breach } })
+      )
+      act(() => {
+        result.current.setPassword('Str0ng!Passphrase')
+      })
+      await act(() => new Promise((resolve) => setTimeout(resolve, 0)))
+      expect(result.current.asyncResults['breach']?.status).toBe('passed')
+
+      rerender()
+      // No new run was triggered by the rerender.
+      expect(breach).toHaveBeenCalledTimes(1)
+      expect(result.current.asyncResults['breach']?.status).toBe('passed')
+    })
+
+    it('runs async checks through the debounced path', async () => {
+      vi.useFakeTimers()
+      const breach = vi.fn(async () => ({ passed: true }))
+      const { result } = renderHook(() =>
+        usePasswordValidator({ debounceMs: 300, asyncChecks: { breach } })
+      )
+
+      act(() => {
+        result.current.setPassword('Debounced!Pass9')
+      })
+      expect(breach).not.toHaveBeenCalled()
+
+      await act(async () => {
+        vi.advanceTimersByTime(300)
+        await vi.runAllTimersAsync()
+      })
+      expect(breach).toHaveBeenCalledTimes(1)
+      expect(result.current.asyncResults['breach']?.status).toBe('passed')
+      vi.useRealTimers()
+    })
+  })
+
   describe('re-validation when validator options change', () => {
     it('re-renders the result in the new locale after a messages switch', () => {
       const english = { 'length.tooShort': 'Too short (min {minLength})' }
