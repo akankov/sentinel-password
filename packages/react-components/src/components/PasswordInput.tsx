@@ -100,6 +100,13 @@ export function PasswordInput({
   // Ref for input element
   const inputRef: React.RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null)
 
+  // Last value produced by a user interaction (typing, Escape). Lets the
+  // external-value effect below distinguish parent-driven programmatic
+  // updates (form reset, "generate password" button) — which need their own
+  // validation pass — from the controlled-mode echo of a keystroke, which
+  // `handleInputChange` has already validated.
+  const lastInteractionValueRef: React.MutableRefObject<string | null> = useRef<string | null>(null)
+
   // Determine if component is controlled
   const isControlled: boolean = controlledValue !== undefined
   const value: string = controlledValue ?? internalValue
@@ -140,6 +147,7 @@ export function PasswordInput({
   const handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newValue: string = event.target.value
+      lastInteractionValueRef.current = newValue
 
       if (!isControlled) {
         setInternalValue(newValue)
@@ -171,6 +179,7 @@ export function PasswordInput({
       // Escape key clears the input
       if (event.key === 'Escape') {
         event.preventDefault()
+        lastInteractionValueRef.current = ''
         if (!isControlled) {
           setInternalValue('')
         }
@@ -253,6 +262,31 @@ export function PasswordInput({
     // policy/locale switches that don't go through input events.
   }, [validatorOptions])
 
+  // Re-validate when a controlled parent changes `value` programmatically
+  // (form reset, "generate password" button, cross-field sync). Without
+  // this, the input renders the new value while `aria-invalid` and the
+  // message list still describe the old one. Keystroke echoes are skipped:
+  // `handleInputChange` recorded them in `lastInteractionValueRef` and
+  // already validated per the `validateOnChange` setting — which this
+  // effect also respects, so manual-validation consumers stay in control.
+  const prevValueRef: React.MutableRefObject<string> = useRef<string>(value)
+  useEffect(() => {
+    const previousValue: string = prevValueRef.current
+    prevValueRef.current = value
+    if (!isControlled || value === previousValue) {
+      return
+    }
+    if (value === lastInteractionValueRef.current) {
+      // Controlled-mode echo of a keystroke/Escape. Consume the marker so a
+      // FUTURE programmatic change back to this same string still validates.
+      lastInteractionValueRef.current = null
+      return
+    }
+    if (validateOnChange) {
+      performValidation(value)
+    }
+  }, [value, isControlled, validateOnChange, performValidation])
+
   // Notify parent of validation changes
   useEffect(() => {
     if (validationResult) {
@@ -305,8 +339,13 @@ export function PasswordInput({
 
       {/* Input wrapper */}
       <div className={inputWrapperClassName} data-password-input-wrapper>
-        {/* Password input */}
+        {/* Password input. `autoComplete` sits BEFORE the spread so it acts
+            as a default: "new-password" suits signup/change-password forms,
+            but consumers can pass autoComplete="current-password" (login) or
+            "off" via inputProps and have it respected. Everything after the
+            spread is component-managed and deliberately not overridable. */}
         <input
+          autoComplete="new-password"
           {...inputProps}
           ref={inputRef}
           id={inputId}
@@ -317,7 +356,6 @@ export function PasswordInput({
           aria-describedby={ariaDescribedBy || undefined}
           aria-invalid={ariaInvalid}
           disabled={disabled}
-          autoComplete="new-password"
         />
 
         {/* Show/hide toggle button */}
@@ -336,16 +374,21 @@ export function PasswordInput({
         )}
       </div>
 
-      {/* Validation messages (ARIA live region) */}
-      {validationMessages.length > 0 && (
-        <div
-          id={validationId}
-          className={validationClassName}
-          role="alert"
-          aria-live="polite"
-          aria-atomic="true"
-          data-password-validation
-        >
+      {/* Validation messages (ARIA live region). The container is ALWAYS
+          mounted: screen readers only reliably announce content injected
+          into a live region that already existed in the DOM. role="status"
+          (implicit aria-live="polite") replaces the earlier
+          role="alert" + aria-live="polite" combination, whose conflicting
+          politeness levels (alert implies assertive) screen readers resolve
+          inconsistently — and per-keystroke feedback should not interrupt. */}
+      <div
+        id={validationId}
+        className={validationClassName}
+        role="status"
+        aria-atomic="true"
+        data-password-validation
+      >
+        {validationMessages.length > 0 && (
           <ul>
             {validationMessages.map((msg) => (
               <li key={msg.id} data-severity={msg.severity}>
@@ -353,8 +396,8 @@ export function PasswordInput({
               </li>
             ))}
           </ul>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

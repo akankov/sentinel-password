@@ -67,6 +67,65 @@ describe('PasswordInput', () => {
       input = screen.getByLabelText('Password')
       expect(input).toHaveValue('updated')
     })
+
+    it('should validate an externally-changed controlled value', async () => {
+      const handleValidationChange = vi.fn()
+      const { rerender } = render(
+        <PasswordInput
+          label="Password"
+          value="Sup3r$trongPassphrase"
+          onChange={vi.fn()}
+          onValidationChange={handleValidationChange}
+          debounceMs={0}
+        />
+      )
+
+      // Parent programmatically swaps in a weak value (e.g. form reset) —
+      // no keystroke involved. aria-invalid and messages must catch up.
+      rerender(
+        <PasswordInput
+          label="Password"
+          value="weak"
+          onChange={vi.fn()}
+          onValidationChange={handleValidationChange}
+          debounceMs={0}
+        />
+      )
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Password')).toHaveAttribute('aria-invalid', 'true')
+        expect(screen.getByRole('status')).not.toBeEmptyDOMElement()
+      })
+    })
+
+    it('should not validate external value changes when validateOnChange is false', async () => {
+      const handleValidationChange = vi.fn()
+      const { rerender } = render(
+        <PasswordInput
+          label="Password"
+          value="first"
+          onChange={vi.fn()}
+          onValidationChange={handleValidationChange}
+          validateOnChange={false}
+          debounceMs={0}
+        />
+      )
+
+      rerender(
+        <PasswordInput
+          label="Password"
+          value="second"
+          onChange={vi.fn()}
+          onValidationChange={handleValidationChange}
+          validateOnChange={false}
+          debounceMs={0}
+        />
+      )
+
+      // Manual-validation consumers keep full control: no validation fires.
+      await new Promise((resolve) => setTimeout(resolve, 20))
+      expect(handleValidationChange).not.toHaveBeenCalled()
+    })
   })
 
   describe('Uncontrolled Mode', () => {
@@ -248,7 +307,7 @@ describe('PasswordInput', () => {
       await user.type(screen.getByLabelText('Password'), 'short')
 
       await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+        expect(screen.getByRole('status')).toHaveTextContent('Mínimo 12 caracteres')
       })
     })
 
@@ -269,7 +328,7 @@ describe('PasswordInput', () => {
       await user.type(screen.getByLabelText('Password'), 'short')
 
       await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent('[length.tooShort]')
+        expect(screen.getByRole('status')).toHaveTextContent('[length.tooShort]')
       })
     })
 
@@ -288,7 +347,7 @@ describe('PasswordInput', () => {
       await user.type(screen.getByLabelText('Password'), 'short')
 
       await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent(
+        expect(screen.getByRole('status')).toHaveTextContent(
           'Password must be at least 12 characters'
         )
       })
@@ -297,7 +356,7 @@ describe('PasswordInput', () => {
       rerender(<PasswordInput label="Password" debounceMs={0} validatorOptions={es} />)
 
       await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+        expect(screen.getByRole('status')).toHaveTextContent('Mínimo 12 caracteres')
       })
     })
 
@@ -327,7 +386,7 @@ describe('PasswordInput', () => {
       // before this assertion. Reaching a stable rendered output proves the
       // bail kept things finite.
       await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent(
+        expect(screen.getByRole('status')).toHaveTextContent(
           'Password must be at least 12 characters'
         )
       })
@@ -348,7 +407,7 @@ describe('PasswordInput', () => {
       const input = screen.getByLabelText('Password')
       await user.type(input, 'short')
       await waitFor(() =>
-        expect(screen.getByRole('alert')).toHaveTextContent(
+        expect(screen.getByRole('status')).toHaveTextContent(
           'Password must be at least 12 characters'
         )
       )
@@ -357,7 +416,7 @@ describe('PasswordInput', () => {
       input.focus()
       await user.keyboard('{Escape}')
       await waitFor(() =>
-        expect(screen.getByRole('alert')).toHaveTextContent(
+        expect(screen.getByRole('status')).toHaveTextContent(
           'Password must be at least 12 characters'
         )
       )
@@ -366,7 +425,7 @@ describe('PasswordInput', () => {
       rerender(<PasswordInput label="Password" debounceMs={0} validatorOptions={es} />)
 
       await waitFor(() => {
-        expect(screen.getByRole('alert')).toHaveTextContent('Mínimo 12 caracteres')
+        expect(screen.getByRole('status')).toHaveTextContent('Mínimo 12 caracteres')
       })
     })
 
@@ -379,7 +438,7 @@ describe('PasswordInput', () => {
       await user.type(input, 'weak')
 
       await waitFor(() => {
-        expect(screen.queryByRole('alert')).toBeInTheDocument()
+        expect(screen.getByRole('status')).not.toBeEmptyDOMElement()
       })
     })
 
@@ -400,9 +459,10 @@ describe('PasswordInput', () => {
       await user.type(input, 'weak')
 
       // Validation still runs (callback fires) — but with messages disabled the
-      // alert region must never render.
+      // live region stays empty (it remains mounted so screen readers can
+      // announce content injected later).
       await waitFor(() => expect(handleValidationChange).toHaveBeenCalled())
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      expect(screen.getByRole('status')).toBeEmptyDOMElement()
     })
   })
 
@@ -535,10 +595,33 @@ describe('PasswordInput', () => {
       await user.type(input, 'weak')
 
       await waitFor(() => {
-        const liveRegion = screen.getByRole('alert')
-        expect(liveRegion).toHaveAttribute('aria-live', 'polite')
+        const liveRegion = screen.getByRole('status')
+        // role="status" carries implicit aria-live="polite"; no explicit
+        // aria-live (or conflicting role="alert") should be present.
         expect(liveRegion).toHaveAttribute('aria-atomic', 'true')
+        expect(liveRegion).not.toHaveAttribute('aria-live')
+        expect(liveRegion).not.toBeEmptyDOMElement()
       })
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    })
+
+    it('should keep the live region mounted before any feedback exists', () => {
+      render(<PasswordInput label="Password" />)
+
+      // Live regions must be in the DOM before content is injected to be
+      // reliably announced by screen readers.
+      const liveRegion = screen.getByRole('status')
+      expect(liveRegion).toBeInTheDocument()
+      expect(liveRegion).toBeEmptyDOMElement()
+    })
+
+    it('should default autoComplete to new-password but respect an override', () => {
+      const { unmount } = render(<PasswordInput label="Password" />)
+      expect(screen.getByLabelText('Password')).toHaveAttribute('autocomplete', 'new-password')
+      unmount()
+
+      render(<PasswordInput label="Password" autoComplete="current-password" />)
+      expect(screen.getByLabelText('Password')).toHaveAttribute('autocomplete', 'current-password')
     })
 
     it('should have accessible toggle button labels', () => {
@@ -586,7 +669,7 @@ describe('PasswordInput', () => {
       )
 
       await user.type(screen.getByLabelText('Password'), 'weak')
-      await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+      await waitFor(() => expect(screen.getByRole('status')).not.toBeEmptyDOMElement())
 
       expect(await axe(container)).toHaveNoViolations()
     })
