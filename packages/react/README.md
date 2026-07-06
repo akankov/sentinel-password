@@ -76,7 +76,9 @@ Returns an object with:
 | `result` | `ValidationResult \| undefined` | Validation result (undefined until first validation) |
 | `isValidating` | `boolean` | Whether validation is in progress (during debounce) |
 | `validate` | `() => void` | Manually trigger validation |
-| `reset` | `() => void` | Reset password and validation state |
+| `reset` | `() => void` | Reset password and validation state (aborts in-flight async checks) |
+| `asyncResults` | `Record<string, AsyncCheckState>` | Per-check state (`pending`/`passed`/`failed`/`error`) of the registered `asyncChecks` for the most recent run |
+| `isValidatingAsync` | `boolean` | True while any async check from the most recent run is still pending |
 
 ### Options
 
@@ -85,9 +87,10 @@ Extends all [`@sentinel-password/core` options](https://www.npmjs.com/package/@s
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `debounceMs` | `number` | `300` | Debounce delay in ms (0 to disable) |
-| `initialPassword` | `string` | `''` | Seed value for the hook's `password` state. Use this together with `validateOnMount` to validate a pre-filled value (e.g. edit-profile flows) on first render. The input stays fully controlled by `setPassword` afterwards. |
+| `initialPassword` | `string` | `''` | Seed value for the hook's `password` state. Use this together with `validateOnMount` to validate a restored draft (e.g. multi-step signup) on first render — never a user's stored password, which a correct app can't possess in plaintext. The input stays fully controlled by `setPassword` afterwards. |
 | `validateOnMount` | `boolean` | `false` | Validate the seed value (see `initialPassword`) once on mount. Skips empty values, so it's a no-op when `initialPassword` is empty or omitted. |
 | `validateOnChange` | `boolean` | `false` | Only matters when `debounceMs === 0`: `true` validates synchronously on every change, `false` disables automatic validation (call `validate()` manually). With the default `debounceMs > 0`, debounced validation runs on every change regardless of this flag. |
+| `asyncChecks` | `Record<string, AsyncCheck>` | — | Named async checks — `(password, signal) => Promise<{ passed, message? }>` — that run whenever validation fires. Results surface on `asyncResults` and do **not** affect the synchronous `result`; superseded runs are aborted via the provided `AbortSignal`. Pair with [`@sentinel-password/breach`](https://www.npmjs.com/package/@sentinel-password/breach) for HIBP checks. |
 
 ## Related Packages
 
