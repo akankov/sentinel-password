@@ -33,7 +33,7 @@ console.log(result.checks)
 
 ### Length
 
-Caps the password length on both sides.
+Caps the password length on both sides. Length is counted in **Unicode code points** (user-perceived characters, per NIST 800-63B), not UTF-16 code units — an emoji counts as 1, so `'😀😁😂🤣'` has length 4 and does not satisfy `minLength: 8`.
 
 **Options:**
 
@@ -94,16 +94,15 @@ validateRepetition('Paaaaass1!', { maxRepeatedChars: 3 })
 
 ### Sequential
 
-Detects **three or more characters whose `charCodeAt` values are consecutive (ascending or descending)** — not just within a single character class. Source uses `String.prototype.charCodeAt` deltas (`sequential.ts`), which return UTF-16 code units. For the Basic Multilingual Plane (U+0000–U+FFFF) — every character you'd see in a typical password, including ASCII, Latin extensions, Cyrillic, Greek, and CJK — code units and Unicode code points are identical, so the practical effect is "three consecutive code points." Supplementary-plane characters (emoji, etc.) are encoded as surrogate pairs, so a code-point-level run like `😀😁😂` does *not* trigger the check.
+Detects **three or more letters or digits whose `charCodeAt` values are consecutive (ascending or descending)**. Source uses `String.prototype.charCodeAt` deltas (`sequential.ts`), which return UTF-16 code units. For the Basic Multilingual Plane (U+0000–U+FFFF) — every character you'd see in a typical password, including ASCII, Latin extensions, Cyrillic, Greek, and CJK — code units and Unicode code points are identical, so the practical effect is "three consecutive code points." Supplementary-plane characters (emoji, etc.) are encoded as surrogate pairs, so a code-point-level run like `😀😁😂` does *not* trigger the check.
 
-The detector matches more than the obvious cases:
+What counts as a sequence:
 
 - Within letters: `abc`, `xyz`, `ABC` (and reverse: `cba`, `zyx`)
 - Within digits: `123`, `987`
-- Within symbols: `!"#` (`!` is 33, `"` is 34, `#` is 35), `,-.` (44-46), `/01` (47-49)
-- **Across character classes**: `9:;` (digit → punctuation, codes 57-59), `Z[\` (letter → symbol, codes 90-92)
+- Non-ASCII alphabets whose letters are code-point-consecutive: Cyrillic `абв`, Greek `αβγ`
 
-If a password is rejected for "sequential characters" and you don't see an obvious `abc`/`123`, scan for any three adjacent characters whose `charCodeAt` values increment or decrement by 1 — they're often inside punctuation runs (`-.`, `./`, `!"#`).
+What does **not** count: ASCII symbol/punctuation runs that happen to be code-point-consecutive — `!"#` (codes 33-35), `()*` (40-42), `[\]` (91-93) — and runs that cross out of the letter/digit classes, like `9:;` (57-59) or `?@A` (63-65). Those are typical of randomly generated passwords (password managers), not predictable typing patterns, so they pass.
 
 ::: warning Overlap with keyboard-pattern
 The numeric runs `123`, `456`, `789` (and their reverses `321`, `654`, `987`) are *also* matched by the [Keyboard Pattern](#keyboard-pattern) validator's numeric-keypad list. Setting `checkSequential: false` alone will **not** allow a password like `password123` through — `checkKeyboardPatterns` (default `true`) still catches the `123` substring. To accept those numeric runs you must disable **both** flags: `{ checkSequential: false, checkKeyboardPatterns: false }`. The two validators were designed as independent defences (one catches arbitrary code-point runs, the other catches keyboard-locality runs), so this overlap is by design — but it can be surprising when you're trying to isolate behaviour.

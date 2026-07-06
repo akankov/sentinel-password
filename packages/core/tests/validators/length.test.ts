@@ -45,4 +45,34 @@ describe('validateLength', () => {
     expect(result.passed).toBe(false)
     expect(result.message).toBeDefined()
   })
+
+  it('should count astral characters as one code point for minLength', () => {
+    // 4 emoji = 8 UTF-16 code units but 4 user-perceived characters
+    const result = validateLength('😀😁😂🤣', { minLength: 8 })
+    expect(result.passed).toBe(false)
+    expect(result.message).toContain('at least 8')
+  })
+
+  it('should pass when code-point count meets minLength despite surrogates', () => {
+    const result = validateLength('😀😁😂🤣😃😄😅😆', { minLength: 8 })
+    expect(result.passed).toBe(true)
+  })
+
+  it('should count astral characters as one code point for maxLength', () => {
+    // 65 emoji = 130 code units but only 65 characters — within max 128
+    const result = validateLength('😀'.repeat(65), { minLength: 8, maxLength: 128 })
+    expect(result.passed).toBe(true)
+  })
+
+  it('should fail when code-point count exceeds maxLength', () => {
+    const result = validateLength('😀'.repeat(129), { maxLength: 128 })
+    expect(result.passed).toBe(false)
+    expect(result.message).toContain('at most 128')
+  })
+
+  it('should report too-long for very long input past the iteration cap', () => {
+    const result = validateLength('a'.repeat(10_000), { minLength: 8, maxLength: 128 })
+    expect(result.passed).toBe(false)
+    expect(result.message).toContain('at most 128')
+  })
 })

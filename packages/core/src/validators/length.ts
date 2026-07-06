@@ -24,12 +24,28 @@ import { resolveMessage } from '../messages'
  * @remarks
  * Default minimum length is 8 characters (OWASP recommendation).
  * Default maximum length is 128 characters (prevents DoS attacks).
+ *
+ * Length is counted in Unicode code points (matching `validateRepetition` and
+ * NIST 800-63B's user-perceived-character guidance), so an astral character
+ * like an emoji counts as 1, not 2 UTF-16 code units — `'😀😁😂🤣'` is length 4.
  */
 export const validateLength: Validator = (password, options = {}) => {
   const { minLength = 8, maxLength = 128 }: Partial<{ minLength: number; maxLength: number }> =
     options
 
-  const length: number = password.length
+  // Count Unicode code points (for...of iterates by code point, unlike
+  // .length's UTF-16 code units). Iteration stops one past the larger bound:
+  // beyond it the too-short verdict can no longer change and too-long is
+  // already decided, which keeps the check O(maxLength) on adversarially
+  // long inputs.
+  const iterationCap: number = Math.max(minLength, maxLength)
+  let length: number = 0
+  for (const _char of password) {
+    length++
+    if (length > iterationCap) {
+      break
+    }
+  }
 
   if (length < minLength) {
     const params: MessageParams = { minLength }
