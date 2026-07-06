@@ -28,7 +28,10 @@ const KEYBOARD_PATTERNS: readonly string[] = [
   'poi',
   'lkj',
   'mnb',
-  // Columns (top to bottom)
+  // Columns (top to bottom). Patterns must be at least 3 characters:
+  // a 2-char entry like '0p' (matched forward+reversed, case-insensitively)
+  // fires on any password merely containing the pair — e.g. 'Deskt0p' — so
+  // the '0p;' column is intentionally not represented below 3 chars.
   '1qaz',
   '2wsx',
   '3edc',
@@ -38,7 +41,6 @@ const KEYBOARD_PATTERNS: readonly string[] = [
   '7ujm',
   '8ik',
   '9ol',
-  '0p',
   // Diagonals
   'qaz',
   'wsx',

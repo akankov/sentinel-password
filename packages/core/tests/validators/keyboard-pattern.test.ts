@@ -155,6 +155,24 @@ describe('validateKeyboardPattern', () => {
       expect(result.passed).toBe(true)
     })
 
+    // Regression: the 2-char column entry '0p' used to reject any password
+    // containing '0p' or 'p0' (matched reversed, case-insensitively) —
+    // the most common l33t substitution pair (o→0).
+    it('should accept passwords containing the 0p pair', () => {
+      expect(validateKeyboardPattern('Deskt0p!').passed).toBe(true)
+      expect(validateKeyboardPattern('MyLapt0p#9').passed).toBe(true)
+      expect(validateKeyboardPattern('Sh0pping@8').passed).toBe(true)
+    })
+
+    it('should accept passwords containing the reversed p0 pair', () => {
+      expect(validateKeyboardPattern('Temp0rary!').passed).toBe(true)
+      expect(validateKeyboardPattern('P0larBear#').passed).toBe(true)
+    })
+
+    it('should accept uppercase 0P/P0 pairs', () => {
+      expect(validateKeyboardPattern('DESKT0P!x').passed).toBe(true)
+    })
+
     it('should accept random complex password', () => {
       const result = validateKeyboardPattern('X9#mK2!pL7')
       expect(result.passed).toBe(true)

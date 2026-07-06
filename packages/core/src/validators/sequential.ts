@@ -2,8 +2,26 @@ import type { MessageParams, Validator } from '../types'
 import { resolveMessage } from '../messages'
 
 /**
+ * Whether a char code can participate in a "sequential" run: ASCII digits,
+ * ASCII letters, or any non-ASCII code (covering alphabets like Cyrillic,
+ * whose letters are also code-point-consecutive). Excluding ASCII
+ * symbols/punctuation stops runs like '()*', '?@A', or '[\]' — common in
+ * password-manager output — from being flagged as "abc/123"-style sequences.
+ */
+const isSequenceCandidate = (code: number): boolean =>
+  (code >= 48 && code <= 57) || // 0-9
+  (code >= 65 && code <= 90) || // A-Z
+  (code >= 97 && code <= 122) || // a-z
+  code > 127 // non-ASCII (e.g. Cyrillic, Greek)
+
+/**
  * Detects sequential character patterns (ascending or descending)
  * Checks for sequences of 3 or more consecutive characters
+ *
+ * Only runs whose endpoints are both letters or digits count: the ASCII
+ * alphanumeric ranges are non-contiguous (gaps of 7+ code points between
+ * digits, uppercase, and lowercase), so a consecutive triple with both
+ * endpoints in-class necessarily stays within a single class.
  *
  * @param str - String to check for sequences
  * @returns true if sequential pattern found, false otherwise
@@ -17,12 +35,22 @@ const hasSequentialPattern = (str: string): boolean => {
     const charCode3: number = str.charCodeAt(i + 2)
 
     // Check ascending sequence (e.g., abc, 123)
-    if (charCode2 === charCode1 + 1 && charCode3 === charCode2 + 1) {
+    if (
+      charCode2 === charCode1 + 1 &&
+      charCode3 === charCode2 + 1 &&
+      isSequenceCandidate(charCode1) &&
+      isSequenceCandidate(charCode3)
+    ) {
       return true
     }
 
     // Check descending sequence (e.g., cba, 321)
-    if (charCode2 === charCode1 - 1 && charCode3 === charCode2 - 1) {
+    if (
+      charCode2 === charCode1 - 1 &&
+      charCode3 === charCode2 - 1 &&
+      isSequenceCandidate(charCode1) &&
+      isSequenceCandidate(charCode3)
+    ) {
       return true
     }
   }
@@ -60,6 +88,11 @@ const hasSequentialPattern = (str: string): boolean => {
  * @remarks
  * Enabled by default. Checks for 3 or more consecutive characters in sequence.
  * Case-sensitive: detects both "abc" and "ABC" as separate patterns.
+ *
+ * Only letter and digit runs count. ASCII symbol/punctuation runs that happen
+ * to be code-point-consecutive (e.g. `()*`, `?@A`, `[\]`) are NOT flagged —
+ * they are typical of randomly generated passwords, not predictable typing
+ * patterns. Non-ASCII alphabets (e.g. Cyrillic `абв`) are still detected.
  *
  * **Overlap with `validateKeyboardPattern`:** The numeric runs `123`, `456`,
  * `789` (and their reverses) are also matched by the keyboard-pattern
