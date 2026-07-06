@@ -176,6 +176,17 @@ export interface ValidatorOptions {
   requireDigit?: boolean
   /** Require at least one symbol (default: false) */
   requireSymbol?: boolean
+  /**
+   * Classify character types by Unicode property instead of ASCII ranges
+   * (default: false). When enabled, `requireUppercase`/`requireLowercase`
+   * match any cased letter (`\p{Lu}`/`\p{Ll}` — Cyrillic, Greek, accented
+   * Latin, …), `requireDigit` matches any decimal digit (`\p{Nd}`), and a
+   * symbol is any character that is neither a letter nor a number. Off by
+   * default so existing validation outcomes don't change. Note: caseless
+   * scripts (CJK, Arabic, Hebrew) have no upper/lowercase letters — don't
+   * require case for passwords in those scripts.
+   */
+  unicodeCharacterTypes?: boolean
   /** Maximum allowed repeated characters (default: 3) */
   maxRepeatedChars?: number
   /** Check for sequential patterns (default: true) */

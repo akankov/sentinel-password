@@ -245,3 +245,75 @@ describe('validateCharacterTypes — defaults and missing-type accounting', () =
     expect(result.params?.missingTypes).toBe('lowercase')
   })
 })
+
+describe('unicodeCharacterTypes mode', () => {
+  it('accepts Cyrillic case with unicodeCharacterTypes enabled', () => {
+    const result = validateCharacterTypes('Пароль123!', {
+      requireUppercase: true,
+      requireLowercase: true,
+      unicodeCharacterTypes: true,
+    })
+    expect(result.passed).toBe(true)
+  })
+
+  it('still rejects Cyrillic case in the default ASCII mode', () => {
+    const result = validateCharacterTypes('Пароль123!', { requireUppercase: true })
+    expect(result.passed).toBe(false)
+    expect(result.passed ? '' : result.message).toContain('uppercase')
+  })
+
+  it('counts non-ASCII punctuation and currency as symbols', () => {
+    for (const pw of ['abcABC1№', 'abcABC1€', 'abcABC1—']) {
+      const result = validateCharacterTypes(pw, {
+        requireSymbol: true,
+        unicodeCharacterTypes: true,
+      })
+      expect(result.passed).toBe(true)
+    }
+  })
+
+  it('counts non-ASCII decimal digits via \\p{Nd}', () => {
+    const result = validateCharacterTypes('Password!٣', {
+      requireDigit: true,
+      unicodeCharacterTypes: true,
+    })
+    expect(result.passed).toBe(true)
+  })
+
+  it('reports missing classes in unicode mode with the standard message', () => {
+    const result = validateCharacterTypes('пароль', {
+      requireUppercase: true,
+      requireDigit: true,
+      unicodeCharacterTypes: true,
+    })
+    expect(result.passed).toBe(false)
+    if (!result.passed) {
+      expect(result.code).toBe('characterTypes.missing')
+      expect(result.message).toContain('uppercase letter, digit')
+    }
+  })
+
+  it('caseless scripts cannot satisfy case requirements even in unicode mode', () => {
+    // CJK letters are \p{Lo} (no case) — documented: do not require case
+    // for passwords in caseless scripts.
+    const result = validateCharacterTypes('ひらがなだけ', {
+      requireUppercase: true,
+      unicodeCharacterTypes: true,
+    })
+    expect(result.passed).toBe(false)
+  })
+
+  it('accepts accented Latin case', () => {
+    const result = validateCharacterTypes('Éléphant9!', {
+      requireUppercase: true,
+      requireLowercase: true,
+      unicodeCharacterTypes: true,
+    })
+    expect(result.passed).toBe(true)
+  })
+
+  it('unicode mode with no requirements is still a no-op', () => {
+    const result = validateCharacterTypes('пароль', { unicodeCharacterTypes: true })
+    expect(result.passed).toBe(true)
+  })
+})

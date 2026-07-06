@@ -82,6 +82,18 @@ const isSymbolCode = (c: number): boolean =>
   (c >= 0x7b && c <= 0x7e)
 
 /**
+ * Unicode-property classifiers for the opt-in `unicodeCharacterTypes` mode.
+ * Cased letters via `\p{Lu}`/`\p{Ll}` (Cyrillic, Greek, accented Latin, …),
+ * decimal digits via `\p{Nd}` (includes e.g. Arabic-Indic digits), and a
+ * symbol is anything that is neither a letter nor a number — mirroring the
+ * ASCII definition, where space and punctuation count as symbols.
+ */
+const UNICODE_UPPER: RegExp = /\p{Lu}/u
+const UNICODE_LOWER: RegExp = /\p{Ll}/u
+const UNICODE_DIGIT: RegExp = /\p{Nd}/u
+const UNICODE_SYMBOL: RegExp = /[^\p{L}\p{N}]/u
+
+/**
  * Validates character type requirements (uppercase, lowercase, digits, symbols)
  *
  * @param password - Password to validate
@@ -133,11 +145,13 @@ export const validateCharacterTypes: Validator = (password, options = {}) => {
     requireLowercase = false,
     requireDigit = false,
     requireSymbol = false,
+    unicodeCharacterTypes = false,
   }: Partial<{
     requireUppercase: boolean
     requireLowercase: boolean
     requireDigit: boolean
     requireSymbol: boolean
+    unicodeCharacterTypes: boolean
   }> = options
 
   // No requirements → no scan, no allocations.
@@ -150,17 +164,27 @@ export const validateCharacterTypes: Validator = (password, options = {}) => {
   let foundDigit: boolean = !requireDigit
   let foundSymbol: boolean = !requireSymbol
 
-  for (let i: number = 0; i < password.length; i++) {
-    if (foundUpper && foundLower && foundDigit && foundSymbol) break
-    const c: number = password.charCodeAt(i)
-    if (!foundUpper && c >= 65 && c <= 90) {
-      foundUpper = true
-    } else if (!foundLower && c >= 97 && c <= 122) {
-      foundLower = true
-    } else if (!foundDigit && c >= 48 && c <= 57) {
-      foundDigit = true
-    } else if (!foundSymbol && isSymbolCode(c)) {
-      foundSymbol = true
+  if (unicodeCharacterTypes) {
+    // Opt-in Unicode mode: property-escape regexes (one scan per still-unmet
+    // requirement). 'Пароль123!' satisfies requireUppercase here, where the
+    // ASCII path below would reject it.
+    foundUpper = foundUpper || UNICODE_UPPER.test(password)
+    foundLower = foundLower || UNICODE_LOWER.test(password)
+    foundDigit = foundDigit || UNICODE_DIGIT.test(password)
+    foundSymbol = foundSymbol || UNICODE_SYMBOL.test(password)
+  } else {
+    for (let i: number = 0; i < password.length; i++) {
+      if (foundUpper && foundLower && foundDigit && foundSymbol) break
+      const c: number = password.charCodeAt(i)
+      if (!foundUpper && c >= 65 && c <= 90) {
+        foundUpper = true
+      } else if (!foundLower && c >= 97 && c <= 122) {
+        foundLower = true
+      } else if (!foundDigit && c >= 48 && c <= 57) {
+        foundDigit = true
+      } else if (!foundSymbol && isSymbolCode(c)) {
+        foundSymbol = true
+      }
     }
   }
 
