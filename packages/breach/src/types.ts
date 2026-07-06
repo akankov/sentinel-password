@@ -64,6 +64,14 @@ export interface BreachOptions {
   /** Abort the request after this many milliseconds. Default `5000`. */
   readonly timeoutMs?: number
   /**
+   * Caller-provided abort signal, composed with the internal `timeoutMs`
+   * signal — whichever fires first cancels the request. Lets UI layers
+   * (e.g. a React hook superseding a stale keystroke) cancel in-flight
+   * lookups. An abort resolves to `{ status: 'error', reason: 'timeout' }`;
+   * `checkBreach` never throws, even when this signal is already aborted.
+   */
+  readonly signal?: AbortSignal
+  /**
    * `fetch` implementation. Defaults to the global `fetch`. Inject for custom
    * agents/proxies or for tests (no real network required).
    */
