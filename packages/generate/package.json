@@ -1,0 +1,70 @@
+{
+  "name": "@sentinel-password/generate",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Cryptographically secure password and diceware-passphrase generation for sentinel-password. Zero runtime dependencies; ≤ 10 KB gzipped (CI enforced).",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist coverage"
+  },
+  "keywords": [
+    "password",
+    "password-generator",
+    "passphrase",
+    "diceware",
+    "eff-wordlist",
+    "random",
+    "security",
+    "typescript",
+    "zero-dependency"
+  ],
+  "author": "Aleksei Kankov <akankov@gmail.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akankov/sentinel-password.git",
+    "directory": "packages/generate"
+  },
+  "homepage": "https://akankov.github.io/sentinel-password/",
+  "bugs": {
+    "url": "https://github.com/akankov/sentinel-password/issues"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.9",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}

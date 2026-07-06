@@ -147,6 +147,20 @@ jobs:
 
           echo "::notice::Breach bundle size ${BREACH_SIZE_KB}KB is within 10KB limit"
 
+      - name: Check generate bundle size
+        run: |
+          GENERATE_SIZE=$(gzip -c packages/generate/dist/index.js | wc -c)
+          GENERATE_SIZE_KB=$(echo "scale=2; $GENERATE_SIZE / 1024" | bc)
+          echo "Generate bundle size: ${GENERATE_SIZE_KB}KB gzipped"
+
+          # Fail if over 10KB (10240 bytes)
+          if [ "$GENERATE_SIZE" -gt 10240 ]; then
+            echo "::error::Generate bundle size ${GENERATE_SIZE_KB}KB exceeds 10KB limit"
+            exit 1
+          fi
+
+          echo "::notice::Generate bundle size ${GENERATE_SIZE_KB}KB is within 10KB limit"
+
   package-quality:
     name: Package Quality
     runs-on: ubuntu-latest
