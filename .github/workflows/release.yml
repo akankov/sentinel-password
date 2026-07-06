@@ -40,6 +40,15 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Publishing is NOT gated on the CI workflow (it runs in parallel on
+      # the same push), so a red main could otherwise still ship to npm.
+      # Run the test suite and type check here before changesets publishes.
+      - name: Test
+        run: pnpm test
+
+      - name: Type check
+        run: pnpm typecheck
+
       - name: Create Release Pull Request or Publish
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1
         with:
