@@ -11,7 +11,7 @@ validation: validate what users type, suggest something strong when they ask.
 pnpm add @sentinel-password/generate
 ```
 
-Requires `crypto.getRandomValues` (Node ≥ 20, all modern browsers, edge
+Requires `crypto.getRandomValues` (Node ≥ 22, all modern browsers, edge
 runtimes).
 
 ## Usage

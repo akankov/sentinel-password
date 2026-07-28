@@ -364,9 +364,9 @@ The published package is plain ES2022 with no Node or browser-specific APIs, so 
 - Chrome/Edge 88+
 - Firefox 78+
 - Safari 14+
-- Node.js 18+ (and Deno, Bun, Cloudflare Workers, Vercel Edge — see the [Server-Side Usage guide](https://akankov.github.io/sentinel-password/guide/server-side))
+- Node.js 22+ (and Deno, Bun, Cloudflare Workers, Vercel Edge — see the [Server-Side Usage guide](https://akankov.github.io/sentinel-password/guide/server-side))
 
-> **Building this monorepo** requires Node.js 20+ (`engines.node` at the repo root). The 18+ minimum above applies to *running* the published `@sentinel-password/core` package, not to developing it.
+> The package itself is plain ES2022 and will run on older Node, but `engines.node` declares `>=22` — the oldest release still receiving security support — so npm and pnpm will warn (or fail, under `engine-strict`) below that.
 
 ## Contributing
 

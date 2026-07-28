@@ -156,7 +156,7 @@ const result = validatePassword('MyPassword123!', {
 
 ## Local Development
 
-Requirements: Node.js >= 20, pnpm (see `packageManager` in `package.json`)
+Requirements: Node.js >= 22, pnpm (see `packageManager` in `package.json`)
 
 ```bash
 pnpm install

@@ -10,7 +10,7 @@ This project adheres to the Contributor Covenant [Code of Conduct](CODE_OF_CONDU
 
 ### Prerequisites
 
-- Node.js >= 20
+- Node.js >= 22
 - pnpm (see `packageManager` in `package.json`)
 
 ### Setup

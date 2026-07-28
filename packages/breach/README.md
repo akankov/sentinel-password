@@ -14,7 +14,7 @@ hash, and the matched suffix never leave the process and are never logged.
 pnpm add @sentinel-password/breach
 ```
 
-Requires a runtime with global `fetch` and `crypto.subtle` — Node.js ≥ 20 or a
+Requires a runtime with global `fetch` and `crypto.subtle` — Node.js ≥ 22 or a
 modern browser. (SHA-1 is mandated by the HIBP protocol; it is not used here as
 a security primitive.)
 

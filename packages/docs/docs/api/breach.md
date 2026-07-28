@@ -10,7 +10,7 @@ This package complements [`@sentinel-password/core`](./core) but does **not** sh
 pnpm add @sentinel-password/breach
 ```
 
-No peer dependencies. Requires global `fetch` and `crypto.subtle` — Node.js ≥ 20 or a modern browser. SHA-1 is mandated by the HIBP protocol; it is **not** used here as a security primitive.
+No peer dependencies. Requires global `fetch` and `crypto.subtle` — Node.js ≥ 22 or a modern browser. SHA-1 is mandated by the HIBP protocol; it is **not** used here as a security primitive.
 
 ## Quick start
 
