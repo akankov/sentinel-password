@@ -14,10 +14,18 @@ updates:
       interval: 'weekly'
       day: 'friday'
     open-pull-requests-limit: 5
+    # Match pnpm-workspace.yaml's minimumReleaseAge (10080 min = 7 days).
+    # Without this Dependabot proposes versions younger than the cooling-off
+    # window, which pnpm then refuses to resolve (ERR_PNPM_NO_MATURE_MATCHING_VERSION),
+    # so the PR can never regenerate a lockfile and always fails CI.
+    cooldown:
+      default-days: 7
     ignore:
-      # eslint-plugin-react 7.37.5 is incompatible with ESLint 10
-      # (calls context.getFilename() which ESLint 10 removed).
-      # Pin examples on eslint 9 until the plugin ships a v10-compatible release.
+      # eslint-plugin-import 2.32.0 reads the removed context.parserOptions and
+      # throws at rule-load time under ESLint 10; eslint-plugin-jsx-a11y 6.10.2
+      # has not widened its peer range either. Both are enabled by
+      # eslint-config-next, so examples/nextjs stays on eslint 9 until they ship
+      # v10-compatible releases.
       - dependency-name: 'eslint'
         update-types: ['version-update:semver-major']
       - dependency-name: '@eslint/js'

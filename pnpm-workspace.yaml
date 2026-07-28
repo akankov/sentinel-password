@@ -7,13 +7,25 @@ packages:
 # so the vite/postcss CVE overrides stay applied on lockfile regeneration.
 overrides:
   vite@<6.4.3: ^6.4.3
-  postcss@<8.5.10: ^8.5.10
+  postcss@<8.5.18: ^8.5.18
   esbuild@<0.28.1: ^0.28.1
   qs@<6.15.2: ^6.15.2
   undici@<7.28.0: ^7.28.0
   '@babel/core@<7.29.6': ^7.29.6
-  js-yaml@4: ^4.2.0
-  'brace-expansion@>=5.0.0 <5.0.6': ^5.0.6
+  js-yaml@4: ^4.3.0
+  'brace-expansion@>=5.0.0 <5.0.7': ^5.0.7
+  brace-expansion@<1.1.16: ^1.1.16
+  fast-uri@<3.1.4: ^3.1.4
+  'body-parser@>=2.0.0 <2.3.0': ^2.3.0
+  # eslint-config-next asks for ^3.5.2, but the whole 3.x line ships without
+  # provenance and trips trustPolicy: no-downgrade on any lockfile regen. 4.x
+  # is provenance-attested and declares identical peers ('*' for eslint,
+  # eslint-plugin-import, eslint-plugin-import-x).
+  eslint-import-resolver-typescript@3: ^4.4.5
+  # next pins sharp ^0.34.5 as an optional dep, but the libvips CVEs are only
+  # fixed in 0.35.0+. next only lazy-requires sharp inside the runtime image
+  # optimizer, and next 16.3 canaries already moved to ^0.35.3.
+  sharp@<0.35.0: ^0.35.3
   # read-yaml-file 1.x pins the EOL js-yaml 3 (removed safeLoad API); 2.1.0 is
   # still CommonJS but uses js-yaml 4, dropping the last js-yaml 3 in the tree
   # (only reached via @changesets/cli > @manypkg/get-packages@1.1.3).
@@ -36,6 +48,11 @@ minimumReleaseAge: 10080
 # tarballs) that bypass registry integrity guarantees.
 blockExoticSubdeps: true
 
-# Prevent dependency updates from silently downgrading their own security
-# settings (e.g. re-enabling lifecycle scripts).
+# Refuse a version whose npm publisher trust evidence is weaker than that of
+# any earlier-published version of the same package (trusted publisher >
+# provenance attestation > none), which can signal a takeover. Comparison is by
+# publish date, not semver, and it only fires when a package is actually
+# re-resolved — `--frozen-lockfile` skips the resolver entirely.
+# NB: pnpm 11.3+ additionally verifies every lockfile entry on frozen installs,
+# so a pnpm major bump will need `trustLockfile: true` or CI will break.
 trustPolicy: no-downgrade
