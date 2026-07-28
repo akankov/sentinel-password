@@ -22,9 +22,9 @@ jobs:
 
     strategy:
       matrix:
-        # 20 stays while `engines: >=20` is the published support floor;
-        # 26 is Current. 25 (odd-numbered) reached EOL June 2026.
-        node-version: [20, 22, 24, 26]
+        # 22 is the published support floor (`engines: >=22`); 26 is Current.
+        # 20 reached EOL April 2026; 25 (odd-numbered) reached EOL June 2026.
+        node-version: [22, 24, 26]
 
     steps:
       - name: Checkout

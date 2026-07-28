@@ -2,7 +2,7 @@
 
 Cryptographically secure password and diceware-passphrase generation. Zero
 runtime dependencies, ≤ 10 KB gzipped (CI-enforced). Requires
-`crypto.getRandomValues` (Node ≥ 20, all modern browsers, edge runtimes).
+`crypto.getRandomValues` (Node ≥ 22, all modern browsers, edge runtimes).
 
 ```bash
 pnpm add @sentinel-password/generate
