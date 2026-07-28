@@ -67,10 +67,10 @@
     "url": "https://github.com/akankov/sentinel-password/issues"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.10",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.9",
+    "vitest": "^4.1.10",
     "zxcvbn": "^4.4.2"
   }
 }

@@ -11,17 +11,17 @@
   "dependencies": {
     "@sentinel-password/react-components": "workspace:*",
     "next": "16.2.11",
-    "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.2",
-    "@types/node": "^26.1.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.1.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.10",
-    "tailwindcss": "^4.3.2",
+    "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
   }
 }

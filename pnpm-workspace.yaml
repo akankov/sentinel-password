@@ -56,3 +56,14 @@ blockExoticSubdeps: true
 # NB: pnpm 11.3+ additionally verifies every lockfile entry on frozen installs,
 # so a pnpm major bump will need `trustLockfile: true` or CI will break.
 trustPolicy: no-downgrade
+
+# Narrow, documented exemptions from the check above. Keep this list short and
+# justify every entry — each one is a hole in the policy.
+trustPolicyExclude:
+  # False positive. semver 7.5.1-7.5.4 (Apr-Jul 2023) carry provenance, and
+  # 6.3.1 shipped 2023-07-10, three days after 7.5.4 — so the date-ordered
+  # comparison reads a maintenance backport on the frozen 6.x branch (which
+  # does not run the provenance-enabled release workflow) as a downgrade.
+  # Same npm-maintained node-semver repo; integrity is pinned in the lockfile.
+  # Forcing semver 7 instead would be a real behavioural risk for no gain.
+  - 'semver@6.3.1'
