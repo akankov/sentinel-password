@@ -59,12 +59,12 @@
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.1",
     "@eslint/js": "^10.0.1",
-    "eslint": "^10.7.0",
-    "knip": "^6.27.0",
+    "eslint": "^10.8.0",
+    "knip": "^6.31.0",
     "prettier": "^3.9.6",
-    "publint": "^0.3.21",
+    "publint": "^0.3.23",
     "turbo": "^2.10.5",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0"
+    "typescript-eslint": "^8.66.0"
   }
 }
