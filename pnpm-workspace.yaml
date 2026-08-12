@@ -7,15 +7,48 @@ packages:
 # so the vite/postcss CVE overrides stay applied on lockfile regeneration.
 overrides:
   vite@<6.4.3: ^6.4.3
-  postcss@<8.5.18: ^8.5.18
+  # GHSA-fxqj-rqcc-2cmp is the incomplete-fix follow-up that moved the floor
+  # past the old 8.5.18 ceiling: an attacker-controlled sourceMappingURL reads
+  # an arbitrary .map off disk when `from` is unset. Raising rather than
+  # deleting matters here — next pins postcss at exactly 8.4.31, so this
+  # selector is what lifts the tree at all; dropping it regresses to 8.4.31.
+  postcss@<8.5.23: ^8.5.23
+  # postcss declares `nanoid: ^3.3.16` at 8.5.23, 8.5.24 and 8.5.25 alike, so
+  # bumping postcss does NOT raise the nanoid floor — pnpm keeps the satisfying
+  # lockfile entry. Only this explicit line closes GHSA-2v37-7h3g-55p8 (custom
+  # generators loop forever when size is 0), the sole advisory that was failing
+  # `pnpm audit --prod --audit-level high` via next > postcss > nanoid.
+  nanoid@<3.3.17: ^3.3.17
+  # No nanoid 4.x/5.x requester today; floors the branch pre-emptively.
+  'nanoid@>=4.0.0 <5.1.6': ^5.1.6
   esbuild@<0.28.1: ^0.28.1
   qs@<6.15.2: ^6.15.2
-  undici@<7.28.0: ^7.28.0
+  # Five advisories dated 2026-08-03 (GHSA-4cwx-7wf7-3272 high, plus four
+  # moderate) set the 7.x floor at 7.29.0 and the 8.x floor at 8.9.0. Two
+  # selectors rather than one `<8.9.0`: a single range would rewrite a
+  # legitimate 7.x request across a major boundary. jsdom 30 requires
+  # undici ^8.9.0, so the 8.x line is the live one and the 7.x line is a
+  # dormant floor guarding against anything reintroducing undici 7.
+  undici@<7.29.0: ^7.29.0
+  'undici@>=8.0.0 <8.9.0': ^8.9.0
   '@babel/core@<7.29.6': ^7.29.6
-  js-yaml@4: ^4.3.0
-  'brace-expansion@>=5.0.0 <5.0.7': ^5.0.7
-  brace-expansion@<1.1.16: ^1.1.16
-  fast-uri@<3.1.4: ^3.1.4
+  # GHSA-5p4m-2wfm-xmqj: quadratic resolveYamlOmap(). !!omap lives in the
+  # DEFAULT schema, so a plain yaml.load() is affected. Reached via changesets
+  # and @eslint/eslintrc.
+  js-yaml@4: ^4.3.1
+  # Two further advisories since the 5.0.7/1.1.16 ceilings were set
+  # (GHSA-mh99-v99m-4gvg, then GHSA-rgw5-rvv9-x895 which bypassed its
+  # mitigation). Both reached via minimatch under eslint, so dev-scope only —
+  # GitHub auto-dismisses them and `pnpm audit --prod` cannot see them, which
+  # is exactly why they drifted two patches behind unnoticed.
+  'brace-expansion@>=5.0.0 <5.0.9': ^5.0.9
+  brace-expansion@<1.1.18: ^1.1.18
+  # GHSA-7p8r-x3mc-p8w7: backslash-as-authority host confusion defeats URL
+  # allowlists. Reached only via ajv under Stryker.
+  fast-uri@<3.1.5: ^3.1.5
+  # No fast-uri 4.x requester today (ajv asks ^3.0.1); floors the branch
+  # pre-emptively in case an ajv major moves onto it.
+  'fast-uri@>=4.0.0 <4.1.2': ^4.1.2
   'body-parser@>=2.0.0 <2.3.0': ^2.3.0
   # eslint-config-next asks for ^3.5.2, but the whole 3.x line ships without
   # provenance and trips trustPolicy: no-downgrade on any lockfile regen. 4.x
