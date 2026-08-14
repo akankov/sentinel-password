@@ -57,6 +57,17 @@ updates:
       interval: 'weekly'
       day: 'friday'
     open-pull-requests-limit: 3
+    ignore:
+      # release.yml only triggers on push to main, so no PR check can ever
+      # execute this action — a breaking major merges green and fails on the
+      # merge commit. changesets/action v2 did exactly that: it requires
+      # Changesets CLI v3 and renamed every input the workflow passes
+      # (version -> version-script, publish -> publish-script, commit ->
+      # commit-message, title -> pr-title, createGithubReleases ->
+      # create-github-releases). Majors here get migrated by hand, together
+      # with the @changesets/cli bump, never proposed unattended.
+      - dependency-name: 'changesets/action'
+        update-types: ['version-update:semver-major']
     commit-message:
       prefix: 'chore'
       include: 'scope'
