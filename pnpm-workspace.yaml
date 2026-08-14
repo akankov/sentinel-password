@@ -18,7 +18,11 @@ overrides:
   # lockfile entry. Only this explicit line closes GHSA-2v37-7h3g-55p8 (custom
   # generators loop forever when size is 0), the sole advisory that was failing
   # `pnpm audit --prod --audit-level high` via next > postcss > nanoid.
-  nanoid@<3.3.17: ^3.3.17
+  # Re-scoped upstream 2026-08-13 from <3.3.17 to <3.3.18: the selector kept
+  # firing (it matches postcss's declared `^3.3.16`, not the installed version),
+  # but `^3.3.17` was already satisfied by the locked 3.3.17, so nothing moved.
+  # It is the replacement value that goes stale here — raise both halves together.
+  nanoid@<3.3.18: ^3.3.18
   # No nanoid 4.x/5.x requester today; floors the branch pre-emptively.
   'nanoid@>=4.0.0 <5.1.6': ^5.1.6
   esbuild@<0.28.1: ^0.28.1
